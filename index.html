@@ -2,13 +2,18 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Web Game</title>
-    <link rel="stylesheet" href="styles/style.css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=400, initial-scale=1.0">
+    <title>Simple Web Game</title>
+    <style>
+        body { text-align: center; background: #f0f0f0; }
+        canvas { background: #fff; border: 2px solid #333; margin-top: 30px; }
+    </style>
 </head>
 <body>
-    <canvas id="gameCanvas" width="800" height="600"></canvas>
-    <script src="src/game.js"></script>
-    <script src="src/main.js"></script>
+    <h1>Jump the Obstacles!</h1>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <p>Press <b>Space</b> to jump.</p>
+    <script type="module" src="./main.js"></script>
 </body>
 </html>
