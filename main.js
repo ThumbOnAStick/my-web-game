@@ -3,14 +3,15 @@
 
 import { Character } from './character.js';
 import { Obstacle } from './obstacle.js';
-import { Resources } from './Resources.js';
+import { Resources } from './resources.js';
 
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
+const debugCheckbox = document.getElementById('debugCheckbox');
 const resources = new Resources();
-const character = new Character(50, canvas.height - 100);
-const spriteNames = ['head', 'body'];  
-const spritePaths = ['./Assets/Head.png', './Assets/Body.png']; 
+let character; // Declare character but do not instantiate yet
+const spriteNames = ['head', 'body', 'weapon'];  
+const spritePaths = ['./Assets/Head.png', './Assets/Body.png', './Assets/Sword.png']; 
 const obstacles = [];
 let score = 0;
 let gameOver = false;
@@ -22,22 +23,23 @@ function spawnObstacle() {
     obstacles.push(new Obstacle(canvas.width, y, 30, height));
 }
 
-function drawLoadingResources()
+function drawLoadingImageResources()
 {
     ctx.font = '20px Arial';
     ctx.fillStyle = 'black';
-    ctx.fillText('Loading resources...', canvas.width / 2 - 100, canvas.height / 2);
+    ctx.fillText('Loading Images...', canvas.width / 2 - 100, canvas.height / 2);
 }
 
 function loadResources() {
-    drawLoadingResources();
+    drawLoadingImageResources();
     function onLoad() {
         resourcesLoaded = true;
+        character = new Character(50, canvas.height - 100, resources); // Instantiate only after images are loaded
         update();  
         console.log('All Resources loaded successfully');
     }
     // Use Resources class to load images
-    resources.loadAll(spriteNames, spritePaths, onLoad);
+    resources.loadAllImages(spriteNames, spritePaths, onLoad);
 }
 
 function drawGameOver(){
@@ -53,10 +55,9 @@ function update() {
         requestAnimationFrame(update);
         return;
     }
-    requestAnimationFrame(update);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    requestAnimationFrame(update);    ctx.clearRect(0, 0, canvas.width, canvas.height);
     character.update();
-    character.draw(ctx, resources);
+    character.draw(ctx, resources, debugCheckbox.checked);
 
     // Update and draw obstacles
     for (let i = obstacles.length - 1; i >= 0; i--) {
@@ -96,6 +97,14 @@ window.addEventListener('keydown', (e) => {
         resetGame();
     }
 });
+
+// Debug checkbox event listener
+debugCheckbox.addEventListener('change', () => {
+    canvas.focus();
+});
+
+// Make canvas focusable
+canvas.setAttribute('tabindex', '0');
 
 // Load resources and start the game
 loadResources();

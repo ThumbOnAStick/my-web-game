@@ -4,12 +4,12 @@ export class Resources {
         this.sounds = {};
     }
 
-    loadAll(names, paths, onLoad) {
+    loadAllImages(names, paths, onLoad) {
         let loadedCount = 0;
         const total = names.length;
 
         names.forEach((name, index) => {
-            console.log(`Loading resource: ${name} from ${paths[index]}`);
+            console.log(`Loading images: ${name} from ${paths[index]}`);
             this.loadImage(name, paths[index], () => {
                 loadedCount++;
                 if (loadedCount === total && onLoad) {
@@ -18,6 +18,17 @@ export class Resources {
             });
         });
 
+    }
+
+    loadAnimation(name, src, onLoad) 
+    {
+        fetch('data.csv')
+            .then(response => response.text())
+            .then(text => {
+                const rows = text.split('\n');
+                const data = rows.map(row => row.split(','));
+                console.log(data);
+            });
     }
 
     loadImage(name, src, onLoad) {
