@@ -16,19 +16,20 @@ export class Bone {
         this.children.push(bone);
     }
 
-    getWorldPosition() {
+    getWorldPosition(facingDirection = 1) {
         if (this.parent) {
-            const parentPos = this.parent.getWorldPosition();
+            const parentPos = this.parent.getWorldPosition(facingDirection);
             const angle = this.parent.getWorldAngle();
             return {
-                x: parentPos.x + Math.cos(angle) * this.parent.length,
+                x: parentPos.x + Math.cos(angle) * facingDirection * this.parent.length,
                 y: parentPos.y + Math.sin(angle) * this.parent.length
             };
         }
         return this.position;
     }
-    getWorldAngle() {
-        return this.parent ? this.parent.getWorldAngle() + this.angle : this.angle - Math.PI / 2; // Adjust for initial angle offset
+    getWorldAngle(facingDirection = 1) {
+        let result = this.parent ? this.parent.getWorldAngle() + this.angle: this.angle - Math.PI / 2; // Adjust for initial angle offset
+        return facingDirection < 1? Math.PI - result : result; // Adjust for facing direction
     }
 }
 
@@ -41,10 +42,9 @@ export class SpritePart {
         this.angleOffset = angleOffset || 0; // Optional angle offset for rotation
     }
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, x, y, angle, showDebug = true, facingDirection = 1) {
+    draw(ctx, x, y, angle, showDebug = true) {
         ctx.save();
         ctx.translate(x, y);
-        ctx.scale(facingDirection, 1); // Flip horizontally if facingDirection is -1
         ctx.rotate(angle);
         ctx.rotate(this.angleOffset);
         ctx.drawImage(
@@ -75,24 +75,27 @@ export class Rig {
     }
 
     _drawBone(ctx, bone = new Bone(), resources, showDebug = true, facingDirection = 1) {
-        const pos = bone.getWorldPosition();
-        const angle = bone.getWorldAngle();
+        const pos = bone.getWorldPosition(facingDirection);
+        const angle = bone.getWorldAngle(facingDirection);
         const baseAngle = bone.angle;
 
-        // Draw part if available
-        if (this.parts[bone.name]) {
-            this.parts[bone.name].draw(ctx, pos.x, pos.y, angle, showDebug, facingDirection);
+        if (showDebug)
+            this._drawBoneArrow(ctx, pos.x, pos.y, angle, baseAngle, bone.length, bone.name);
+        else 
+        {
+            // Draw part if available and not in debug mode
+            if (this.parts[bone.name]) {
+                this.parts[bone.name].draw(ctx, pos.x, pos.y, angle, showDebug);
+            }
         }
 
         // Draw bone as black arrow
-        if (showDebug)
-            this._drawBoneArrow(ctx, pos.x, pos.y, angle, baseAngle, bone.length, bone.name);
-
         for (const child of bone.children) {
             this._drawBone(ctx, child, resources, showDebug, facingDirection);
         }
     }
 
+    // Only visible in debug mode
     /** @param {CanvasRenderingContext2D} ctx */
     _drawBoneArrow(ctx, x, y, angle, baseAngle, length, boneName) {
         ctx.save();
