@@ -20,6 +20,12 @@ let score = 0;
 let gameOver = false;
 let resourcesLoaded = false;
 
+// Track key states for movement
+const keys = {
+    a: false,
+    d: false
+};
+
 function spawnObstacle() {
     const height = 40 + Math.random() * 40;
     const y = canvas.height - height;
@@ -87,7 +93,20 @@ function update() {
         requestAnimationFrame(update);
         return;
     }
-    requestAnimationFrame(update);    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    requestAnimationFrame(update);    
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Handle movement input
+    if (character) {
+        if (keys.a) {
+            character.move(-1, canvas); // Move left
+        }
+        if (keys.d) {
+            character.move(1, canvas); // Move right
+        }
+    }
+    
     character.update(canvas);
     character.draw(ctx, resources, debugCheckbox.checked);
 
@@ -135,13 +154,32 @@ window.addEventListener('keydown', (e) => {
         character.jump();
     } else if (e.code === 'KeyR' && gameOver) {
         resetGame();
+    } else if (e.code === 'KeyA') {
+        keys.a = true;
+    } else if (e.code === 'KeyD') {
+        keys.d = true;
+    }
+
+    if(e.code == 'KeyJ'){
+        character.attack();
     }
 });
+
+window.addEventListener('keyup', (e) => {
+    if (e.code === 'KeyA') {
+        keys.a = false;
+    } else if (e.code === 'KeyD') {
+        keys.d = false;
+    }
+});
+
+
 
 // Debug checkbox event listener
 debugCheckbox.addEventListener('change', () => {
     canvas.focus();
 });
+
 
 // Make canvas focusable
 canvas.setAttribute('tabindex', '0');

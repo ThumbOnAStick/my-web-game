@@ -13,6 +13,7 @@ export class Character {
         this.width = 40;
         this.height = 60;
         this.velocityY = 0;
+        this.dir = 1;
         this.gravity = 1.5;
         this.jumpStrength = -20;
         this.movementSpeed = 5; // Speed of character movement
@@ -140,12 +141,25 @@ export class Character {
         }
     } 
 
-    /** @param canvas   */
+    /** @param canvas  @type {HTMLCanvasElement} */
     move(dir, canvas)
     {
         this.x += dir * this.movementSpeed;
+        this.dir = dir; // Update direction
         // Boundary check for canvas edges
+        if (this.x < 0) {
+            this.x = 0;
+        } else if (this.x + this.width > canvas.width) {
+            this.x = canvas.width - this.width;
+        }
 
+    }
+
+    attack()
+    {
+        if (!this.swinging) {
+            this.playSwingAnimation();
+        }
     }
     
     draw(ctx, resources, showDebug = true) {
@@ -153,7 +167,7 @@ export class Character {
         this.bodyBone.position.x = this.x + this.width / 2;
         this.bodyBone.position.y = this.y + this.height / 2;
         // Draw the rig (body, head, weapon)
-        this.rig.draw(ctx, resources, showDebug);
+        this.rig.draw(ctx, resources, showDebug, this.dir > 0 ? 1 : -1);
     }
 
     collidesWith(obstacle) {

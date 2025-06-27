@@ -41,39 +41,47 @@ export class SpritePart {
         this.angleOffset = angleOffset || 0; // Optional angle offset for rotation
     }
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, x, y, angle, showDebug = true) {
+    draw(ctx, x, y, angle, showDebug = true, facingDirection = 1) {
         ctx.save();
         ctx.translate(x, y);
+        ctx.scale(facingDirection, 1); // Flip horizontally if facingDirection is -1
         ctx.rotate(angle);
         ctx.rotate(this.angleOffset);
-        ctx.drawImage(this.image, 0, 0, this.image.width, this.image.height, -this.width / 2, -this.height / 2, this.width, this.height);
+        ctx.drawImage(
+            this.image,
+            0, 0, this.image.width, this.image.height,
+            -this.width / 2, -this.height / 2, this.width, this.height
+        );
         ctx.restore();
     }
 }
 
 // Manages the hierarchy of bones and parts
 export class Rig {
+
     constructor(rootBone) {
         this.rootBone = rootBone;
+        /** @type {Object<string, SpritePart>} */
         this.parts = {};
+        this.dir = 1;
     }
 
     addPart(boneName, part = new SpritePart(null, 0, 0)) {
         this.parts[boneName] = part;
     }
 
-    draw(ctx, resources, showDebug = true) {
-        this._drawBone(ctx, this.rootBone, resources, showDebug);
+    draw(ctx, resources, showDebug = true, facingDirection = 1) {
+        this._drawBone(ctx, this.rootBone, resources, showDebug, facingDirection);
     }
 
-    _drawBone(ctx, bone = new Bone(), resources, showDebug = true) {
+    _drawBone(ctx, bone = new Bone(), resources, showDebug = true, facingDirection = 1) {
         const pos = bone.getWorldPosition();
         const angle = bone.getWorldAngle();
         const baseAngle = bone.angle;
 
         // Draw part if available
         if (this.parts[bone.name]) {
-            this.parts[bone.name].draw(ctx, pos.x, pos.y, angle, showDebug);
+            this.parts[bone.name].draw(ctx, pos.x, pos.y, angle, showDebug, facingDirection);
         }
 
         // Draw bone as black arrow
@@ -81,7 +89,7 @@ export class Rig {
             this._drawBoneArrow(ctx, pos.x, pos.y, angle, baseAngle, bone.length, bone.name);
 
         for (const child of bone.children) {
-            this._drawBone(ctx, child, resources, showDebug);
+            this._drawBone(ctx, child, resources, showDebug, facingDirection);
         }
     }
 
