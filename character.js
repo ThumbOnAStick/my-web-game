@@ -7,11 +7,11 @@ const ANGLE_60_DEG = (60 * Math.PI) / 180;
 const ANGLE_30_DEG = (30 * Math.PI) / 180;
 
 export class Character {
-    constructor(x, y, resources) {
+    constructor(x, y, height = 60, resources) {
         this.x = x;
         this.y = y;
         this.width = 40;
-        this.height = 60;
+        this.height = height;
         this.velocityY = 0;
         this.dir = 1;
         this.gravity = 1.5;
@@ -73,6 +73,12 @@ export class Character {
         }
         
         return true;
+    }
+
+    /** @returns {{x: number, y: number}} */
+    selfCoordinate()
+    {
+        return { x: this.x, y: this.y};
     }
 
     playSwingAnimation() {
