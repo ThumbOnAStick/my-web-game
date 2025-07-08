@@ -1,7 +1,8 @@
 // main.js
 // Entry point for the web game - now using modular class structure
 
-import { GameManager } from './GameManager.js';
+// @ts-ignore
+import { GameManager } from './gamemanager.js';
 
 /** @type {HTMLCanvasElement} */
 const canvas = document.getElementById('gameCanvas');

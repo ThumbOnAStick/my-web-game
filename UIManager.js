@@ -1,16 +1,46 @@
 // UIManager.js
 // Handles UI rendering and states
 
+import { Character } from "./character.js";
+
 export class UIManager {
     constructor(ctx, canvas) {
         this.ctx = ctx;
         this.canvas = canvas;
     }
 
-    drawScore(score) {
-        this.ctx.font = '20px Arial';
+    /** @param {Character} character */
+    drawScoreBar(character, x = 10, y = 50) {
+        if (!character) return;
+        
+        const barWidth = 200;
+        const barHeight = 20;
+        const healthPercentage = character.getScorePercentage();
+        
+        // Background (dark red)
+        this.ctx.fillStyle = '#8B0000';
+        this.ctx.fillRect(x, y, barWidth, barHeight);
+        
+        // Health bar (green to red gradient based on health)
+        const healthWidth = barWidth * healthPercentage;
+        if (healthPercentage > 0.6) {
+            this.ctx.fillStyle = '#00FF00'; // Green
+        } else if (healthPercentage > 0.3) {
+            this.ctx.fillStyle = '#FFFF00'; // Yellow
+        } else {
+            this.ctx.fillStyle = '#FF0000'; // Red
+        }
+        this.ctx.fillRect(x, y, healthWidth, barHeight);
+        
+        // Border
+        this.ctx.strokeStyle = '#000000';
+        this.ctx.lineWidth = 2;
+        this.ctx.strokeRect(x, y, barWidth, barHeight);
+        
+        // Health text
+        this.ctx.font = '14px Arial';
         this.ctx.fillStyle = 'black';
-        this.ctx.fillText('Score: ' + score, 10, 30);
+        this.ctx.fillText(`Score: ${character.currentScore}/${character.maxScore}`, x, y - 5);
     }
 
     drawGameOver() {
@@ -27,7 +57,7 @@ export class UIManager {
     drawLoadingScreen() {
         this.ctx.font = '20px Arial';
         this.ctx.fillStyle = 'black';
-        this.ctx.fillText('Loading Images...', this.canvas.width / 2 - 100, this.canvas.height / 2);
+        this.ctx.fillText('Loading Resources...', this.canvas.width / 2 - 100, this.canvas.height / 2);
     }
 
     drawDebugInfo(character, showDebug = false) {
@@ -35,7 +65,7 @@ export class UIManager {
         
         this.ctx.font = '12px Arial';
         this.ctx.fillStyle = 'blue';
-        
+         
         // Draw character debug info
         const debugY = this.canvas.height - 60;
         this.ctx.fillText(`Position: (${Math.round(character.x)}, ${Math.round(character.y)})`, 10, debugY);

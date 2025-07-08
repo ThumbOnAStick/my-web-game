@@ -1,4 +1,4 @@
-import { Bone, SpritePart, Rig, AnimationController } from './Animnation.js';
+import { Bone, SpritePart, Rig, AnimationController } from './animnation.js';
 
 // Angle constants for better readability
 const ANGLE_90_DEG = Math.PI / 2;
@@ -7,7 +7,7 @@ const ANGLE_60_DEG = (60 * Math.PI) / 180;
 const ANGLE_30_DEG = (30 * Math.PI) / 180;
 
 export class Character {
-    constructor(x, y, height = 60, resources) {
+    constructor(x, y, height = 60, resources, isOpponent = false) {
         this.x = x;
         this.y = y;
         this.width = 40;
@@ -19,6 +19,13 @@ export class Character {
         this.movementSpeed = 5; // Speed of character movement
         this.grounded = true;      
         this.swinging = false; // Track if currently swinging
+        this.isOpponent = isOpponent;
+
+        // Health system
+        this.maxScore = 100;
+        this.currentScore = this.maxScore;
+        this.isDead = false;
+        
         // --- Rigging system setup ---
         // Create bones
         this.bodyBone = new Bone('body', 30, 0, null); // root bone
@@ -166,6 +173,28 @@ export class Character {
         if (!this.swinging) {
             this.playSwingAnimation();
         }
+    }
+
+    // Health system methods
+    takeDamage(amount) {
+        if (this.isDead) return;
+        
+        this.currentScore = Math.max(0, this.currentScore - amount);
+        
+        if (this.currentScore <= 0) {
+            this.isDead = true;
+            // Could trigger death animation here
+        }
+    }
+
+    heal(amount) {
+        if (this.isDead) return;
+        
+        this.currentScore = Math.min(this.maxScore, this.currentScore + amount);
+    }
+
+    getScorePercentage() {
+        return this.currentScore / this.maxScore;
     }
     
     draw(ctx, resources, showDebug = true) {

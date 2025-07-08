@@ -2,20 +2,23 @@
 // Main game manager that coordinates all systems
 
 import { Character } from './character.js';
-import { InputManager } from './InputManager.js';
-import { ObstacleManager } from './ObstacleManager.js';
-import { ResourceManager } from './ResourceManager.js';
-import { UIManager } from './UIManager.js';
+import { InputManager } from './inputmanager.js';
+import { ObstacleManager } from './obstaclemanager.js';
+import { ResourceManager } from './resourcemanager.js';
+import { Resources } from './resources.js';
+import { UIManager } from './uimanager.js';
 
 export class GameManager {
     constructor(canvas, ctx) {
         this.canvas = canvas;
         this.ctx = ctx;
-        this.score = 0;
         this.gameOver = false;
-        this.character = null;
+        /**@type {Character[]} */
+        this.characters = [];
         this.isInitialized = false;
-        
+        /**@type {Resources} */
+        this.resources = null;
+
         // Initialize managers
         this.inputManager = new InputManager();
         this.obstacleManager = new ObstacleManager();
@@ -38,14 +41,16 @@ export class GameManager {
             // Load all resources
             await this.resourceManager.loadAllResources();
             
-            // Create character
-            await this.loadCharacter();
+            this.resources = this.resourceManager.getResources();
+
+            // Create characters
+            await this.loadCharacters();
             
             // Load animations
             await this.loadAnimations();
             
-            // Set character reference for input manager
-            this.inputManager.setCharacter(this.character);
+            // Set character reference for input manager (player is first character)
+            this.inputManager.setCharacter(this.characters[0]);
             
             this.isInitialized = true;
             console.log('Game initialized successfully');
@@ -55,20 +60,36 @@ export class GameManager {
         }
     }
 
-    async loadCharacter() {
+    async loadCharacters() {
         const characterHeight = 60;
-        this.character = new Character(
+        
+        // Player character
+        const player = new Character(
             50, 
             this.canvas.height - characterHeight, 
             characterHeight, 
-            this.resourceManager.getResources()
+            this.resources
         );
+        
+        // Opponent character
+        const opponent = new Character(
+            this.canvas.width - 100, 
+            this.canvas.height - characterHeight, 
+            characterHeight, 
+            this.resources,
+            true
+        );
+        
+        this.characters = [player, opponent];
     }
 
     async loadAnimations() {
         try {
-            await this.character.loadAnimation('idle', './Assets/character_idle_animation.csv');
-            await this.character.loadAnimation('swing', './Assets/character_swing_animation.csv');
+            // Load animations for all characters
+            for (const character of this.characters) {
+                await character.loadAnimation('idle', './Assets/character_idle_animation.csv');
+                await character.loadAnimation('swing', './Assets/character_swing_animation.csv');
+            }
             console.log('Animations loaded successfully');
         } catch (error) {
             console.error('Failed to load animations:', error);
@@ -96,22 +117,16 @@ export class GameManager {
         // Clear screen
         this.uiManager.clearScreen();
         
-        // Handle input and movement
-        this.inputManager.handleMovement(this.character, this.canvas);
+        // Handle input and movement (only for player - first character)
+        this.inputManager.handleMovement(this.characters[0], this.canvas);
         
-        // Update character
-        this.character.update(this.canvas);
+        // Update all characters
+        for (const character of this.characters) {
+            character.update(this.canvas);
+        }
         
-        // Update obstacles and check for score
-        const scoreIncrease = this.obstacleManager.update(
-            this.canvas.width, 
-            this.canvas.height, 
-            this.gameOver
-        );
-        this.score += scoreIncrease;
-        
-        // Check collisions
-        if (this.obstacleManager.checkCollisions(this.character)) {
+        // Check collisions (only for player)
+        if (this.obstacleManager.checkCollisions(this.characters[0])) {
             this.gameOver = true;
         }
         
@@ -120,34 +135,44 @@ export class GameManager {
     }
 
     draw() {
-        // Draw character
-        this.character.draw(this.ctx, this.resourceManager.getResources(), this.debugCheckbox.checked);
-        
+        // Draw all characters
+        for (const character of this.characters) {
+            character.draw(this.ctx, this.resources, this.debugCheckbox.checked);
+            if (!character.isOpponent) 
+            {
+                this.uiManager.drawScoreBar(character);
+                this.uiManager.drawDebugInfo(character, this.debugCheckbox.checked);
+            }else
+            {
+                console.log('Drawing opponent health bar');
+                this.uiManager.drawScoreBar(character, this.canvas.width - 210);
+            }
+        }
+
         // Draw obstacles
         this.obstacleManager.draw(this.ctx);
-        
-        // Draw UI
-        this.uiManager.drawScore(this.score);
-        this.uiManager.drawDebugInfo(this.character, this.debugCheckbox.checked);
+
     }
 
     resetGame() {
-        // Reset character state
+        // Reset player character state (first character)
         const characterHeight = 60;
-        this.character.y = this.canvas.height - characterHeight;
-        this.character.velocityY = 0;
-        this.character.grounded = true;
-        this.character.wasGrounded = true;
+        const player = this.characters[0];
+        player.y = this.canvas.height - characterHeight;
+        player.velocityY = 0;
+        player.grounded = true;
+        player.wasGrounded = true;
         
         // Reset game state
         this.gameOver = false;
-        this.score = 0;
         
         // Clear obstacles
         this.obstacleManager.clearObstacles();
         
-        // Restart with idle animation
-        this.character.playIdleAnimation();
+        // Restart with idle animation for all characters
+        for (const character of this.characters) {
+            character.playIdleAnimation();
+        }
         
         console.log('Game reset');
     }
@@ -162,7 +187,7 @@ export class GameManager {
     }
 
     // Getter methods for external access
-    getScore() { return this.score; }
     isGameOver() { return this.gameOver; }
-    getCharacter() { return this.character; }
+    getPlayer() { return this.characters[0]; }
+    getCharacters() { return this.characters; }
 }

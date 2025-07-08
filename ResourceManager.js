@@ -1,7 +1,7 @@
 // ResourceManager.js
 // Handles all resource loading for the game
 
-import { Resources } from './Resources.js';
+import { Resources } from './resources.js';
 
 export class ResourceManager {
     constructor() {
@@ -27,6 +27,7 @@ export class ResourceManager {
         ctx.fillText('Loading Images...', canvas.width / 2 - 100, canvas.height / 2);
     }
 
+    /**@returns {Resources} */
     getResources() {
         return this.resources;
     }
