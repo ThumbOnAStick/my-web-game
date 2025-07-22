@@ -1,4 +1,7 @@
 import { Bone, SpritePart, Rig, AnimationController } from './animnation.js';
+import { gameEventManager } from './eventmanager.js';
+import * as EventHandler from './eventhandlers.js';
+import { GameObject } from './gameobject.js';
 
 // Angle constants for better readability
 const ANGLE_90_DEG = Math.PI / 2;
@@ -6,12 +9,11 @@ const ANGLE_120_DEG = (120 * Math.PI) / 180;
 const ANGLE_60_DEG = (60 * Math.PI) / 180;
 const ANGLE_30_DEG = (30 * Math.PI) / 180;
 
-export class Character {
-    constructor(x, y, height = 60, resources, isOpponent = false) {
-        this.x = x;
-        this.y = y;
-        this.width = 40;
-        this.height = height;
+export class Character extends GameObject {
+    constructor(x, y, width = 40, height = 60, resources, isOpponent = false) {
+        // Note: x, y represent the CENTER position of the character (root bone center)
+        super(x, y, width, height); // Call parent constructor
+        
         this.velocityY = 0;
         this.dir = 1;
         this.gravity = 1.5;
@@ -20,10 +22,11 @@ export class Character {
         this.grounded = true;      
         this.swinging = false; // Track if currently swinging
         this.isOpponent = isOpponent;
+        this.characterId = crypto.randomUUID();
 
-        // Health system
+        // Score/Health system
         this.maxScore = 100;
-        this.currentScore = this.maxScore;
+        this.currentScore = 50; // Starting score
         this.isDead = false;
         
         // --- Rigging system setup ---
@@ -85,10 +88,11 @@ export class Character {
     /** @returns {{x: number, y: number}} */
     selfCoordinate()
     {
-        return { x: this.x, y: this.y};
+        // Return the center position of the root bone (character's center)
+        return {x : this.x, y : this.y};
     }
 
-    playSwingAnimation() {
+    playHeavySwingAnimation() {
         if (this.animationController.animations.swing) {
             this.swinging = true; // Set swinging state
             // Use smooth transition for swing animation
@@ -128,9 +132,9 @@ export class Character {
             this.velocityY += this.gravity;
         }
         
-        // Ground collision
-        if (this.y + this.height >= canvas.height) { // Assuming canvas height is 400
-            this.y = canvas.height - this.height;
+        // Ground collision (character position is center, so check center + half height)
+        if (this.y + this.height / 2 >= canvas.height) {
+            this.y = canvas.height - this.height / 2;
             this.velocityY = 0;
             
             // Check if just landed
@@ -159,23 +163,30 @@ export class Character {
     {
         this.x += dir * this.movementSpeed;
         this.dir = dir; // Update direction
-        // Boundary check for canvas edges
-        if (this.x < 0) {
-            this.x = 0;
-        } else if (this.x + this.width > canvas.width) {
-            this.x = canvas.width - this.width;
+        // Boundary check for canvas edges (character position is center)
+        if (this.x - this.width / 2 < 0) {
+            this.x = this.width / 2;
+        } else if (this.x + this.width / 2 > canvas.width) {
+            this.x = canvas.width - this.width / 2;
         }
 
     }
 
-    attack()
-    {
+    callSwingEvent() {
+        gameEventManager.emit(EventHandler.characterSwingEvent, this);
+    }
+
+    performHeavyattack() {
         if (!this.swinging) {
-            this.playSwingAnimation();
+            this.playHeavySwingAnimation();
         }
+        // Calls for a swing event
+        this.callSwingEvent();
     }
 
-    // Health system methods
+
+
+    // Score system
     takeDamage(amount) {
         if (this.isDead) return;
         
@@ -187,7 +198,7 @@ export class Character {
         }
     }
 
-    heal(amount) {
+    score(amount) {
         if (this.isDead) return;
         
         this.currentScore = Math.min(this.maxScore, this.currentScore + amount);
@@ -197,20 +208,43 @@ export class Character {
         return this.currentScore / this.maxScore;
     }
     
+    
     draw(ctx, resources, showDebug = true) {
-        // Set root bone position to character's position
-        this.bodyBone.position.x = this.x + this.width / 2;
-        this.bodyBone.position.y = this.y + this.height / 2;
+        // Draw position with red dot at character center (root bone position)
+        if (showDebug) {
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Set root bone position directly to character's center position
+        this.bodyBone.position.x = this.x;
+        this.bodyBone.position.y = this.y;
         // Draw the rig (body, head, weapon)
         this.rig.draw(ctx, resources, showDebug, this.dir > 0 ? 1 : -1);
     }
 
     collidesWith(obstacle) {
+        // Character position is center, so calculate collision bounds from center
+        const charLeft = this.x - this.width / 2;
+        const charRight = this.x + this.width / 2;
+        const charTop = this.y - this.height / 2;
+        const charBottom = this.y + this.height / 2;
+        
         return (
-            this.x < obstacle.x + obstacle.width &&
-            this.x + this.width > obstacle.x &&
-            this.y < obstacle.y + obstacle.height &&
-            this.y + this.height > obstacle.y
+            charLeft < obstacle.x + obstacle.width &&
+            charRight > obstacle.x &&
+            charTop < obstacle.y + obstacle.height &&
+            charBottom > obstacle.y
         );
     }
+}
+
+export class CharacterState 
+{
+    constructor()
+    {
+
+    }
+    
 }

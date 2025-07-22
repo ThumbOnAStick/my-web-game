@@ -1,12 +1,15 @@
 // InputManager.js
 // Handles all input and controls for the game
 
+import { Character } from "./character.js";
+
 export class InputManager {
     constructor() {
         this.keys = {
             a: false,
             d: false
         };
+        /**@type {Character} */
         this.character = null;
         this.gameManager = null;
         this.setupEventListeners();
@@ -27,7 +30,7 @@ export class InputManager {
 
     handleKeyDown(e) {
         if (!this.character) return; // Type guard
-        
+
         switch (e.code) {
             case 'Space':
                 this.character.jump();
@@ -43,8 +46,9 @@ export class InputManager {
             case 'KeyD':
                 this.keys.d = true;
                 break;
+            // 'J' for heavy attack
             case 'KeyJ':
-                this.character.attack();
+                this.character.performHeavyattack();
                 break;
         }
     }
@@ -64,6 +68,9 @@ export class InputManager {
         return this.keys[key] || false;
     }
 
+    
+
+    /**@param {Character} character*/
     handleMovement(character, canvas) {
         if (!character) return;
         

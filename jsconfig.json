@@ -4,10 +4,10 @@
     "module": "ES2020",
     "moduleResolution": "node",
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
     "noEmit": true,
-    "forceConsistentCasingInFileNames": false
+    "forceConsistentCasingInFileNames": true
   },
-  "include": ["*.js"],
+  "include": ["*.js", "**/*.js"],
   "exclude": ["node_modules"]
 }

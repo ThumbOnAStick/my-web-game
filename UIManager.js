@@ -2,6 +2,7 @@
 // Handles UI rendering and states
 
 import { Character } from "./character.js";
+import { GameState } from "./gamestate.js";
 
 export class UIManager {
     constructor(ctx, canvas) {
@@ -10,37 +11,33 @@ export class UIManager {
     }
 
     /** @param {Character} character */
-    drawScoreBar(character, x = 10, y = 50) {
+    drawScoreBar(character, x = 10, y = 50, score = null) {
         if (!character) return;
         
         const barWidth = 200;
         const barHeight = 20;
-        const healthPercentage = character.getScorePercentage();
+        const margin = 2;
         
-        // Background (dark red)
-        this.ctx.fillStyle = '#8B0000';
-        this.ctx.fillRect(x, y, barWidth, barHeight);
+        // Use provided score or fall back to character's score
+        const currentScore = score !== null ? score : character.currentScore;
+        const maxScore = character.maxScore || 100; // Default max score
+        const scorePercentage = currentScore / maxScore;
+        
+        // Background (black)
+        this.ctx.fillStyle = '#000000';
+        this.ctx.fillRect(x, y, barWidth + margin, barHeight + margin);
         
         // Health bar (green to red gradient based on health)
-        const healthWidth = barWidth * healthPercentage;
-        if (healthPercentage > 0.6) {
-            this.ctx.fillStyle = '#00FF00'; // Green
-        } else if (healthPercentage > 0.3) {
-            this.ctx.fillStyle = '#FFFF00'; // Yellow
-        } else {
-            this.ctx.fillStyle = '#FF0000'; // Red
-        }
+        const healthWidth = barWidth * scorePercentage;
+        this.ctx.fillStyle = '#FFFFFF';
+
         this.ctx.fillRect(x, y, healthWidth, barHeight);
         
-        // Border
-        this.ctx.strokeStyle = '#000000';
-        this.ctx.lineWidth = 2;
-        this.ctx.strokeRect(x, y, barWidth, barHeight);
-        
+       
         // Health text
         this.ctx.font = '14px Arial';
         this.ctx.fillStyle = 'black';
-        this.ctx.fillText(`Score: ${character.currentScore}/${character.maxScore}`, x, y - 5);
+        this.ctx.fillText(`Score: ${currentScore}/${maxScore}`, x, y - 5);
     }
 
     drawGameOver() {
@@ -60,18 +57,22 @@ export class UIManager {
         this.ctx.fillText('Loading Resources...', this.canvas.width / 2 - 100, this.canvas.height / 2);
     }
 
-    drawDebugInfo(character, showDebug = false) {
+    /**@param {GameState} gamestate*/
+    drawDebugInfo(character, gamestate, showDebug = false) {
         if (!showDebug || !character) return;
         
         this.ctx.font = '12px Arial';
         this.ctx.fillStyle = 'blue';
          
         // Draw character debug info
-        const debugY = this.canvas.height - 60;
+        const debugHeight = 15;
+        const debugY = this.canvas.height - debugHeight * 8;
         this.ctx.fillText(`Position: (${Math.round(character.x)}, ${Math.round(character.y)})`, 10, debugY);
         this.ctx.fillText(`Velocity Y: ${Math.round(character.velocityY)}`, 10, debugY + 15);
         this.ctx.fillText(`Grounded: ${character.grounded}`, 10, debugY + 30);
-        this.ctx.fillText(`Swinging: ${character.swinging}`, 10, debugY + 45);
+        this.ctx.fillText(`Swinging: ${character.swinging}`, 10, debugY + debugHeight * 3);
+        this.ctx.fillText(`Gamestate: Game Over: ${gamestate.isGameOver}\nPlayer score: ${gamestate.characterScore}`, 10, debugY + debugHeight * 4);
+
     }
 
     clearScreen() {
