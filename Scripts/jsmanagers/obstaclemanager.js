@@ -1,11 +1,11 @@
 // ObstacleManager.js
 // Manages obstacle spawning, updating, and collision detection
 
-import { Character } from './character.js';
+import { Character } from '../jsgameobjects/character.js';
 import { gameEventManager } from './eventmanager.js';
-import { Obstacle } from './obstacle.js';
-import * as EventHandler from './eventhandlers.js';
-import { GameObject } from './gameobject.js';
+import { Obstacle } from '../jsgameobjects/obstacle.js';
+import * as EventHandler from '../jsutils/eventhandlers.js';
+import { GameObject } from '../jsgameobjects/gameobject.js';
 
 export class ObstacleManager {
     constructor() 

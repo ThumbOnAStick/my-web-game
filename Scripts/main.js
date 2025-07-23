@@ -2,7 +2,7 @@
 // Entry point for the web game - now using modular class structure
 
 // @ts-ignore
-import { GameManager } from './gamemanager.js';
+import { GameManager } from './jsmanagers/gamemanager.js';
 
 const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gameCanvas'));
 const ctx =/** @type {CanvasRenderingContext2D} */ canvas.getContext('2d');

@@ -1,15 +1,14 @@
 // GameManager.js
 // Main game manager that coordinates all systems
-import * as Eventhandler from './eventhandlers.js';
-import { Character } from './character.js';
-import { InputManager } from './inputmanager.js';
+import * as Eventhandler from '../jsutils/eventhandlers.js';
 import { ObstacleManager } from './obstaclemanager.js';
-import { ResourceManager } from './resourcemanager.js';
-import { Resources } from './resources.js';
-import { UIManager } from './uimanager.js';
-import { GameState } from './gamestate.js';
-import { EventManager } from './eventmanager.js';
+import { GameState } from '../jscomponents/gamestate.js';
 import { gameEventManager } from './eventmanager.js';
+import { Character } from '../jsgameobjects/character.js';
+import { Resources } from '../jscomponents/resources.js';
+import { InputManager } from './inputmanager.js';
+import { ResourceManager } from './resourcemanager.js';
+import { UIManager } from './uimanager.js';
 
 export class GameManager {
     constructor(canvas, ctx) {

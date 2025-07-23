@@ -1,7 +1,8 @@
 // InputManager.js
 // Handles all input and controls for the game
 
-import { Character } from "./character.js";
+import { Character } from "../jsgameobjects/character.js";
+
 
 export class InputManager {
     constructor() {

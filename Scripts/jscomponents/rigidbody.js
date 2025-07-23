@@ -1,4 +1,4 @@
-import { GameObject } from "./gameobject.js";
+import { GameObject } from "../jsgameobjects/gameobject.js";
 
 export class Rigidbody
 {

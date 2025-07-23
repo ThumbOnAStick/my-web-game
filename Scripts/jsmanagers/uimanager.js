@@ -1,8 +1,8 @@
 // UIManager.js
 // Handles UI rendering and states
 
-import { Character } from "./character.js";
-import { GameState } from "./gamestate.js";
+import { GameState } from "../jscomponents/gamestate.js";
+import { Character } from "../jsgameobjects/character.js";
 
 export class UIManager {
     constructor(ctx, canvas) {

@@ -1,9 +1,12 @@
-import { Bone, SpritePart, Rig, AnimationController } from './animnation.js';
-import { gameEventManager } from './eventmanager.js';
-import * as EventHandler from './eventhandlers.js';
+import { Bone } from '../jsanimation/bone.js';
+import { SpritePart } from '../jsanimation/spritepart.js';
+import { Rig } from '../jsanimation/rig.js';
+import { AnimationController } from '../jsanimation/animatoincontroller.js';
+import { gameEventManager } from '../jsmanagers/eventmanager.js';
+import * as EventHandler from '../jsutils/eventhandlers.js';
 import { GameObject } from './gameobject.js';
-import { Rigidbody } from './rigidbody.js';
-import { Resources } from './resources.js';
+import { Rigidbody } from '../jscomponents/rigidbody.js';
+import { Resources } from '../jscomponents/resources.js';
 
 // Angle constants for better readability
 const ANGLE_90_DEG = Math.PI / 2;

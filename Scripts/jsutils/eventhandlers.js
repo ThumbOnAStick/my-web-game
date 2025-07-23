@@ -1,7 +1,7 @@
-import { Character } from "./character.js";
-import { gameEventManager } from "./eventmanager.js";
-import { Obstacle } from "./obstacle.js";
-import { ObstacleManager } from "./obstaclemanager.js";
+import { Character } from "../jsgameobjects/character.js";
+import { Obstacle } from "../jsgameobjects/obstacle.js";
+import { gameEventManager } from "../jsmanagers/eventmanager.js";
+import { ObstacleManager } from "../jsmanagers/obstaclemanager.js";
 
 export const characterSwingEvent = 'character_swing';
 export const characterDodgeEvent = 'character_dodge';

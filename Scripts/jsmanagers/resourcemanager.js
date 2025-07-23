@@ -1,7 +1,7 @@
 // ResourceManager.js
 // Handles all resource loading for the game
 
-import { Resources } from './resources.js';
+import { Resources } from '../jscomponents/resources.js';
 
 export class ResourceManager {
     constructor() {

@@ -1,4 +1,4 @@
-import { Resources } from "./resources.js";
+import { Resources } from "../jscomponents/resources.js";
 
 export class GameObject 
 {
