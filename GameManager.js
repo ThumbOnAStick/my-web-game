@@ -34,7 +34,8 @@ export class GameManager {
         this.inputManager.setGameManager(this);
 
         // Set up debug checkbox
-        this.debugCheckbox = document.getElementById('debugCheckbox');
+        /**@type {HTMLInputElement} */
+        this.debugCheckbox = /** @type {HTMLInputElement} */ (document.getElementById('debugCheckbox'));
         this.setupDebugControls();
     }
 
@@ -96,9 +97,11 @@ export class GameManager {
     async loadAnimations() {
         try {
             // Load animations for all characters
-            for (const character of this.characters) {
+            for (const character of this.characters) 
+            {
                 await character.loadAnimation('idle', './Assets/character_idle_animation.csv');
                 await character.loadAnimation('swing', './Assets/character_swing_animation.csv');
+                await character.loadAnimation('dodge', './Assets/character_dodge_animation.csv');
             }
             console.log('Animations loaded successfully');
         } catch (error) {
@@ -129,10 +132,11 @@ export class GameManager {
         this.uiManager.clearScreen();
 
         // Handle input and movement (only for player - first character)
-        this.inputManager.handleMovement(this.characters[0], this.canvas);
+        this.inputManager.handleMovement(this.characters[0]);
 
         // Update all characters
-        for (const character of this.characters) {
+        for (const character of this.characters) 
+        {
             character.update(this.canvas);
         }
 
@@ -142,14 +146,9 @@ export class GameManager {
 
         // Check obstacle manager
         this.obstacleManager.update();
+
         // Check collisions 
-        for (let i = this.characters.length - 1; i >= 0; i--) 
-        {
-            if (this.obstacleManager.collideWithCharacter(this.characters[i])) 
-            {
-               console.log('Collision detected!')
-            }
-        }
+        this.obstacleManager.handleCharacterCollisions(this.characters);
 
         // Draw everything
         this.draw();
@@ -179,9 +178,10 @@ export class GameManager {
         const characterHeight = 60;
         const player = this.characters[0];
         player.y = this.canvas.height - characterHeight;
-        player.velocityY = 0;
+        if (player.rigidbody) {
+            player.rigidbody.velocityY = 0;
+        }
         player.grounded = true;
-        player.wasGrounded = true;
 
         // Reset game state using GameState
         this.gameOver = false;

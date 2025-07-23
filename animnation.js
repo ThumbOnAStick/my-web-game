@@ -41,9 +41,11 @@ export class SpritePart {
         this.height = height;
         this.angleOffset = angleOffset || 0; // Optional angle offset for rotation
     }
+
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, x, y, angle, showDebug = true) {
+    draw(ctx, x, y, angle, showDebug = false, alpha = 1) {
         ctx.save();
+        ctx.globalAlpha = alpha;
         ctx.translate(x, y);
         ctx.rotate(angle);
         ctx.rotate(this.angleOffset);
@@ -54,20 +56,52 @@ export class SpritePart {
         );
         ctx.restore();
     }
+
+    /**
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {HTMLCanvasElement} canvas
+     */
+    applyTransparency(ctx, canvas) 
+    {
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] > 0) 
+            { // If pixel is not transparent
+                data[i + 3] = 155;     // Apply transparency
+            }
+        }
+        
+        ctx.putImageData(imageData, 0, 0);
+    }
+
 }
 
 // Manages the hierarchy of bones and parts
 export class Rig {
 
-    constructor(rootBone) {
+    constructor(rootBone) 
+    {
         this.rootBone = rootBone;
         /** @type {Object<string, SpritePart>} */
         this.parts = {};
         this.dir = 1;
+        this.alpha = 1;
     }
 
     addPart(boneName, part = new SpritePart(null, 0, 0)) {
         this.parts[boneName] = part;
+    }
+
+    /**
+     * Set SpritePart alpah
+     * @param {Number} value 
+     */
+    setAlpha(value)
+    {
+        // Clamp alpha between 0 and 1
+        this.alpha = Math.max(0, Math.min(1, value));
     }
 
     draw(ctx, resources, showDebug = true, facingDirection = 1) {
@@ -79,18 +113,19 @@ export class Rig {
         const angle = bone.getWorldAngle(facingDirection);
         const baseAngle = bone.angle;
 
-        if (showDebug)
-            this._drawBoneArrow(ctx, pos.x, pos.y, angle, baseAngle, bone.length, bone.name);
+        if (showDebug) this._drawBoneArrow(ctx, pos.x, pos.y, angle, baseAngle, bone.length, bone.name);
         else 
         {
             // Draw part if available and not in debug mode
-            if (this.parts[bone.name]) {
-                this.parts[bone.name].draw(ctx, pos.x, pos.y, angle, showDebug);
+            if (this.parts[bone.name]) 
+            {
+                this.parts[bone.name].draw(ctx, pos.x, pos.y, angle, showDebug, this.alpha);
             }
         }
 
         // Draw bone as black arrow
-        for (const child of bone.children) {
+        for (const child of bone.children) 
+        {
             this._drawBone(ctx, child, resources, showDebug, facingDirection);
         }
     }
@@ -216,14 +251,18 @@ export class Animation {
         this.currentTime = 0;
     }
 
-    update(deltaTime) {
+    update(deltaTime) 
+    {
         if (!this.isPlaying) return;
 
         this.currentTime += deltaTime;
 
-        if (this.loop && this.currentTime > this.duration) {
+        if (this.loop && this.currentTime > this.duration) 
+        {
             this.currentTime = this.currentTime % this.duration;
-        } else if (!this.loop && this.currentTime > this.duration) {
+        } 
+        else if (!this.loop && this.currentTime > this.duration) 
+        {
             this.currentTime = this.duration;
             this.isPlaying = false;
         }
@@ -394,9 +433,15 @@ export class TransitionAnimation {
 }
 
 // Handles animations
-export class AnimationController{
+export class AnimationController
+{
+    /**
+     * 
+     * @param {Rig} rig 
+     */
     constructor(rig) {
         this.rig = rig;
+        /**@type {Object<string, Animation>} */
         this.animations = {};
         this.currentAnimation = null;
         this.lastTime = 0;
@@ -419,7 +464,8 @@ export class AnimationController{
         }
     }
 
-    playAnimation(name, useTransition = true, transitionDuration = 0.3) {
+    playAnimation(name, useTransition = true, transitionDuration = 0.3) 
+    {
         if (!this.animations[name]) {
             console.warn(`Animation '${name}' not found. Available animations:`, Object.keys(this.animations));
             return;
@@ -439,6 +485,10 @@ export class AnimationController{
         this.pendingAnimation = targetAnimation;
     }
 
+    /**
+     * 
+     * @param {Animation} animation 
+     */
     _playAnimationDirect(animation) {
         this.currentAnimation = animation;
         this.currentAnimation.stop();
@@ -472,7 +522,8 @@ export class AnimationController{
     }
 
     // Convenience methods for common transitions
-    playAnimationWithTransition(name, duration = 0.3) {
+    playAnimationWithTransition(name, duration = 0.3) 
+    {
         this.playAnimation(name, true, duration);
     }
 

@@ -30,7 +30,7 @@ export class InputManager {
 
     handleKeyDown(e) {
         if (!this.character) return; // Type guard
-
+        if (this.character.swinging) return; // Action blocked when character is swinging 
         switch (e.code) {
             case 'Space':
                 this.character.jump();
@@ -71,14 +71,14 @@ export class InputManager {
     
 
     /**@param {Character} character*/
-    handleMovement(character, canvas) {
+    handleMovement(character) {
         if (!character) return;
         
         if (this.keys.a) {
-            character.move(-1, canvas); // Move left
+            character.move(-1); // Move left
         }
         if (this.keys.d) {
-            character.move(1, canvas); // Move right
+            character.move(1); // Move right
         }
     }
 }

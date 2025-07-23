@@ -2,6 +2,8 @@ import { Bone, SpritePart, Rig, AnimationController } from './animnation.js';
 import { gameEventManager } from './eventmanager.js';
 import * as EventHandler from './eventhandlers.js';
 import { GameObject } from './gameobject.js';
+import { Rigidbody } from './rigidbody.js';
+import { Resources } from './resources.js';
 
 // Angle constants for better readability
 const ANGLE_90_DEG = Math.PI / 2;
@@ -9,31 +11,37 @@ const ANGLE_120_DEG = (120 * Math.PI) / 180;
 const ANGLE_60_DEG = (60 * Math.PI) / 180;
 const ANGLE_30_DEG = (30 * Math.PI) / 180;
 
-export class Character extends GameObject {
+export class Character extends GameObject 
+{
     constructor(x, y, width = 40, height = 60, resources, isOpponent = false) {
         // Note: x, y represent the CENTER position of the character (root bone center)
         super(x, y, width, height); // Call parent constructor
-        
-        this.velocityY = 0;
-        this.dir = 1;
+
+        this.facing = 1;
         this.gravity = 1.5;
         this.jumpStrength = -20;
         this.movementSpeed = 5; // Speed of character movement
-        this.grounded = true;      
         this.swinging = false; // Track if currently swinging
         this.isOpponent = isOpponent;
         this.characterId = crypto.randomUUID();
+        this.headLength = 40;
 
-        // Score/Health system
+        //#region rigidbody system
+        /**@type {Rigidbody} */
+        this.rigidbody = new Rigidbody(this.width/2, this.height/2, this.movementSpeed);
+        //#endregion
+
+        //#region Score system
         this.maxScore = 100;
         this.currentScore = 50; // Starting score
-        this.isDead = false;
+        this.defeated = false;
+        //#endregion 
         
-        // --- Rigging system setup ---
+        //#region Animation setup
         // Create bones
         this.bodyBone = new Bone('body', 30, 0, null); // root bone
         this.neckBone = new Bone('neck', 10, ANGLE_30_DEG, this.bodyBone); // Structural(Not visible)
-        this.headBone = new Bone('head', 40, ANGLE_30_DEG, this.neckBone);
+        this.headBone = new Bone('head', this.headLength, ANGLE_30_DEG, this.neckBone);
         this.armBone = new Bone('arm', 30, ANGLE_120_DEG, this.bodyBone); // Structural(Not visible)
         this.weaponBone = new Bone('weapon', 20, -ANGLE_90_DEG, this.armBone);
         this.bodyBone.addChild(this.neckBone);
@@ -50,11 +58,14 @@ export class Character extends GameObject {
         this.rig.addPart('weapon', new SpritePart(resources.getImage('weapon'), 20, 50, ANGLE_90_DEG));
 
         // Animation system
-        this.animationController = new AnimationController(this.rig);
+        this.animationController = /**@type {AnimationController} */ new AnimationController(this.rig);
         this.wasGrounded = true; // Track previous grounded state
+        //#endregion
     }
 
-    async loadAnimation(name, animationPath, options = {}) {
+    //#region Animation System
+    async loadAnimation(name, animationPath, options = {}) 
+    {
         await this.animationController.loadAnimation(name, animationPath);
         
         // Only proceed if animation was successfully loaded
@@ -64,9 +75,11 @@ export class Character extends GameObject {
         }
         
         // Predefined animation defaults (only for existing animations)
-        const animationDefaults = {
+        const animationDefaults = 
+        {
             'idle': { loop: true, autoPlay: true },
-            'swing': { loop: false }
+            'swing': { loop: false },
+            'dodge': { loop: false }
         };
         
         // Merge defaults with custom options
@@ -78,128 +91,137 @@ export class Character extends GameObject {
         }
         
         // Auto-play if requested
-        if (finalOptions.autoPlay) {
+        if (finalOptions.autoPlay) 
+        {
             this.animationController.playAnimation(name);
         }
         
         return true;
     }
 
-    /** @returns {{x: number, y: number}} */
-    selfCoordinate()
+    /**
+     * @param {string} name - Animation name ('idle', 'swing', 'dodge', etc.)
+     */
+    playAnimation(name) 
     {
-        // Return the center position of the root bone (character's center)
-        return {x : this.x, y : this.y};
+        if (!this.animationController.animations[name]) {
+            console.warn(`Animation '${name}' not loaded`);
+            return;
+        }
+
+        // Animation-specific settings
+        const animationSettings = {
+            'idle': { transitionDuration: 0.4 },
+            'swing': { transitionDuration: 0.2 },
+            'dodge': { transitionDuration: 0.15 }
+        };
+
+        const settings = animationSettings[name] || { transitionDuration: 0.3 };
+        this.animationController.playAnimationWithTransition(name, settings.transitionDuration);
     }
 
-    playHeavySwingAnimation() {
-        if (this.animationController.animations.swing) {
-            this.swinging = true; // Set swinging state
-            // Use smooth transition for swing animation
-            this.animationController.playAnimationWithTransition('swing', 0.2);
-        } else {
-            console.warn('Swing animation not loaded');
-        }
+    playHeavySwingAnimation() 
+    {
+        this.setSwinging(true);
+        this.playAnimation('swing');
     }
 
-    playIdleAnimation() {
-        if (this.animationController.animations.idle) {
-            this.swinging = false; // Clear swinging state
-            // Use smooth transition for idle animation
-            this.animationController.playAnimationWithTransition('idle', 0.4);
-        } else {
-            console.warn('Idle animation not loaded');
-        }
+    playIdleAnimation() 
+    {
+        this.setSwinging(false);
+        this.playAnimation('idle');
     }   
 
-    /**@param canvas @type {HTMLCanvasElement}  */
-    update(canvas) 
+    playDodgeAnimation() 
     {
-        // Check if swing animation finished and switch back to idle
-        if (this.swinging && 
-            this.animationController.currentAnimation === this.animationController.animations.swing && 
-            this.animationController.currentAnimation && 
-            !this.animationController.currentAnimation.isPlaying &&
-            !this.animationController.isTransitioning()) {
-            this.playIdleAnimation();
-        }
-
-        // Update animation
-        this.animationController.update();
-
-        this.y += this.velocityY;
-        if (!this.grounded) {
-            this.velocityY += this.gravity;
-        }
-        
-        // Ground collision (character position is center, so check center + half height)
-        if (this.y + this.height / 2 >= canvas.height) {
-            this.y = canvas.height - this.height / 2;
-            this.velocityY = 0;
-            
-            // Check if just landed
-            if (!this.grounded && this.wasGrounded !== this.grounded && !this.swinging) 
-            {
-                this.playIdleAnimation();
-            }
-            
-            this.grounded = true;
-        }
-        
-        // Update previous grounded state
-        this.wasGrounded = this.grounded;
+        this.playAnimation('dodge');
     }
+    //#endregion
 
+    //#region Movement and Physics
     jump() 
     {
-        if (this.grounded) {
-            this.velocityY = this.jumpStrength;
+        if (this.grounded) 
+        {
             this.grounded = false;
+            console.log('try to jump');
+            this.rigidbody.applyForce(10,0,-1)
         }
     } 
 
-    /** @param canvas  @type {HTMLCanvasElement} */
-    move(dir, canvas)
+    /**
+     * @param {number} dir
+     */
+    move(dir)
     {
-        this.x += dir * this.movementSpeed;
-        this.dir = dir; // Update direction
-        // Boundary check for canvas edges (character position is center)
-        if (this.x - this.width / 2 < 0) {
-            this.x = this.width / 2;
-        } else if (this.x + this.width / 2 > canvas.width) {
-            this.x = canvas.width - this.width / 2;
-        }
+        this.facing = dir; // Set facing for animation
+        this.rigidbody.move(dir);
+    }
 
+    /**
+     * 
+     * @param {GameObject} other 
+     */
+    adjustHitFacing(other)
+    {
+        const direction = other.x - this.x;
+        this.facing = direction > 0? 1 : -1;
+    }
+
+    flip()
+    {
+        this.facing = -this.facing;
+    }
+    //#endregion
+
+    //#region Combat System
+    /**
+     * @param {boolean} isSwinging 
+     */
+    setSwinging(isSwinging) {
+        this.swinging = isSwinging;
     }
 
     callSwingEvent() {
         gameEventManager.emit(EventHandler.characterSwingEvent, this);
     }
 
-    performHeavyattack() {
+    performHeavyattack() 
+    {
         if (!this.swinging) {
             this.playHeavySwingAnimation();
         }
         // Calls for a swing event
         this.callSwingEvent();
     }
+    //#endregion
 
-
-
-    // Score system
-    takeDamage(amount) {
-        if (this.isDead) return;
+    //#region Score System
+    /**
+     * 
+     * @param {Number} amount 
+     * @returns 
+     */
+    takeDamage(amount) 
+    {
+        if (this.defeated) return;
         
         this.currentScore = Math.max(0, this.currentScore - amount);
         
-        if (this.currentScore <= 0) {
-            this.isDead = true;
-            // Could trigger death animation here
+        if (this.currentScore <= 0) 
+        {
+            this.defeated = true;
+            // To be implemented - defeat animation
+        }
+        else
+        {
+            // Dodged
+            this.playDodgeAnimation();
         }
     }
 
     score(amount) {
-        if (this.isDead) return;
+        if (this.defeated) return;
         
         this.currentScore = Math.min(this.maxScore, this.currentScore + amount);
     }
@@ -207,21 +229,14 @@ export class Character extends GameObject {
     getScorePercentage() {
         return this.currentScore / this.maxScore;
     }
-    
-    
-    draw(ctx, resources, showDebug = true) {
-        // Draw position with red dot at character center (root bone position)
-        if (showDebug) {
-            ctx.fillStyle = 'red';
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
-            ctx.fill();
-        }
-        // Set root bone position directly to character's center position
-        this.bodyBone.position.x = this.x;
-        this.bodyBone.position.y = this.y;
-        // Draw the rig (body, head, weapon)
-        this.rig.draw(ctx, resources, showDebug, this.dir > 0 ? 1 : -1);
+    //#endregion
+
+    //#region Utility Functions
+    /** @returns {{x: number, y: number}} */
+    selfCoordinate()
+    {
+        // Return the center position of the root bone (character's center)
+        return {x : this.x, y : this.y};
     }
 
     collidesWith(obstacle) {
@@ -238,13 +253,50 @@ export class Character extends GameObject {
             charBottom > obstacle.y
         );
     }
-}
+    //#endregion
 
-export class CharacterState 
-{
-    constructor()
+    //#region Core Update and Rendering
+    /**
+     * @param {HTMLCanvasElement} canvas
+     */
+    update(canvas) 
     {
+        // Check if other animation finished and switch back to idle
+        if (this.swinging && 
+            this.animationController.currentAnimation != this.animationController.animations['idle'] && 
+            this.animationController.currentAnimation && 
+            !this.animationController.currentAnimation.isPlaying &&
+            !this.animationController.isTransitioning()) {
+            this.playIdleAnimation();
+        }
 
+        // Update animation
+        this.animationController.update();
+
+        // Update rigidbody
+        this.rigidbody.update(canvas, this);
     }
-    
+
+    /**
+     * 
+     * @param {*} ctx 
+     * @param {Resources} resources 
+     * @param {*} showDebug 
+     */
+    draw(ctx, resources, showDebug = true) 
+    {
+        // Draw position with red dot at character center (root bone position)
+        if (showDebug) {
+            ctx.fillStyle = 'red';
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+            ctx.fill();
+        }
+        // Set root bone position directly to character's center position
+        this.bodyBone.position.x = this.x;
+        this.bodyBone.position.y = this.y;
+        // Draw the rig (body, head, weapon)
+        this.rig.draw(ctx, resources, showDebug, this.facing > 0 ? 1 : -1);
+    }
+    //#endregion
 }

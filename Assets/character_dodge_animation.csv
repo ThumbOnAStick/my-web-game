@@ -1,0 +1,27 @@
+# For reference: π/2 ≈ 1.571 (90°), π ≈ 3.142 (180°), 2π ≈ 6.283 (360°)
+# Dodge animation - Character ducks down and recovers - Duration: 1.0 seconds
+time,boneName,angle
+0.0,body,0.0
+0.2,body,0.349
+0.4,body,0.524
+0.6,body,0.349
+0.8,body,0.174
+1.0,body,0.0
+0.0,head,0.524
+0.2,head,0.698
+0.4,head,0.873
+0.6,head,0.698
+0.8,head,0.611
+1.0,head,0.524
+0.0,arm,2.618
+0.2,arm,2.269
+0.4,arm,1.920
+0.6,arm,2.269
+0.8,arm,2.444
+1.0,arm,2.618
+0.0,weapon,-1.047
+0.2,weapon,-0.698
+0.4,weapon,-0.349
+0.6,weapon,-0.698
+0.8,weapon,-0.873
+1.0,weapon,-1.047

@@ -1,20 +1,30 @@
-// obstacle.js
-// A trigger area, reacts when touched
+import { GameObject } from "./gameobject.js";
 
-export class Obstacle 
+export class Obstacle extends GameObject
 {
-    constructor(x, y, width, height, creationTicks, destroyedOnTouch = false, speed = 0, duration = 0, id = 1) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {*} width 
+     * @param {*} height 
+     * @param {*} creationTicks 
+     * @param {boolean} destroyedOnTouch 
+     * @param {*} speed 
+     * @param {*} duration 
+     * @param {*} id 
+     * @param {GameObject} source
+     */
+    constructor(x, y, width, height, creationTicks, destroyedOnTouch = false, speed = 0, duration = 0, id = null, source = null) {
+        super(x, y, width, height, source); // Call GameObject constructor
+        
+        // Obstacle-specific properties
         this.speed = speed;
         this.creationTicks = creationTicks;
         this.direction = 1;
         this.destroyedOnTouch = destroyedOnTouch;
-        // Duration is one second per unit. 
-        this.duration = duration;
-        this.id = id;
+        this.duration = duration; // Duration is one second per unit
+        this.id = id; // Override GameObject's UUID with custom id
     }
 
     flip()
@@ -31,11 +41,13 @@ export class Obstacle
         if (characterCoordinate && characterId != this.id) 
         {
              if (
-                characterCoordinate.x >= this.x &&
-                characterCoordinate.x <= this.x + this.width &&
-                characterCoordinate.y >= this.y &&
-                characterCoordinate.y <= this.y + this.height
-            ) {
+                characterCoordinate.x >= this.getCenterX() &&
+                characterCoordinate.x <= this.getCenterX() + this.width &&
+                characterCoordinate.y >= this.getCenterY() &&
+                characterCoordinate.y <= this.getCenterY() + this.height
+            ) 
+            {
+               console.log(`Collision detected! ${this.id},,,,, ${characterId}`)
                 return true; // Collision detected
             }
         }
@@ -48,12 +60,27 @@ export class Obstacle
         return tick > this.creationTicks + this.duration * 1000;
     }
 
-    draw(ctx, showDebug = false) {
+    getCenterX()
+    {
+        return this.x - this.width/2;
+    }
+
+    getCenterY()
+    {
+        return this.y - this.height/2;
+    }
+
+    // Override GameObject's draw method
+    draw(ctx, resources = null, showDebug = false) {
+        ctx.save();
         ctx.fillStyle = 'green';
-        ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.globalAlpha = 0.2;
+        ctx.fillRect(this.getCenterX(), this.getCenterY(), this.width, this.height);
+        ctx.restore();
         
         // Draw red dot in debug mode
-        if (showDebug) {
+        if (showDebug) 
+        {
             ctx.fillStyle = 'red';
             ctx.beginPath();
             ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);

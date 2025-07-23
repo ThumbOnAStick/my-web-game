@@ -4,10 +4,8 @@
 // @ts-ignore
 import { GameManager } from './gamemanager.js';
 
-/** @type {HTMLCanvasElement} */
-const canvas = document.getElementById('gameCanvas');
-/** @type {CanvasRenderingContext2D} */
-const ctx = canvas.getContext('2d');
+const canvas = /** @type {HTMLCanvasElement} */ (document.getElementById('gameCanvas'));
+const ctx =/** @type {CanvasRenderingContext2D} */ canvas.getContext('2d');
 
 // Create and initialize the game manager
 const gameManager = new GameManager(canvas, ctx);

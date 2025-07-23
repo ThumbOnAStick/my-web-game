@@ -1,25 +1,45 @@
+import { Resources } from "./resources.js";
+
 export class GameObject 
 {
-    constructor(x, y, width = 0, height = 0)
+    /**
+     * 
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {Number} width 
+     * @param {Number} height 
+     * @param {GameObject} source 
+     */
+    constructor(x, y, width = 0, height = 0, source = null)
     {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.id = crypto.randomUUID();
+        this.grounded = false;
+        /**@type {GameObject} */
+        this.source = source;
     }
 
-    /**@param canvas @type {HTMLCanvasElement}  */
+    /**
+     * @param {HTMLCanvasElement} canvas
+     */
     update(canvas) 
     {
         // Base implementation - can be overridden by subclasses
     }
 
-    /**@param ctx @type {CanvasRenderingContext2D} */
-    draw(ctx, showDebug = false) 
+    /**
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {Resources} resources
+     * @param {boolean} [showDebug=false]
+     */
+    draw(ctx, resources ,showDebug = false) 
     {
         // Base implementation - can be overridden by subclasses
-        if (showDebug) {
+        if (showDebug) 
+        {
             ctx.strokeStyle = 'blue';
             ctx.strokeRect(this.x, this.y, this.width, this.height);
         }
