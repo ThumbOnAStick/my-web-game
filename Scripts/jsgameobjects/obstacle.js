@@ -35,20 +35,19 @@ export class Obstacle extends GameObject
 
     /** @param characterCoordinate @type {{x: number, y: number}} */
     /** @returns {boolean} */
-    collideWithCharacter(characterCoordinate = null, characterId = null) 
+   collideWithCharacter(characterCoordinate = null, characterId = null) 
     {
-         // Collision detection: check if point is inside rectangle
-        if (characterCoordinate && characterId != this.id) 
+        // Only check collision if this obstacle wasn't created by this character
+        if (characterCoordinate && characterId !== this.id) 
         {
-             if (
+            if (
                 characterCoordinate.x >= this.getCenterX() &&
                 characterCoordinate.x <= this.getCenterX() + this.width &&
                 characterCoordinate.y >= this.getCenterY() &&
                 characterCoordinate.y <= this.getCenterY() + this.height
             ) 
             {
-               console.log(`Collision detected! ${this.id},,,,, ${characterId}`)
-                return true; // Collision detected
+                return true;
             }
         }
         return false;

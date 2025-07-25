@@ -16,13 +16,23 @@ export class Rigidbody
         this.velocityX = 0;
         this.drag = drag;
         this.mass = 1;
+        this.acceleration = 1;
         this.movementSpeed = movementSpeed;
         this.gravity = 0.5; // Add missing gravity property
     }
 
+    /**
+     * 
+     * @param {Number} dir 
+     */
     move(dir)
     {
-        this.velocityX = this.movementSpeed * dir;
+        let idealVector = this.movementSpeed * dir;
+        let accelerationVector = this.acceleration * dir; 
+        if(Math.abs(this.velocityX - idealVector) > 0.1)
+        {
+            this.velocityX += accelerationVector;
+        }
     }
 
     /**

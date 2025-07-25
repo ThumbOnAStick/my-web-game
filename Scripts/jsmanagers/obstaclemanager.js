@@ -30,7 +30,13 @@ export class ObstacleManager {
      */
     spawnObstacle(x, y, width, height, duration = 0, destroyedOnTouch = false, id = null, source = null) 
     {
-        this.obstacles.push(new Obstacle(x, y, width, height, Date.now(), destroyedOnTouch, 0, duration, id, source));
+        let realId = id;
+        if(source!=null)
+        {
+            realId = source.id; 
+        }
+        console.log("Obstacle id: " + id + "  Source id: " + source.id)
+        this.obstacles.push(new Obstacle(x, y, width, height, Date.now(), destroyedOnTouch, 0, duration, realId, source));
     }
 
     update() 
@@ -58,10 +64,12 @@ export class ObstacleManager {
     {
         for (let i = characters.length - 1; i >= 0; i--) 
         {
+            console.log("current: " + i);
             if(this.handleCharacterCollision(characters[i]))
             {
                 return true;
             }
+
         }
         return false;
      }
@@ -85,7 +93,7 @@ export class ObstacleManager {
                 return true;   
             }
         }
-        return true;
+        return false;
     }
 
     draw(ctx, showDebug = false) 

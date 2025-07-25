@@ -26,7 +26,6 @@ export class Character extends GameObject
         this.movementSpeed = 5; // Speed of character movement
         this.swinging = false; // Track if currently swinging
         this.isOpponent = isOpponent;
-        this.characterId = crypto.randomUUID();
         this.headLength = 40;
 
         //#region rigidbody system
@@ -191,11 +190,12 @@ export class Character extends GameObject
 
     performHeavyattack() 
     {
-        if (!this.swinging) {
+        if (!this.swinging) 
+        {
             this.playHeavySwingAnimation();
+            // Calls for a swing event
+            this.callSwingEvent();
         }
-        // Calls for a swing event
-        this.callSwingEvent();
     }
     //#endregion
 

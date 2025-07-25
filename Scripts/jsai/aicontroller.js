@@ -1,22 +1,30 @@
 import { Character } from '../jsgameobjects/character.js';
 import { GameObject } from '../jsgameobjects/gameobject.js';
+import { AIMetaData } from './aimetadata.js';
+import * as DecisionTreeHelper from '../jsutils/decisiontreehelper.js'
+ 
+const aiControllerPeriodicUpdateInterval = 16; // Update action tree once every 1000 ticks (1s)
 
 export class AIController
 {
     /**
      * @param {Character} aiCharacter - The AI-controlled character
+     * @param {Character} playerCharacter - Player-controlled character
      * @param {number} attackRange - Distance at which AI can attack the player
      */
-    constructor(aiCharacter, movementSpeed = 10, attackRange = 200) 
+    constructor(aiCharacter, playerCharacter, movementSpeed = 10, attackRange = 200) 
     {
         this.aiCharacter = aiCharacter;
+        this.playerCharacter = playerCharacter;
         this.movementSpeed = movementSpeed;
         this.attackRange = attackRange;
         
-        // Initialize other  variables
+        // Initialize other variables
         this.movementX = 0;
         this.decisionCooldown = 0;
         this.decisionInterval = 30; 
+        this.metaData = new AIMetaData(aiCharacter, playerCharacter);
+        this.rootNode = DecisionTreeHelper.buildDefaultAITree();
     }
 
 
@@ -39,6 +47,16 @@ export class AIController
         this.movementX = gameobject.x + this.aiCharacter.x;
     }
 
+    evaluateMovement()
+    {
+        // When ai willing to move
+        if(Math.abs(this.movementX) > 0.1 )
+        {
+            let dir = this.movementX > 0 ? 1 : -1;
+            this.aiCharacter.move(dir);
+        }
+    }
+
     halt()
     {
         this.movementX = 0;
@@ -46,8 +64,32 @@ export class AIController
 
     //#endregion
 
-    update() 
+    /**
+     * This is executed in main loop.
+     * @param {number} ticks - The current tick count.
+     */
+    update(ticks) 
     {
-        this.aiCharacter.rigidbody.move(this.movementX);
+        // Execute immediate movement (reflexes/continuous actions)
+        this.evaluateMovement();
+
+        // Handle strategic decision-making at intervals
+        this.periodicUpdate(ticks);
+    }
+
+    /**
+     * Called periodically to update AI metadata.
+     * @param {number} ticks - The current tick count.
+     */
+    periodicUpdate(ticks)
+    {
+        if (ticks % aiControllerPeriodicUpdateInterval < 0.1)
+        {
+            // Update meta data before tree update
+            this.metaData.periodicUpdate();
+            
+            // Update decision tree
+            this.rootNode.evaluate(this.metaData);
+        }
     }
 }

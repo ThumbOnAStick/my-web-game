@@ -9,17 +9,25 @@ import { Resources } from '../jscomponents/resources.js';
 import { InputManager } from './inputmanager.js';
 import { ResourceManager } from './resourcemanager.js';
 import { UIManager } from './uimanager.js';
+import { AIController } from '../jsai/aicontroller.js';
 
 export class GameManager {
     constructor(canvas, ctx) {
+        this.isInitialized = false;
         this.canvas = canvas;
         this.ctx = ctx;
         this.gameOver = false;
         /**@type {Character[]} */
         this.characters = [];
-        this.isInitialized = false;
+        /**@type {AIController} */
+        this.aiController = null;
         /**@type {Resources} */
         this.resources = null;
+
+        // Ticks system
+        this.tickInterval = 16; // 16ms = ~60 ticks per second
+        this.lastTickTime = 0;
+        this.currentTick = 0;
 
         // Initialize game state
         this.gameState = new GameState();
@@ -57,6 +65,9 @@ export class GameManager {
             // Set character reference for input manager (player is first character)
             this.inputManager.setCharacter(this.characters[0]);
 
+            //Set  character reference for ai controller
+            this.aiController = new AIController(this.characters[1], this.characters[0]);
+
             // Initialize evenet manager
             Eventhandler.initialize(this.obstacleManager)
 
@@ -74,7 +85,7 @@ export class GameManager {
         // Player character
         const player = new Character(
             50,
-            this.canvas.height - characterHeight/2,
+            this.canvas.height - characterHeight / 2,
             40, // width
             characterHeight, // height
             this.resources
@@ -83,7 +94,7 @@ export class GameManager {
         // Opponent character
         const opponent = new Character(
             this.canvas.width - 100,
-            this.canvas.height - characterHeight/2,
+            this.canvas.height - characterHeight / 2,
             40, // width
             characterHeight, // height
             this.resources,
@@ -96,8 +107,7 @@ export class GameManager {
     async loadAnimations() {
         try {
             // Load animations for all characters
-            for (const character of this.characters) 
-            {
+            for (const character of this.characters) {
                 await character.loadAnimation('idle', './Assets/character_idle_animation.csv');
                 await character.loadAnimation('swing', './Assets/character_swing_animation.csv');
                 await character.loadAnimation('dodge', './Assets/character_dodge_animation.csv');
@@ -116,8 +126,7 @@ export class GameManager {
         this.update();
     }
 
-    update() 
-    {
+    update() {
         // Handle game over state - check both local and GameState
         if (this.gameOver || this.gameState.isGameOver) {
             this.uiManager.drawGameOver();
@@ -127,21 +136,29 @@ export class GameManager {
 
         requestAnimationFrame(() => this.update());
 
+        // Ticks system
+        const now = Date.now();
+        if (now - this.lastTickTime >= this.tickInterval) {
+            this.currentTick++;
+            this.lastTickTime = now;
+            
+            // Run tick-based updates
+            this.tickUpdate();
+        }
+
         // Clear screen
         this.uiManager.clearScreen();
 
         // Handle input and movement (only for player - first character)
         this.inputManager.handleMovement(this.characters[0]);
 
-        // Update all characters
-        for (const character of this.characters) 
-        {
+        // Update all characters (every frame)
+        for (const character of this.characters) {
             character.update(this.canvas);
         }
 
         // Update event manager for delayed events
         gameEventManager.update();
-
 
         // Check obstacle manager
         this.obstacleManager.update();
@@ -151,6 +168,14 @@ export class GameManager {
 
         // Draw everything
         this.draw();
+    }
+
+    /**
+     * Updates that should run at fixed tick intervals
+     */
+    tickUpdate() {
+        // AI updates at fixed intervals
+        this.aiController.update(this.currentTick);
     }
 
     draw() {

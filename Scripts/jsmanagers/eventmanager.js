@@ -8,7 +8,8 @@ export class EventManager
 
     // Register listeners for events
     /**@param {VoidFunction} callback  */
-    on(eventName, callback) {
+    on(eventName, callback) 
+    {
         if (!this.listeners.has(eventName)) {
             this.listeners.set(eventName, []);
         }
