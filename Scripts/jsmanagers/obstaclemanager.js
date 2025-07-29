@@ -4,7 +4,7 @@
 import { Character } from '../jsgameobjects/character.js';
 import { gameEventManager } from './eventmanager.js';
 import { Obstacle } from '../jsgameobjects/obstacle.js';
-import * as EventHandler from '../jsutils/eventhandlers.js';
+import * as CombatHandler from '../jsutils/combathandler.js';
 import { GameObject } from '../jsgameobjects/gameobject.js';
 
 export class ObstacleManager {
@@ -28,15 +28,14 @@ export class ObstacleManager {
      * @param {*} id 
      * @param {GameObject} source 
      */
-    spawnObstacle(x, y, width, height, duration = 0, destroyedOnTouch = false, id = null, source = null) 
+    spawnObstacle(x, y, width, height, duration = 0, destroyedOnTouch = false, id = null, source = null, damage = 0) 
     {
         let realId = id;
         if(source!=null)
         {
             realId = source.id; 
         }
-        console.log("Obstacle id: " + id + "  Source id: " + source.id)
-        this.obstacles.push(new Obstacle(x, y, width, height, Date.now(), destroyedOnTouch, 0, duration, realId, source));
+        this.obstacles.push(new Obstacle(x, y, width, height, Date.now(), destroyedOnTouch, 0, duration, realId, source, damage));
     }
 
     update() 
@@ -64,7 +63,6 @@ export class ObstacleManager {
     {
         for (let i = characters.length - 1; i >= 0; i--) 
         {
-            console.log("current: " + i);
             if(this.handleCharacterCollision(characters[i]))
             {
                 return true;
@@ -85,7 +83,7 @@ export class ObstacleManager {
             const obstacle = this.obstacles[i];
             if (obstacle.collideWithCharacter(character.selfCoordinate(), character.id)) 
             {
-                gameEventManager.emit(EventHandler.characterDodgeEvent, { character, obstacle });
+                CombatHandler.handleCharacterDamageResult(character, obstacle);
                 if(obstacle.destroyedOnTouch)
                 {
                     this.obstacles.splice(i, 1);

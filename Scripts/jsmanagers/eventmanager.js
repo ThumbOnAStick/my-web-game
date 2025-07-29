@@ -1,9 +1,11 @@
 export class EventManager 
 {
-    constructor() {
+    constructor() 
+    {
         this.listeners = new Map(); // eventName -> array of callbacks
         this.eventHistory = []; // for debugging
         this.delayedEvents = []; // for delayed events
+        this.freezingFrames = 0;
     }
 
     // Register listeners for events
@@ -70,8 +72,32 @@ export class EventManager
     }
 
     // Clear all delayed events
-    clearDelayedEvents() {
+    clearDelayedEvents() 
+    {
         this.delayedEvents = [];
+    }
+
+    /**
+     * 
+     * @param {Number} frames 
+     */
+    freezeFor(frames)
+    {
+        this.freezingFrames = frames;
+    }
+
+    /**
+     * 
+     * @returns {boolean}
+     */
+    updateFreeze()
+    {
+        if(this.freezingFrames > 0)
+        {
+            this.freezingFrames = this.freezingFrames - 1;
+            return true;
+        }
+        return false;
     }
 
 }

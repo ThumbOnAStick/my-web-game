@@ -7,12 +7,29 @@ import * as EventHandler from '../jsutils/eventhandlers.js';
 import { GameObject } from './gameobject.js';
 import { Rigidbody } from '../jscomponents/rigidbody.js';
 import { Resources } from '../jscomponents/resources.js';
+import { CharacterCombatState } from '../jscomponents/charactercombatstate.js';
 
 // Angle constants for better readability
 const ANGLE_90_DEG = Math.PI / 2;
 const ANGLE_120_DEG = (120 * Math.PI) / 180;
 const ANGLE_60_DEG = (60 * Math.PI) / 180;
 const ANGLE_30_DEG = (30 * Math.PI) / 180;
+
+// Default configurations for each animation 
+const animationDefaults = {
+    'idle': { loop: true, autoPlay: true },     
+    'swing': { loop: false },                  
+    'dodge': { loop: false },                  
+    'lightswing': { loop: false },              
+};
+
+// Animation transition durations (in seconds) for smooth switching between animations
+const animationSettings = {
+    'idle': { transitionDuration: 0.4 },         
+    'swing': { transitionDuration: 0.2 },        
+    'lightswing': { transitionDuration: 0.15 },  
+    'dodge': { transitionDuration: 0.15 }       
+};
 
 export class Character extends GameObject 
 {
@@ -24,9 +41,13 @@ export class Character extends GameObject
         this.gravity = 1.5;
         this.jumpStrength = -20;
         this.movementSpeed = 5; // Speed of character movement
-        this.swinging = false; // Track if currently swinging
         this.isOpponent = isOpponent;
         this.headLength = 40;
+
+        //#region Combat system
+        /**@type {CharacterCombatState} */
+        this.combatState = new CharacterCombatState();
+        //#endregion
 
         //#region rigidbody system
         /**@type {Rigidbody} */
@@ -77,18 +98,14 @@ export class Character extends GameObject
         }
         
         // Predefined animation defaults (only for existing animations)
-        const animationDefaults = 
-        {
-            'idle': { loop: true, autoPlay: true },
-            'swing': { loop: false },
-            'dodge': { loop: false }
-        };
+
         
         // Merge defaults with custom options
         const finalOptions = { ...animationDefaults[name], ...options };
         
         // Apply loop setting
-        if (finalOptions.loop !== undefined) {
+        if (finalOptions.loop !== undefined) 
+        {
             this.animationController.animations[name].loop = finalOptions.loop;
         }
         
@@ -111,27 +128,32 @@ export class Character extends GameObject
             return;
         }
 
-        // Animation-specific settings
-        const animationSettings = {
-            'idle': { transitionDuration: 0.4 },
-            'swing': { transitionDuration: 0.2 },
-            'dodge': { transitionDuration: 0.15 }
-        };
-
         const settings = animationSettings[name] || { transitionDuration: 0.3 };
         this.animationController.playAnimationWithTransition(name, settings.transitionDuration);
     }
 
     playHeavySwingAnimation() 
     {
-        this.setSwinging(true);
         this.playAnimation('swing');
     }
 
-    playIdleAnimation() 
+    playLightSwingAnimation() 
     {
-        this.setSwinging(false);
-        this.playAnimation('idle');
+        this.playAnimation('lightswing');
+    }
+
+    playIdleAnimation(immediate = false) 
+    {
+        if (immediate) 
+        {
+            // Play immediately without transition
+            this.animationController.playAnimation('idle');
+        } 
+        else
+        {
+            // Use normal transition
+            this.playAnimation('idle');
+        }
     }   
 
     playDodgeAnimation() 
@@ -151,11 +173,20 @@ export class Character extends GameObject
         }
     } 
 
+    cannotMove()
+    {
+        return !this.combatState.canMove();
+    }
+
     /**
      * @param {number} dir
      */
     move(dir)
     {
+        if(this.cannotMove())
+        {
+            return;
+        }
         this.facing = dir; // Set facing for animation
         this.rigidbody.move(dir);
     }
@@ -180,21 +211,96 @@ export class Character extends GameObject
     /**
      * @param {boolean} isSwinging 
      */
-    setSwinging(isSwinging) {
-        this.swinging = isSwinging;
+    setSwinging(isSwinging) 
+    {
+        this.combatState.setSwinging(isSwinging);
     }
 
-    callSwingEvent() {
+    /**
+     * @param {boolean} isCharging 
+     */
+    setIsCharging(isCharging) 
+    {
+        this.combatState.setCharging(isCharging);
+    }
+
+    setDodging(isDodging)
+    {
+        this.combatState.setDodging(isDodging);
+    }
+
+    setParried(isParried)
+    {
+        this.combatState.setParried(isParried);
+    }
+
+    /**
+     * @param {string} type 
+     */
+    setSwingType(type)
+    {
+        this.combatState.setSwingType(type);
+    }
+
+    getSwingHitboxLifetime()
+    {
+        return this.combatState.getSwingHitboxLifetime();
+    }
+
+    getSwingDamage()
+    {
+        return this.combatState.getSwingDamage();
+    }
+
+    getSwingRange()
+    {
+        return this.combatState.getSwingRange();
+    }
+
+    get swinging()
+    {
+        return this.combatState.swinging;
+    }
+
+    get dodging()
+    {
+        return this.combatState.dodging;
+    }
+
+    get swingType()
+    {
+        return this.combatState.swingType;
+    }
+
+    callHeavySwingEvent() 
+    {
         gameEventManager.emit(EventHandler.characterSwingEvent, this);
+    }
+
+    callLightSwingEvent() 
+    {
+        gameEventManager.emit(EventHandler.characterLightSwingEvent, this);
     }
 
     performHeavyattack() 
     {
-        if (!this.swinging) 
+        if (this.combatState.canAttack()) 
         {
+            this.setSwingType('heavy');
             this.playHeavySwingAnimation();
             // Calls for a swing event
-            this.callSwingEvent();
+            this.callHeavySwingEvent();
+        }
+    }
+
+    performLightAttack() 
+    {
+        if (this.combatState.canAttack()) 
+        {
+            this.setSwingType('light');
+            this.playLightSwingAnimation();
+            // Calls for a light swing event
+            this.callLightSwingEvent();
         }
     }
     //#endregion
@@ -205,7 +311,7 @@ export class Character extends GameObject
      * @param {Number} amount 
      * @returns 
      */
-    takeDamage(amount) 
+    loseScore(amount) 
     {
         if (this.defeated) return;
         
@@ -259,21 +365,37 @@ export class Character extends GameObject
     //#endregion
 
     //#region Core Update and Rendering
+    
+    shouldPlayIdleAnimation()
+    {
+        if(this.combatState.swinging)
+        {
+            return false;
+        }
+
+        return this.animationController.currentAnimation != this.animationController.animations['idle'] && 
+            this.animationController.currentAnimation && 
+            !this.animationController.currentAnimation.isPlaying &&
+            !this.animationController.isTransitioning();
+    }
+
+    updateIdleAnimation()
+    {
+        if(this.shouldPlayIdleAnimation())
+        {
+            this.playIdleAnimation();
+        }
+    }
+    
     /**
      * @param {HTMLCanvasElement} canvas
      */
     update(canvas) 
     {
-        // Check if other animation finished and switch back to idle
-        if (this.swinging && 
-            this.animationController.currentAnimation != this.animationController.animations['idle'] && 
-            this.animationController.currentAnimation && 
-            !this.animationController.currentAnimation.isPlaying &&
-            !this.animationController.isTransitioning()) {
-            this.playIdleAnimation();
-        }
+        // update idle states
+         this.updateIdleAnimation();
 
-        // Update animation
+        // Update animation controller
         this.animationController.update();
 
         // Update rigidbody

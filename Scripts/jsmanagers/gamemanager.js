@@ -10,6 +10,7 @@ import { InputManager } from './inputmanager.js';
 import { ResourceManager } from './resourcemanager.js';
 import { UIManager } from './uimanager.js';
 import { AIController } from '../jsai/aicontroller.js';
+import { TickManager } from './tickmanager.js';
 
 export class GameManager {
     constructor(canvas, ctx) {
@@ -24,10 +25,8 @@ export class GameManager {
         /**@type {Resources} */
         this.resources = null;
 
-        // Ticks system
-        this.tickInterval = 16; // 16ms = ~60 ticks per second
-        this.lastTickTime = 0;
-        this.currentTick = 0;
+        // Freeze system
+        this.freezeFrames = 0;
 
         // Initialize game state
         this.gameState = new GameState();
@@ -37,6 +36,7 @@ export class GameManager {
         this.obstacleManager = new ObstacleManager();
         this.resourceManager = new ResourceManager();
         this.uiManager = new UIManager(ctx, canvas);
+        this.tickManager = new TickManager(Date.now());
         // Set up manager references
         this.inputManager.setGameManager(this);
 
@@ -68,13 +68,17 @@ export class GameManager {
             //Set  character reference for ai controller
             this.aiController = new AIController(this.characters[1], this.characters[0]);
 
+            // Setup tick manager
+            this.tickManager.append((/** @type {number} */ currentTick) => this.aiControllerUpdate(currentTick));
+
             // Initialize evenet manager
             Eventhandler.initialize(this.obstacleManager)
 
             this.isInitialized = true;
             console.log('Game initialized successfully');
 
-        } catch (error) {
+        }
+        catch (error) {
             console.error('Failed to initialize game:', error);
         }
     }
@@ -110,6 +114,7 @@ export class GameManager {
             for (const character of this.characters) {
                 await character.loadAnimation('idle', './Assets/character_idle_animation.csv');
                 await character.loadAnimation('swing', './Assets/character_swing_animation.csv');
+                await character.loadAnimation('lightswing', './Assets/character_lightswing_animation.csv');
                 await character.loadAnimation('dodge', './Assets/character_dodge_animation.csv');
             }
             console.log('Animations loaded successfully');
@@ -126,25 +131,27 @@ export class GameManager {
         this.update();
     }
 
-    update() {
-        // Handle game over state - check both local and GameState
+    checkGameOver() 
+    {
         if (this.gameOver || this.gameState.isGameOver) {
             this.uiManager.drawGameOver();
             requestAnimationFrame(() => this.update());
-            return;
+            return true;
         }
+        return false;
+    }
+
+    update() 
+    {
+        // Handle game over state - check both local and GameState
+        if (this.checkGameOver()) return;
 
         requestAnimationFrame(() => this.update());
+        
+        if(gameEventManager.updateFreeze()) return;
 
-        // Ticks system
-        const now = Date.now();
-        if (now - this.lastTickTime >= this.tickInterval) {
-            this.currentTick++;
-            this.lastTickTime = now;
-            
-            // Run tick-based updates
-            this.tickUpdate();
-        }
+        // Ticks update 
+        this.tickManager.update();
 
         // Clear screen
         this.uiManager.clearScreen();
@@ -171,11 +178,13 @@ export class GameManager {
     }
 
     /**
-     * Updates that should run at fixed tick intervals
+     * 
+     * @param {Number} currentTick 
      */
-    tickUpdate() {
+    aiControllerUpdate(currentTick) 
+    {
         // AI updates at fixed intervals
-        this.aiController.update(this.currentTick);
+        this.aiController.update(currentTick);
     }
 
     draw() {

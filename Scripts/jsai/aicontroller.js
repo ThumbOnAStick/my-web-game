@@ -23,7 +23,7 @@ export class AIController
         this.movementX = 0;
         this.decisionCooldown = 0;
         this.decisionInterval = 30; 
-        this.metaData = new AIMetaData(aiCharacter, playerCharacter);
+        this.metaData = new AIMetaData(aiCharacter, playerCharacter, this);
         this.rootNode = DecisionTreeHelper.buildDefaultAITree();
     }
 

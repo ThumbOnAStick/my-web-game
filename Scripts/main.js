@@ -12,7 +12,8 @@ const gameManager = new GameManager(canvas, ctx);
 
 // Initialize and start the game
 async function startGame() {
-    try {
+    try 
+    {
         await gameManager.initialize();
         gameManager.start();
     } catch (error) {

@@ -1,29 +1,44 @@
 import { Character } from "../jsgameobjects/character.js";
-import { Obstacle } from "../jsgameobjects/obstacle.js";
 import { gameEventManager } from "../jsmanagers/eventmanager.js";
 import { ObstacleManager } from "../jsmanagers/obstaclemanager.js";
+import * as CombatHandler from '../jsutils/combathandler.js';
 
 export const characterSwingEvent = 'character_swing';
-export const characterDodgeEvent = 'character_dodge';
-export const obstacleCreationEvent = 'create_obstacle';
-export const resetCharacterTransparencyEvent = 'reset_transparency';
+export const characterLightSwingEvent = 'character_light_swing';
+export const postCharacterSwingEvent = 'create_obstacle';
+export const settleCharacterSwingEvent = 'settle_swing';
+export const resetCharacterDodgingEvent = 'reset_transparency';
+export const resetCharacterParriedEvent = 'reset_Parried';
 
-const characterDodgeAlpha = 0.5;
-const characterDodgeForce = 30;
-const heavyHitDamage = 10;
+
 
 // Create event handlers that capture obstacleManager
 /**@param {ObstacleManager} obstacleManager */
-export function createEventHandlers(obstacleManager) {
+export function createEventHandlers(obstacleManager) 
+{
     
     function handleSwingEvent(data) 
     {
         /**@type {Character} */
         const character = data;
-        gameEventManager.emit(obstacleCreationEvent, data, 1);
+        character.setSwinging(true);
+        character.setIsCharging(true);
+        gameEventManager.emit(postCharacterSwingEvent, data, 1); // Calculate damage
+        gameEventManager.emit(settleCharacterSwingEvent, data, 1.5); // Reset character
     }
 
-    function createHitbox(data) 
+    function handleLightSwingEvent(data) 
+    {
+        /**@type {Character} */
+        const character = data;
+        character.setSwinging(true);
+        gameEventManager.emit(postCharacterSwingEvent, data, 0.7);  
+        gameEventManager.emit(settleCharacterSwingEvent, data, 1);
+
+    }
+
+
+    function handlePostSwingEvent(data) 
     {
         /**@type {Character} */
         const character = data;
@@ -31,50 +46,47 @@ export function createEventHandlers(obstacleManager) {
         {
             return;
         }
-        const coordinate = character.selfCoordinate()
-        const sizeX = 100;
-        const sizeY = 100;
-        const offsetX = sizeX/2;
-        const offsetY = (character.height) / 2;
-        // Spawn obstacle on character location
-        obstacleManager.spawnObstacle(
-            coordinate.x + character.facing * offsetX,
-            coordinate.y - offsetY,
-            sizeX,
-            sizeY,
-            0.5,
-            true,
-            character.id,
-            character
-        );
-        // Push character forward
-        character.rigidbody.applyForce(15, character.facing);
+        character.setIsCharging(false); // Reset character charging
+        CombatHandler.swingAndMoveForward(character, obstacleManager); // Swing and move forward using rigidbody
+    
     }
 
-    function characterDodge(data)
+    function settleCharacterSwing(data)
     {
-        const { character, obstacle } = /**@type {{character: Character, obstacle: Obstacle}}*/ (data);
-        character.takeDamage(heavyHitDamage);
-        character.adjustHitFacing(obstacle);
-        character.rigidbody.applyForceTo(characterDodgeForce, character, obstacle, true, false, true);
-        character.rig.setAlpha(characterDodgeAlpha);
-        gameEventManager.emit(resetCharacterTransparencyEvent, character, 1);
+        /**@type {Character} */
+        const character = data;
+        if(!character)
+        {
+            return;
+        }
+        character.setIsCharging(false); // Reset character charging
+        character.setSwinging(false); // Reset character swing
     }
 
 
-    function resetCharacterTransparency(data)
+    function resetCharacterDodging(data)
     {
         const character = /**@type {Character} */ (data);
         if (!character) return;
         character.rig.setAlpha(1);
+        character.setDodging(false);
+    }
+
+    function resetCharacterParried(data)
+    {
+        const character = /**@type {Character} */ (data);
+        if (!character) return;
+        character.combatState.setParried(false);
     }
 
     // Return the handlers
     return {
         handleSwingEvent,
-        createHitbox,
-        characterDodge,
-        resetCharacterTransparency
+        handleLightSwingEvent,
+        handlePostSwingEvent,
+        resetCharacterDodging,
+        resetCharacterParried,
+        settleCharacterSwing
     };
 
 }
@@ -84,8 +96,10 @@ export function initialize(obstacleManager) {
     const handlers = createEventHandlers(obstacleManager);
     
     gameEventManager.on(characterSwingEvent, handlers.handleSwingEvent);
-    gameEventManager.on(characterDodgeEvent, handlers.characterDodge);
-    gameEventManager.on(obstacleCreationEvent, handlers.createHitbox);
-    gameEventManager.on(resetCharacterTransparencyEvent, handlers.resetCharacterTransparency);
+    gameEventManager.on(characterLightSwingEvent, handlers.handleLightSwingEvent);
+    gameEventManager.on(postCharacterSwingEvent, handlers.handlePostSwingEvent);
+    gameEventManager.on(resetCharacterDodgingEvent, handlers.resetCharacterDodging);
+    gameEventManager.on(resetCharacterParriedEvent, handlers.resetCharacterParried);
+    gameEventManager.on(settleCharacterSwingEvent, handlers.settleCharacterSwing);
 
 }

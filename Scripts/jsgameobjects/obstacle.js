@@ -15,7 +15,7 @@ export class Obstacle extends GameObject
      * @param {*} id 
      * @param {GameObject} source
      */
-    constructor(x, y, width, height, creationTicks, destroyedOnTouch = false, speed = 0, duration = 0, id = null, source = null) {
+    constructor(x, y, width, height, creationTicks, destroyedOnTouch = false, speed = 0, duration = 0, id = null, source = null, damage = 10) {
         super(x, y, width, height, source); // Call GameObject constructor
         
         // Obstacle-specific properties
@@ -25,6 +25,7 @@ export class Obstacle extends GameObject
         this.destroyedOnTouch = destroyedOnTouch;
         this.duration = duration; // Duration is one second per unit
         this.id = id; // Override GameObject's UUID with custom id
+        this.damage = damage;
     }
 
     flip()

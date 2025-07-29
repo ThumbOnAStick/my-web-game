@@ -1,4 +1,5 @@
 import { Character } from "../jsgameobjects/character.js";
+import { AIController } from "./aicontroller.js";
 
 export class AIMetaData
 {
@@ -6,13 +7,16 @@ export class AIMetaData
      * 
      * @param {Character} selfCharacter 
      * @param {Character} opponentCharacter 
+     * @param {AIController} aiController
      */
-    constructor(selfCharacter, opponentCharacter, detectRange = 100)
+    constructor(selfCharacter, opponentCharacter, aiController, heavyDetectRange = 100, lightDetectRange = 150)
     {
         this.selfCharacter = selfCharacter;
         this.opponentCharacter = opponentCharacter;
         this.vectorToOpponent = { x: 0, y: 0 }; 
-        this.detectRange = detectRange;
+        this.heavyDetectRange = heavyDetectRange;
+        this.lightDtectRange = lightDetectRange;
+        this.aiController = aiController;
     }
 
     periodicUpdate()

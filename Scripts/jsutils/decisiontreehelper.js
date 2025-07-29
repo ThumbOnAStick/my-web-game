@@ -7,9 +7,18 @@ import { TerminalNode } from "../jsai/terminalnode.js";
  * @returns {boolean}
  * @param {AIMetaData} data
  */
-function distanceCheck(data)
+function heavyDistanceCheck(data)
 {
-    return Math.abs(data.vectorToOpponent.x) < data.detectRange;
+    return Math.abs(data.vectorToOpponent.x) < data.heavyDetectRange;
+}
+
+/**
+ * @returns {boolean}
+ * @param {AIMetaData} data
+ */
+function lightDistanceCheck(data)
+{
+    return Math.abs(data.vectorToOpponent.x) < data.lightDtectRange;
 }
 
 /**
@@ -30,23 +39,88 @@ function swing(data)
     data.selfCharacter.performHeavyattack();
 }
 
+
+/**
+ * @param {AIMetaData} data
+ */
+function lightSwing(data)
+{
+    data.aiController.halt();
+    data.selfCharacter.adjustHitFacing(data.opponentCharacter);
+    data.selfCharacter.performLightAttack();
+}
+
+/**
+ * @param {AIMetaData} data
+ */
+function moveToOpponent(data)
+{
+    data.aiController.moveTowards(data.opponentCharacter);
+}
+
+/**
+ * @param {AIMetaData} data
+ */
+function moveAwayFromOpponent(data)
+{
+    data.aiController.moveAwayFrom(data.opponentCharacter);
+
+}
+
+
 //#endregion
 
 //#region Nodes
 /**
+ * a node that does nothing
+ * @returns {DecisionNode}
+ */
+export function emptyNode()
+{
+    return new DecisionNode();
+}  
+
+/**
  * @returns {DecisionNodeChance}
  */
-export function distanceCheckNode()
+export function distanceCheckNode1()
 {
-    return new DecisionNodeChance(distanceCheck);
+    return new DecisionNodeChance(heavyDistanceCheck);
+}  
+
+/**
+ * @returns {DecisionNodeChance}
+ */
+export function distanceCheckNode2()
+{
+    let result = new DecisionNodeChance(lightDistanceCheck)
+    result.appendTNode(lightswingNode()); // t1
+    result.appendTNode(moveToNode()); // t2
+    return result;
 }  
 
 /**
  * @returns {TerminalNode}
  */
-export function swingNode()
+export function heavyswingNode()
 {
     return new TerminalNode(swing)
+}
+
+/**
+ * @returns {TerminalNode}
+ */
+export function lightswingNode()
+{
+    return new TerminalNode(lightSwing)
+}
+
+/**
+ * @returns {TerminalNode}
+ */
+export function moveToNode()
+{
+    return new TerminalNode(moveToOpponent);
 }
 
 /**
@@ -58,9 +132,10 @@ export function buildDefaultAITree()
     try
     {
         /**@type {DecisionNodeChance} */
-        let root =  this.distanceCheckNode();
-        let swingNode = this.swingNode();
-        root.appendTNode(swingNode);
+        let root =  distanceCheckNode1();
+        root.appendTNode(heavyswingNode()); // t1
+        root.appendDNode(emptyNode()); // d1
+        root.appendDNode(distanceCheckNode2()); // d2
         return root;
     }
     catch(exception)

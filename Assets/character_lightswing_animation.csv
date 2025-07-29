@@ -1,0 +1,15 @@
+# For reference: π/2 ≈ 1.571 (90°), π ≈ 3.142 (180°), 2π ≈ 6.283 (360°)
+# Light sword swing animation - Duration: 0.7 seconds (faster than heavy swing)
+time,boneName,angle
+0.0,body,0.0
+0.4,body,-0.044
+0.7,body,0.0
+0.0,head,0.524
+0.4,head,0.262
+0.7,head,0.524
+0.0,arm,2.1
+0.5,arm,3
+0.6,arm,2
+0.0,weapon,-1
+0.4,weapon,-1
+0.7,weapon,-1

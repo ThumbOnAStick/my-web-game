@@ -47,8 +47,12 @@ export class InputManager {
             case 'KeyD':
                 this.keys.d = true;
                 break;
-            // 'J' for heavy attack
+            // 'J' for light attack
             case 'KeyJ':
+                this.character.performLightAttack();
+                break;
+            // 'K' for heavy attack
+            case 'KeyK':
                 this.character.performHeavyattack();
                 break;
         }
