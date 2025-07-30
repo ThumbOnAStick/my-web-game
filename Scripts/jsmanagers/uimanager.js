@@ -102,7 +102,8 @@ export class UIManager {
         this.ctx.stroke();
     }
 
-    drawGameOver() {
+    drawGameOver() 
+    {
         this.ctx.font = '40px Arial';
         this.ctx.fillStyle = 'red';
         this.ctx.fillText('Game Over!', this.canvas.width / 2 - 100, this.canvas.height / 2);
@@ -136,7 +137,8 @@ export class UIManager {
     }
 
     /**@param {GameState} gamestate*/
-    drawDebugInfo(character, gamestate, showDebug = false) {
+    drawDebugInfo(character, gamestate, showDebug = false)
+    {
         if (!showDebug || !character) return;
         
         this.ctx.font = '12px Arial';
@@ -149,7 +151,7 @@ export class UIManager {
         this.ctx.fillText(`Velocity Y: ${Math.round(character.velocityY)}`, 10, debugY + 15);
         this.ctx.fillText(`Grounded: ${character.grounded}`, 10, debugY + 30);
         this.ctx.fillText(`Swinging: ${character.swinging}`, 10, debugY + debugHeight * 3);
-        this.ctx.fillText(`Gamestate: Game Over: ${gamestate.isGameOver}\nPlayer score: ${gamestate.characterScore}`, 10, debugY + debugHeight * 4);
+        this.ctx.fillText(`Gamestate: Game Over: ${gamestate.isGameOver}\nPlayer score: ${character.currentScore}`, 10, debugY + debugHeight * 4);
 
     }
 

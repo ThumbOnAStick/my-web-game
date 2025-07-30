@@ -345,6 +345,12 @@ export class Character extends GameObject
         }
     }
 
+    resetScore()
+    {
+        this.currentScore = 50;
+        this.defeated = false;
+    }
+
     score(amount) 
     {
         if (this.defeated) return;

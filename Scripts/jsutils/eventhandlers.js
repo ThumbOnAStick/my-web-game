@@ -108,7 +108,7 @@ export function createEventHandlers(obstacleManager, vfxManager)
         let weaponBone = character.weaponBone;
         let weaponWorldPos = weaponBone.getWorldPosition();
         console.log('Flash created');
-        vfxManager.make('flash', weaponBone.angle, weaponWorldPos.x, weaponWorldPos.y, 10, 100, 1000);
+        vfxManager.make('flash', weaponBone.angle * character.facing, weaponWorldPos.x, weaponWorldPos.y, 10, 100, 1000);
     }
 
     // Return the handlers

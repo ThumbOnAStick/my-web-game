@@ -18,7 +18,6 @@ export class GameManager {
         this.isInitialized = false;
         this.canvas = canvas;
         this.ctx = ctx;
-        this.gameOver = false;
         /**@type {Character[]} */
         this.characters = [];
         /**@type {AIController} */
@@ -140,9 +139,9 @@ export class GameManager {
 
     checkGameOver() 
     {
-        if (this.gameOver || this.gameState.isGameOver) {
+        if (this.gameState.isGameOver) 
+        {
             this.uiManager.drawGameOver();
-            requestAnimationFrame(() => this.update());
             return true;
         }
         return false;
@@ -150,28 +149,26 @@ export class GameManager {
 
     update() 
     {
-        // Handle game over state - check both local and GameState
-        if (this.checkGameOver()) return;
-
         requestAnimationFrame(() => this.update());
         
+        // Handle game over state - check both local and GameState
+        
         if(gameEventManager.updateFreeze()) return;
-
-        // Ticks update 
-        this.tickManager.update();
-
-
-        // Handle input and movement (only for player - first character)
+        
+        // Handle input even during game over (for reset functionality)
         this.inputManager.handleMovement(this.characters[0]);
-
-        // Update all characters (every frame)
-        for (const character of this.characters) {
-            character.update(this.canvas);
-        }
 
         // Update event manager for delayed events
         gameEventManager.update();
 
+        // Update all characters (every frame)
+        this.characterUpdate();
+
+        if (this.checkGameOver()) return;
+        
+        // Ticks update 
+        this.tickManager.update();
+        
         // Check obstacle manager
         this.obstacleManager.update();
 
@@ -184,9 +181,20 @@ export class GameManager {
         // Clear screen before drawing
         this.uiManager.clearScreen();
 
+        // Update score, check game state
+        this.gameState.updatePlayerScore(this.getPlayerScore());
+        this.gameState.updateOpponentScore(this.getOpponentScore());
 
         // Draw everything
         this.draw();
+    }
+
+    characterUpdate()
+    {
+        for (const character of this.characters) 
+        {
+            character.update(this.canvas);
+        }
     }
 
     /**
@@ -202,18 +210,20 @@ export class GameManager {
     draw() 
     {
         // Draw all characters
+        const scorebarHeight = 60;
         for (const character of this.characters) 
         {
             character.draw(this.ctx, this.resources, this.debugCheckbox.checked);
-            if (!character.isOpponent) {
+            if (!character.isOpponent) 
+            {
                 // Use GameState scores for player
-                this.uiManager.drawScoreBar(character, 10, this.gameState.characterScore);
+                this.uiManager.drawScoreBar(character, 10, scorebarHeight, this.getPlayerScore());
                 this.uiManager.drawDebugInfo(character, this.gameState, this.debugCheckbox.checked);
             } 
             else 
             {
                 // Use GameState scores for opponent
-                this.uiManager.drawScoreBar(character, this.canvas.width - 210, this.gameState.opponentScore);
+                this.uiManager.drawScoreBar(character, this.canvas.width - 210, scorebarHeight, this.getOpponentScore());
             }
             this.uiManager.drawIndicator(character);
             this.uiManager.drawDodged(character);
@@ -224,28 +234,33 @@ export class GameManager {
         
     }
 
-    resetGame() {
+    resetGame() 
+    {
         // Reset player character state (first character)
         const characterHeight = 60;
         const player = this.characters[0];
         player.y = this.canvas.height - characterHeight;
-        if (player.rigidbody) {
+        if (player.rigidbody) 
+        {
             player.rigidbody.velocityY = 0;
         }
         player.grounded = true;
-
-        // Reset game state using GameState
-        this.gameOver = false;
-        this.gameState.reset();
 
         // Clear obstacles
         this.obstacleManager.clearObstacles();
 
         // Restart with idle animation for all characters
-        for (const character of this.characters) {
+        for (const character of this.characters) 
+        {
+            character.resetScore();
             character.playIdleAnimation();
         }
 
+        this.characters[0].x = 50;
+        this.characters[1].x = this.canvas.width - 100;
+
+        // Reset game state using GameState
+        this.gameState.reset();
         console.log('Game reset');
     }
 
@@ -259,31 +274,19 @@ export class GameManager {
     }
 
     // Getter methods for external access
-    isGameOver() { return this.gameOver || this.gameState.isGameOver; }
+    isGameOver() { return this.gameState.isGameOver; }
     getPlayer() { return this.characters[0]; }
+    getOpponent() {return this.characters[1];}
     getCharacters() { return this.characters; }
     getGameState() { return this.gameState; }
 
-    // Methods to interact with game state
-    damagePlayer(amount) {
-        this.gameState.updateCharacterScore(-amount);
-        if (this.gameState.isGameOver) {
-            this.gameOver = true;
-        }
+    getPlayerScore() 
+    {
+        return this.getPlayer().currentScore;
     }
 
-    damageOpponent(amount) {
-        this.gameState.updateOpponentScore(-amount);
-        if (this.gameState.isGameOver) {
-            this.gameOver = true;
-        }
-    }
-
-    getPlayerScore() {
-        return this.gameState.characterScore;
-    }
-
-    getOpponentScore() {
-        return this.gameState.opponentScore;
+    getOpponentScore() 
+    {
+        return this.getOpponent().currentScore;
     }
 }

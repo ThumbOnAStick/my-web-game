@@ -2,6 +2,7 @@
 // Handles all input and controls for the game
 
 import { Character } from "../jsgameobjects/character.js";
+import { GameManager } from "./gamemanager.js";
 
 
 export class InputManager {
@@ -20,7 +21,12 @@ export class InputManager {
         this.character = character;
     }
 
-    setGameManager(gameManager) {
+    /**
+     * 
+     * @param {GameManager} gameManager 
+     */
+    setGameManager(gameManager) 
+    {
         this.gameManager = gameManager;
     }
 
@@ -29,15 +35,21 @@ export class InputManager {
         window.addEventListener('keyup', (e) => this.handleKeyUp(e));
     }
 
-    handleKeyDown(e) {
+    handleKeyDown(e)
+    {
         if (!this.character) return; // Type guard
         if (this.character.swinging) return; // Action blocked when character is swinging 
-        switch (e.code) {
+        console.log('Pressed');
+        switch (e.code) 
+        {
             case 'Space':
                 this.character.jump();
                 break;
+            // Press R for reset
             case 'KeyR':
-                if (this.gameManager && this.gameManager.gameOver) {
+                if (this.gameManager && this.gameManager.isGameOver()) 
+                {
+                    console.log('Try to reset game')
                     this.gameManager.resetGame();
                 }
                 break;
@@ -55,6 +67,7 @@ export class InputManager {
             case 'KeyK':
                 this.character.performHeavyattack();
                 break;
+
         }
     }
 

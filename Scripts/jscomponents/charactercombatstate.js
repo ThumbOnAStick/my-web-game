@@ -1,7 +1,7 @@
 /**
  * Manages the combat state of a character including attack types, timing, and restrictions
  */
-const heavyDamage = 5;
+const heavyDamage = 25;
 const lightDamage = 3;
 
 export class CharacterCombatState {
