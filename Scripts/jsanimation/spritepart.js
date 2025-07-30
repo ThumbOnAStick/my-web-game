@@ -1,6 +1,15 @@
 // Represents a visual part (sprite) attached to a bone
-export class SpritePart {
-    constructor(image, width, height, angleOffset = 0) {
+export class SpritePart 
+{
+    /**
+     * 
+     * @param {HTMLImageElement} image 
+     * @param {number} width 
+     * @param {number} height 
+     * @param {number} angleOffset 
+     */
+    constructor(image, width, height, angleOffset = 0) 
+    {
         this.image = image;
         this.width = width;
         this.height = height;

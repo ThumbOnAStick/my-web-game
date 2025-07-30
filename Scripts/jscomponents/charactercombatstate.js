@@ -1,6 +1,9 @@
 /**
  * Manages the combat state of a character including attack types, timing, and restrictions
  */
+const heavyDamage = 5;
+const lightDamage = 3;
+
 export class CharacterCombatState {
     constructor() 
     {
@@ -58,14 +61,19 @@ export class CharacterCombatState {
         }
     }
 
-    cannotBeParried()
+    /**
+     * 
+     * @param {String} other 
+     * @returns 
+     */
+    cannotBeParried(other)
     {
-        return this.swingType == 'heavy' && this.swinging;
+        return other == this.swingType && this.swinging;
     }
 
     canParry()
     {
-        return !this.dodging && this.isCharging && this.swingType == 'heavy';
+        return !this.dodging && this.isCharging;
     }
 
     /**
@@ -108,9 +116,9 @@ export class CharacterCombatState {
     getSwingDamage() {
         switch(this.swingType) {
             case 'heavy':
-                return 10;
+                return heavyDamage;
             case 'light':
-                return 3;
+                return lightDamage;
             default:
                 return 0;
         }

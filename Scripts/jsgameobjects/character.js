@@ -21,6 +21,7 @@ const animationDefaults = {
     'swing': { loop: false },                  
     'dodge': { loop: false },                  
     'lightswing': { loop: false },              
+    'stagger' : {loop: false}
 };
 
 // Animation transition durations (in seconds) for smooth switching between animations
@@ -28,12 +29,14 @@ const animationSettings = {
     'idle': { transitionDuration: 0.4 },         
     'swing': { transitionDuration: 0.2 },        
     'lightswing': { transitionDuration: 0.15 },  
-    'dodge': { transitionDuration: 0.15 }       
+    'dodge': { transitionDuration: 0.15 },     
+    'stagger' : {transitionDuration : 0.5}
 };
 
 export class Character extends GameObject 
 {
-    constructor(x, y, width = 40, height = 60, resources, isOpponent = false) {
+    constructor(x, y, width = 40, height = 60, resources, isOpponent = false) 
+    {
         // Note: x, y represent the CENTER position of the character (root bone center)
         super(x, y, width, height); // Call parent constructor
 
@@ -159,6 +162,18 @@ export class Character extends GameObject
     playDodgeAnimation() 
     {
         this.playAnimation('dodge');
+    }
+
+    playStaggerAnimation(immediate = false) 
+    {
+        if (immediate) 
+        {
+            this.animationController.playAnimation('stagger');
+        } 
+        else
+        {
+            this.playAnimation('stagger');
+        }
     }
     //#endregion
 
@@ -316,6 +331,8 @@ export class Character extends GameObject
         if (this.defeated) return;
         
         this.currentScore = Math.max(0, this.currentScore - amount);
+
+        gameEventManager.emit(EventHandler.setScoreChangesEvent,{value: -amount, character: this}); // Notify event manager
         
         if (this.currentScore <= 0) 
         {
@@ -325,14 +342,14 @@ export class Character extends GameObject
         else
         {
             // Dodged
-            this.playDodgeAnimation();
         }
     }
 
-    score(amount) {
+    score(amount) 
+    {
         if (this.defeated) return;
-        
-        this.currentScore = Math.min(this.maxScore, this.currentScore + amount);
+        this.currentScore = Math.min(this.maxScore, this.currentScore + amount); 
+        gameEventManager.emit(EventHandler.setScoreChangesEvent, {value: amount, character: this}); // Notify event manager
     }
 
     getScorePercentage() {

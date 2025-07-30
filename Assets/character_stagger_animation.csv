@@ -1,0 +1,6 @@
+# For reference: π/2 ≈ 1.571 (90°), π ≈ 3.142 (180°), 2π ≈ 6.283 (360°)
+# Natural sword swing animation - Duration: 1.2 seconds
+time,boneName,angle
+0.0,arm,0
+0.0,weapon,-1
+ 

@@ -3,15 +3,19 @@
 
 import { GameState } from "../jscomponents/gamestate.js";
 import { Character } from "../jsgameobjects/character.js";
+import { gameEventManager } from "./eventmanager.js";
 
 export class UIManager {
-    constructor(ctx, canvas) {
+    constructor(ctx, canvas) 
+    {
+        /** @type {CanvasRenderingContext2D} */
         this.ctx = ctx;
         this.canvas = canvas;
     }
 
     /** @param {Character} character */
-    drawScoreBar(character, x = 10, y = 50, score = null) {
+    drawScoreBar(character, x = 10, y = 50, score = null) 
+    {
         if (!character) return;
         
         const barWidth = 200;
@@ -40,6 +44,64 @@ export class UIManager {
         this.ctx.fillText(`Score: ${currentScore}/${maxScore}`, x, y - 5);
     }
 
+    drawScoreChanges()
+    {
+        /**@type {Character} */
+        const scoreChanger = gameEventManager.scoreChanger;
+        const scoreChanges = gameEventManager.scoreChanges;
+
+        if(!scoreChanger || scoreChanges == 0)
+        {
+            return;
+        }
+        
+        let drawLocX = scoreChanger.isOpponent? this.canvas.width - 250 : 250; 
+        let sign = scoreChanges > 0? '+' : '';
+        this.ctx.save();
+        const drawLocY = 60;
+        this.ctx.textAlign = 'center';
+        this.ctx.font = '15px Arial';
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillText(sign + String(scoreChanges), drawLocX, drawLocY);
+        this.ctx.restore();
+    }
+
+    /**
+     * 
+     * @param {Character} character 
+     */
+    drawIndicator(character)
+    {
+        let color = 'black';
+        if(character.isOpponent)
+        {
+            // Red indicator
+            color = 'red';
+        }
+        
+        // Triangle dimensions
+        const triangleSize = 15;
+        const offsetY = 50; // Distance above character
+        
+        // Position above character center
+        const centerX = character.x;
+        const topY = character.y - character.height / 2 - offsetY;
+        
+        // Draw triangle pointing down at character
+        this.ctx.fillStyle = color;
+        this.ctx.beginPath();
+        this.ctx.moveTo(centerX, topY + triangleSize); // Bottom point (pointing down)
+        this.ctx.lineTo(centerX - triangleSize / 2, topY); // Top left
+        this.ctx.lineTo(centerX + triangleSize / 2, topY); // Top right
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        // Optional: Add a border for better visibility
+        this.ctx.strokeStyle = 'white';
+        this.ctx.lineWidth = 1;
+        this.ctx.stroke();
+    }
+
     drawGameOver() {
         this.ctx.font = '40px Arial';
         this.ctx.fillStyle = 'red';
@@ -49,6 +111,22 @@ export class UIManager {
         this.ctx.font = '20px Arial';
         this.ctx.fillStyle = 'black';
         this.ctx.fillText('Press R to restart', this.canvas.width / 2 - 80, this.canvas.height / 2 + 40);
+    }
+
+    /**
+     * 
+     * @param {Character} character 
+     */
+    drawDodged(character) 
+    {
+        if(!character.dodging)
+            return;
+        const offsetY = -100; // Distance above character
+        this.ctx.fillStyle = '#444444';
+        this.ctx.font = '20px Arial';
+        this.ctx.textAlign = 'center';
+        this.ctx.fillText('Dodged', character.x, character.y + offsetY);
+        this.ctx.textAlign = 'start';  
     }
 
     drawLoadingScreen() {

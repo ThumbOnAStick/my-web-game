@@ -11,6 +11,7 @@ import { ResourceManager } from './resourcemanager.js';
 import { UIManager } from './uimanager.js';
 import { AIController } from '../jsai/aicontroller.js';
 import { TickManager } from './tickmanager.js';
+import { VFXManager } from './vfxmanager.js';
 
 export class GameManager {
     constructor(canvas, ctx) {
@@ -24,6 +25,8 @@ export class GameManager {
         this.aiController = null;
         /**@type {Resources} */
         this.resources = null;
+        /**@type {VFXManager} */
+        this.vfxManager = null; // Can't load vfxManager before resources are loadded
 
         // Freeze system
         this.freezeFrames = 0;
@@ -56,6 +59,8 @@ export class GameManager {
 
             this.resources = this.resourceManager.getResources();
 
+            this.vfxManager = new VFXManager(this.resourceManager); // Initialize vfxManager after resource loading
+
             // Create characters
             await this.loadCharacters();
 
@@ -72,7 +77,7 @@ export class GameManager {
             this.tickManager.append((/** @type {number} */ currentTick) => this.aiControllerUpdate(currentTick));
 
             // Initialize evenet manager
-            Eventhandler.initialize(this.obstacleManager)
+            Eventhandler.initialize(this.obstacleManager, this.vfxManager)
 
             this.isInitialized = true;
             console.log('Game initialized successfully');
@@ -83,7 +88,8 @@ export class GameManager {
         }
     }
 
-    async loadCharacters() {
+    async loadCharacters() 
+    {
         const characterHeight = 60;
 
         // Player character
@@ -116,6 +122,7 @@ export class GameManager {
                 await character.loadAnimation('swing', './Assets/character_swing_animation.csv');
                 await character.loadAnimation('lightswing', './Assets/character_lightswing_animation.csv');
                 await character.loadAnimation('dodge', './Assets/character_dodge_animation.csv');
+                await character.loadAnimation('stagger', './Assets/character_stagger_animation.csv')
             }
             console.log('Animations loaded successfully');
         } catch (error) {
@@ -153,8 +160,6 @@ export class GameManager {
         // Ticks update 
         this.tickManager.update();
 
-        // Clear screen
-        this.uiManager.clearScreen();
 
         // Handle input and movement (only for player - first character)
         this.inputManager.handleMovement(this.characters[0]);
@@ -173,6 +178,13 @@ export class GameManager {
         // Check collisions 
         this.obstacleManager.handleCharacterCollisions(this.characters);
 
+        // Manage VFX
+        this.vfxManager.update();
+
+        // Clear screen before drawing
+        this.uiManager.clearScreen();
+
+
         // Draw everything
         this.draw();
     }
@@ -187,23 +199,29 @@ export class GameManager {
         this.aiController.update(currentTick);
     }
 
-    draw() {
+    draw() 
+    {
         // Draw all characters
-        for (const character of this.characters) {
+        for (const character of this.characters) 
+        {
             character.draw(this.ctx, this.resources, this.debugCheckbox.checked);
             if (!character.isOpponent) {
                 // Use GameState scores for player
                 this.uiManager.drawScoreBar(character, 10, this.gameState.characterScore);
                 this.uiManager.drawDebugInfo(character, this.gameState, this.debugCheckbox.checked);
-            } else {
+            } 
+            else 
+            {
                 // Use GameState scores for opponent
                 this.uiManager.drawScoreBar(character, this.canvas.width - 210, this.gameState.opponentScore);
             }
+            this.uiManager.drawIndicator(character);
+            this.uiManager.drawDodged(character);
         }
+        this.uiManager.drawScoreChanges();
+        this.vfxManager.draw(this.ctx);
 
-        // Draw obstacles
-        this.obstacleManager.draw(this.ctx, this.debugCheckbox.checked);
-
+        
     }
 
     resetGame() {

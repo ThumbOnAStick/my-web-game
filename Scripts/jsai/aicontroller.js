@@ -3,7 +3,7 @@ import { GameObject } from '../jsgameobjects/gameobject.js';
 import { AIMetaData } from './aimetadata.js';
 import * as DecisionTreeHelper from '../jsutils/decisiontreehelper.js'
  
-const aiControllerPeriodicUpdateInterval = 16; // Update action tree once every 1000 ticks (1s)
+const aiControllerPeriodicUpdateInterval = 16 * 2; // Update action tree once every 32 ticks (2s)
 
 export class AIController
 {

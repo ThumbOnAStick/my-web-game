@@ -1,3 +1,5 @@
+import { Character } from "../jsgameobjects/character.js";
+
 export class EventManager 
 {
     constructor() 
@@ -6,10 +8,13 @@ export class EventManager
         this.eventHistory = []; // for debugging
         this.delayedEvents = []; // for delayed events
         this.freezingFrames = 0;
+        this.scoreChanges = 0;
+        /**@type {Character} */
+        this.scoreChanger = null;
     }
 
     // Register listeners for events
-    /**@param {VoidFunction} callback  */
+    /**@param {Function} callback  */
     on(eventName, callback) 
     {
         if (!this.listeners.has(eventName)) {
@@ -47,7 +52,8 @@ export class EventManager
     }
 
     // Process delayed events (call this in your game loop)
-    update() {
+    update() 
+    {
         const now = Date.now();
         const eventsToExecute = [];
         
@@ -64,6 +70,7 @@ export class EventManager
         eventsToExecute.forEach(delayedEvent => {
             this.executeEvent(delayedEvent.eventName, delayedEvent.data);
         });
+
     }
 
     // Cancel a delayed event by ID
@@ -75,6 +82,22 @@ export class EventManager
     clearDelayedEvents() 
     {
         this.delayedEvents = [];
+    }
+
+    clearScoreChanges()
+    {
+        this.scoreChanges = 0;
+    }
+
+    /**
+     * 
+     * @param {Number} scoreChanges 
+     * @param {Character} character 
+     */
+    setScoreChanges(scoreChanges, character)
+    {
+        this.scoreChanges = scoreChanges;
+        this.scoreChanger = character;
     }
 
     /**

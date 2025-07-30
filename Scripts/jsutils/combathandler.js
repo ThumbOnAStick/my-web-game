@@ -21,7 +21,7 @@ function damageResult(defender, combatStateOther = null)
 {
     if(defender.combatState.canParry())
     {
-        if(combatStateOther && combatStateOther.cannotBeParried())
+        if(combatStateOther && combatStateOther.cannotBeParried(defender.combatState.swingType))
         {
             return 'hit';
         }
@@ -41,10 +41,11 @@ function characterDodge(character, obstacle = null)
         {
             character.loseScore(obstacle.damage);
             character.adjustHitFacing(obstacle);
-            character.rigidbody.applyForceTo(characterDodgeForce, character, obstacle, true, false, true);
+            // character.rigidbody.applyForceTo(characterDodgeForce, character, obstacle, true, false, true);
         }
         character.rig.setAlpha(characterDodgeAlpha);
         gameEventManager.emit(EventHandlers.resetCharacterDodgingEvent, character, 1);
+
         gameEventManager.freezeFor(5);
 }
 
@@ -55,9 +56,8 @@ function characterDodge(character, obstacle = null)
 function breakFromSwing(character, time)
 {
     character.setSwinging(false); // Force exit swing
-    character.setDodging(true); // Prevent post swing event from executed
     character.setParried(true);  
-    character.playIdleAnimation(true);
+    character.playStaggerAnimation(false);
     gameEventManager.emit(EventHandlers.resetCharacterDodgingEvent, character, time)
     gameEventManager.emit(EventHandlers.resetCharacterParriedEvent, character, time);
 }
@@ -78,6 +78,8 @@ function characterParry(defender, offender = null, offenderSource = null) {
             breakFromSwing(offender.source, 2);
         }
         breakFromSwing(defender, 1);
+        gameEventManager.emit(EventHandlers.spawnParryFlashEvent, defender);
+
         defender.score(5);
     }
 }

@@ -35,7 +35,7 @@ export class GameObject
      * @param {Resources} resources
      * @param {boolean} [showDebug=false]
      */
-    draw(ctx, resources ,showDebug = false) 
+    draw(ctx, resources = null ,showDebug = false) 
     {
         // Base implementation - can be overridden by subclasses
         if (showDebug) 

@@ -5,6 +5,10 @@ import { SpritePart } from "./spritepart.js";
 // Manages the hierarchy of bones and parts
 export class Rig {
 
+    /**
+     * 
+     * @param {Bone} rootBone 
+     */
     constructor(rootBone) 
     {
         this.rootBone = rootBone;

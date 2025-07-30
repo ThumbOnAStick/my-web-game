@@ -1,6 +1,7 @@
 import { Character } from "../jsgameobjects/character.js";
 import { gameEventManager } from "../jsmanagers/eventmanager.js";
 import { ObstacleManager } from "../jsmanagers/obstaclemanager.js";
+import { VFXManager } from "../jsmanagers/vfxmanager.js";
 import * as CombatHandler from '../jsutils/combathandler.js';
 
 export const characterSwingEvent = 'character_swing';
@@ -9,12 +10,17 @@ export const postCharacterSwingEvent = 'create_obstacle';
 export const settleCharacterSwingEvent = 'settle_swing';
 export const resetCharacterDodgingEvent = 'reset_transparency';
 export const resetCharacterParriedEvent = 'reset_Parried';
-
+export const setScoreChangesEvent = 'set_score';
+export const clearScoreChangesEvent = 'reset_score';
+export const spawnParryFlashEvent = 'create_flash';
 
 
 // Create event handlers that capture obstacleManager
-/**@param {ObstacleManager} obstacleManager */
-export function createEventHandlers(obstacleManager) 
+/**
+ * @param {ObstacleManager} obstacleManager 
+ * @param {VFXManager} vfxManager 
+*/
+export function createEventHandlers(obstacleManager, vfxManager) 
 {
     
     function handleSwingEvent(data) 
@@ -32,6 +38,7 @@ export function createEventHandlers(obstacleManager)
         /**@type {Character} */
         const character = data;
         character.setSwinging(true);
+        character.setIsCharging(true);
         gameEventManager.emit(postCharacterSwingEvent, data, 0.7);  
         gameEventManager.emit(settleCharacterSwingEvent, data, 1);
 
@@ -79,6 +86,31 @@ export function createEventHandlers(obstacleManager)
         character.combatState.setParried(false);
     }
 
+    /**
+     * @param {{ value: number, character: Character }} data
+     */
+    function setScoreChanges(data)
+    {
+        const { value, character } = data;
+        console.log(`Score successfully set ${value}, ${character}`);
+        gameEventManager.setScoreChanges(value, character);
+        gameEventManager.emit(clearScoreChangesEvent, data, 1);
+    }
+
+    function resetScorechanges(data)
+    {
+        gameEventManager.clearScoreChanges();
+    }
+
+    function spawnParryFlash(data)
+    {
+        const character = /**@type {Character} */ (data);
+        let weaponBone = character.weaponBone;
+        let weaponWorldPos = weaponBone.getWorldPosition();
+        console.log('Flash created');
+        vfxManager.make('flash', weaponBone.angle, weaponWorldPos.x, weaponWorldPos.y, 10, 100, 1000);
+    }
+
     // Return the handlers
     return {
         handleSwingEvent,
@@ -86,14 +118,23 @@ export function createEventHandlers(obstacleManager)
         handlePostSwingEvent,
         resetCharacterDodging,
         resetCharacterParried,
-        settleCharacterSwing
+        settleCharacterSwing,
+        setScoreChanges,
+        resetScorechanges,
+        spawnParryFlash
     };
 
 }
 
 // Initialize event listeners with obstacleManager
-export function initialize(obstacleManager) {
-    const handlers = createEventHandlers(obstacleManager);
+/**
+ * 
+ * @param {ObstacleManager} obstacleManager 
+ * @param {VFXManager} vfxmanager 
+ */
+export function initialize(obstacleManager, vfxmanager) 
+{
+    const handlers = createEventHandlers(obstacleManager, vfxmanager);
     
     gameEventManager.on(characterSwingEvent, handlers.handleSwingEvent);
     gameEventManager.on(characterLightSwingEvent, handlers.handleLightSwingEvent);
@@ -101,5 +142,9 @@ export function initialize(obstacleManager) {
     gameEventManager.on(resetCharacterDodgingEvent, handlers.resetCharacterDodging);
     gameEventManager.on(resetCharacterParriedEvent, handlers.resetCharacterParried);
     gameEventManager.on(settleCharacterSwingEvent, handlers.settleCharacterSwing);
+    gameEventManager.on(setScoreChangesEvent, handlers.setScoreChanges);
+    gameEventManager.on(clearScoreChangesEvent, handlers.resetScorechanges);
+    gameEventManager.on(spawnParryFlashEvent, handlers.spawnParryFlash)
+
 
 }

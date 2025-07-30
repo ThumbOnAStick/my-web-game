@@ -4,11 +4,12 @@
 import { Resources } from '../jscomponents/resources.js';
 
 export class ResourceManager {
-    constructor() {
+    constructor() 
+    {
         this.resources = new Resources();
         this.resourcesLoaded = false;
-        this.spriteNames = ['head', 'body', 'weapon'];
-        this.spritePaths = ['./Assets/Head.png', './Assets/Body.png', './Assets/Sword.png'];
+        this.spriteNames = ['head', 'body', 'weapon', 'flash'];
+        this.spritePaths = ['./Assets/Head.png', './Assets/Body.png', './Assets/Sword.png', './Assets/Flash.png'];
     }
 
     async loadAllResources() {
