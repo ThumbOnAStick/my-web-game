@@ -1,4 +1,5 @@
 import { Character } from "../jsgameobjects/character.js";
+import { AudioManager } from "../jsmanagers/audiomanager.js";
 import { gameEventManager } from "../jsmanagers/eventmanager.js";
 import { ObstacleManager } from "../jsmanagers/obstaclemanager.js";
 import { VFXManager } from "../jsmanagers/vfxmanager.js";
@@ -13,14 +14,16 @@ export const resetCharacterParriedEvent = 'reset_Parried';
 export const setScoreChangesEvent = 'set_score';
 export const clearScoreChangesEvent = 'reset_score';
 export const spawnParryFlashEvent = 'create_flash';
+export const playNamedClipEvent = 'play_sound_clip';
 
 
 // Create event handlers that capture obstacleManager
 /**
  * @param {ObstacleManager} obstacleManager 
  * @param {VFXManager} vfxManager 
+ * @param {AudioManager} audiomanager
 */
-export function createEventHandlers(obstacleManager, vfxManager) 
+export function createEventHandlers(obstacleManager, vfxManager, audiomanager) 
 {
     
     function handleSwingEvent(data) 
@@ -30,7 +33,7 @@ export function createEventHandlers(obstacleManager, vfxManager)
         character.setSwinging(true);
         character.setIsCharging(true);
         gameEventManager.emit(postCharacterSwingEvent, data, 1); // Calculate damage
-        gameEventManager.emit(settleCharacterSwingEvent, data, 1.5); // Reset character
+        gameEventManager.emit(settleCharacterSwingEvent, data, 2); // Reset character
     }
 
     function handleLightSwingEvent(data) 
@@ -40,7 +43,7 @@ export function createEventHandlers(obstacleManager, vfxManager)
         character.setSwinging(true);
         character.setIsCharging(true);
         gameEventManager.emit(postCharacterSwingEvent, data, 0.7);  
-        gameEventManager.emit(settleCharacterSwingEvent, data, 1);
+        gameEventManager.emit(settleCharacterSwingEvent, data, 1.5);
 
     }
 
@@ -111,6 +114,13 @@ export function createEventHandlers(obstacleManager, vfxManager)
         vfxManager.make('flash', weaponBone.angle * character.facing, weaponWorldPos.x, weaponWorldPos.y, 10, 100, 1000);
     }
 
+    function playSoundClip(data)
+    {
+        const clipName = /**@type {String} */ (data);
+        audiomanager.playOnce(clipName);
+
+    }
+
     // Return the handlers
     return {
         handleSwingEvent,
@@ -121,7 +131,8 @@ export function createEventHandlers(obstacleManager, vfxManager)
         settleCharacterSwing,
         setScoreChanges,
         resetScorechanges,
-        spawnParryFlash
+        spawnParryFlash,
+        playSoundClip
     };
 
 }
@@ -130,11 +141,12 @@ export function createEventHandlers(obstacleManager, vfxManager)
 /**
  * 
  * @param {ObstacleManager} obstacleManager 
- * @param {VFXManager} vfxmanager 
+ * @param {VFXManager} vfxManager 
+ * @param {AudioManager} audioManager
  */
-export function initialize(obstacleManager, vfxmanager) 
+export function initialize(obstacleManager, vfxManager, audioManager) 
 {
-    const handlers = createEventHandlers(obstacleManager, vfxmanager);
+    const handlers = createEventHandlers(obstacleManager, vfxManager, audioManager);
     
     gameEventManager.on(characterSwingEvent, handlers.handleSwingEvent);
     gameEventManager.on(characterLightSwingEvent, handlers.handleLightSwingEvent);
@@ -144,7 +156,9 @@ export function initialize(obstacleManager, vfxmanager)
     gameEventManager.on(settleCharacterSwingEvent, handlers.settleCharacterSwing);
     gameEventManager.on(setScoreChangesEvent, handlers.setScoreChanges);
     gameEventManager.on(clearScoreChangesEvent, handlers.resetScorechanges);
-    gameEventManager.on(spawnParryFlashEvent, handlers.spawnParryFlash)
+    gameEventManager.on(spawnParryFlashEvent, handlers.spawnParryFlash);
+    gameEventManager.on(playNamedClipEvent, handlers.playSoundClip);
+
 
 
 }

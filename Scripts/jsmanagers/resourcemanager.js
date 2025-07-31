@@ -10,22 +10,36 @@ export class ResourceManager {
         this.resourcesLoaded = false;
         this.spriteNames = ['head', 'body', 'weapon', 'flash'];
         this.spritePaths = ['./Assets/Head.png', './Assets/Body.png', './Assets/Sword.png', './Assets/Flash.png'];
+        this.audioNames = ['parry', 'dodge'];
+        this.audioPaths = ['./Assets/blocked.wav', './Assets/dodge.wav'];
     }
 
-    async loadAllResources() {
+    async trytoLoadAllResources() 
+    {
         return new Promise((resolve, reject) => {
-            this.resources.loadAllImages(this.spriteNames, this.spritePaths, () => {
-                this.resourcesLoaded = true;
-                console.log('All Resources loaded successfully');
-                resolve();
-            });
-        });
-    }
+            let imagesReady = false;
+            let soundsReady = false;
 
-    drawLoadingScreen(ctx, canvas) {
-        ctx.font = '20px Arial';
-        ctx.fillStyle = 'black';
-        ctx.fillText('Loading Images...', canvas.width / 2 - 100, canvas.height / 2);
+            const checkComplete = () => {
+                if (imagesReady && soundsReady) {
+                    console.log("All resources loaded successfully.");
+                    resolve();
+                }
+            };
+
+            // Load images with callback
+            this.resources.loadAllImages(this.spriteNames, this.spritePaths, () => {
+                imagesReady = true;
+                checkComplete();
+            });
+
+            // Load sounds with callback  
+            this.resources.loadAllSounds(this.audioNames, this.audioPaths, () => {
+                soundsReady = true;
+                checkComplete();
+            });
+
+        });
     }
 
     /**@returns {Resources} */
@@ -37,7 +51,18 @@ export class ResourceManager {
         return this.resourcesLoaded;
     }
 
-    getImage(name) {
+    getImage(name) 
+    {
         return this.resources.getImage(name);
+    }
+
+    /**
+     * 
+     * @param {String} name 
+     * @returns {HTMLAudioElement}
+     */
+    getSound(name)
+    {
+        return this.resources.getSound(name);
     }
 }

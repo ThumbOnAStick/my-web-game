@@ -1,23 +1,45 @@
 export class Resources {
-    constructor() {
+    constructor() 
+    {
         this.images = {};
         this.sounds = {};
     }
 
-    loadAllImages(names, paths, onLoad) {
+    loadAllImages(names, paths, callback) {
         let loadedCount = 0;
         const total = names.length;
 
-        names.forEach((name, index) => {
+        names.forEach((name, index) => 
+        {
             console.log(`Loading images: ${name} from ${paths[index]}`);
-            this.loadImage(name, paths[index], () => {
+            this.loadImage(name, paths[index], () => 
+                {
                 loadedCount++;
-                if (loadedCount === total && onLoad) {
-                    onLoad();
+                if (loadedCount === total) 
+                {
+                    callback();
                 }
             });
         });
 
+    }
+
+    loadAllSounds(names, paths, callback) 
+    {
+        let loadedCount = 0;
+        const total = names.length;
+
+        names.forEach((name, index) => {
+            console.log(`Loading sounds: ${name} from ${paths[index]}`);
+            this.loadSound(name, paths[index], () => {
+                loadedCount++;
+                console.log(`sound ${name} loadded!`);       
+                if (loadedCount === total) 
+                {
+                    callback()
+                }
+            });
+        });
     }
 
     loadAnimation(name, src, onLoad) 
@@ -38,23 +60,35 @@ export class Resources {
         this.images[name] = img;
     }
 
-    drawImage(ctx, name, x, y, width, height) {
-        const img = this.images[name];
-        if (img) {
-            ctx.drawImage(img, x, y, width, height);
-        } else {
-            console.warn(`Image ${name} not found`);
-        }
-    }
-
-    getImage(name) {
+    getImage(name) 
+    {
         return this.images[name];
+    }    
+    getSound(name) 
+    {
+        return this.sounds[name];
     }
 
-    loadSound(name, src) {
-        const audio = new Audio(src);
-        this.sounds[name] = audio;
+   loadSound(name, src, onload) 
+{
+    const audio = new Audio();
+    
+    // Use canplaythrough for audio loading
+    if(onload) 
+    {
+        audio.addEventListener('canplaythrough', onload, { once: true });
     }
+    
+    // Add error handling
+    audio.addEventListener
+    ('error', (e) => {
+        console.error(`Failed to load audio: ${name}`, e);
+    });
+    
+    audio.src = src;
+    audio.preload = 'auto';  // Ensure audio preloads
+    this.sounds[name] = audio;
+}
 
     playSound(name) {
         if (this.sounds[name]) {

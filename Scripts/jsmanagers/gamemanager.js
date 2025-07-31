@@ -12,8 +12,15 @@ import { UIManager } from './uimanager.js';
 import { AIController } from '../jsai/aicontroller.js';
 import { TickManager } from './tickmanager.js';
 import { VFXManager } from './vfxmanager.js';
+import { AudioManager } from './audiomanager.js';
 
-export class GameManager {
+export class GameManager 
+{
+    /**
+     * 
+     * @param {HTMLCanvasElement} canvas 
+     * @param {*} ctx 
+     */
     constructor(canvas, ctx) {
         this.isInitialized = false;
         this.canvas = canvas;
@@ -34,9 +41,10 @@ export class GameManager {
         this.gameState = new GameState();
 
         // Initialize managers
-        this.inputManager = new InputManager();
+        this.inputManager = new InputManager(canvas);
         this.obstacleManager = new ObstacleManager();
         this.resourceManager = new ResourceManager();
+        this.audioManager = new AudioManager(this.resourceManager);
         this.uiManager = new UIManager(ctx, canvas);
         this.tickManager = new TickManager(Date.now());
         // Set up manager references
@@ -54,7 +62,7 @@ export class GameManager {
             this.uiManager.drawLoadingScreen();
 
             // Load all resources
-            await this.resourceManager.loadAllResources();
+            await this.resourceManager.trytoLoadAllResources();
 
             this.resources = this.resourceManager.getResources();
 
@@ -76,7 +84,7 @@ export class GameManager {
             this.tickManager.append((/** @type {number} */ currentTick) => this.aiControllerUpdate(currentTick));
 
             // Initialize evenet manager
-            Eventhandler.initialize(this.obstacleManager, this.vfxManager)
+            Eventhandler.initialize(this.obstacleManager, this.vfxManager, this.audioManager)
 
             this.isInitialized = true;
             console.log('Game initialized successfully');
@@ -141,7 +149,6 @@ export class GameManager {
     {
         if (this.gameState.isGameOver) 
         {
-            this.uiManager.drawGameOver();
             return true;
         }
         return false;
@@ -164,26 +171,29 @@ export class GameManager {
         // Update all characters (every frame)
         this.characterUpdate();
 
-        if (this.checkGameOver()) return;
+        // Only update when game is not over
+        if (!this.checkGameOver())
+        {
+            // Ticks update 
+            this.tickManager.update();
+            
+            // Check obstacle manager
+            this.obstacleManager.update();
+    
+            // Check collisions 
+            this.obstacleManager.handleCharacterCollisions(this.characters);
+    
+            // Manage VFX
+            this.vfxManager.update();
+    
+            // Update score, check game state
+            this.gameState.updatePlayerScore(this.getPlayerScore());
+            this.gameState.updateOpponentScore(this.getOpponentScore());
+        }
         
-        // Ticks update 
-        this.tickManager.update();
-        
-        // Check obstacle manager
-        this.obstacleManager.update();
-
-        // Check collisions 
-        this.obstacleManager.handleCharacterCollisions(this.characters);
-
-        // Manage VFX
-        this.vfxManager.update();
 
         // Clear screen before drawing
         this.uiManager.clearScreen();
-
-        // Update score, check game state
-        this.gameState.updatePlayerScore(this.getPlayerScore());
-        this.gameState.updateOpponentScore(this.getOpponentScore());
 
         // Draw everything
         this.draw();
@@ -207,18 +217,22 @@ export class GameManager {
         this.aiController.update(currentTick);
     }
 
-    draw() 
+    drawCharacters()
     {
-        // Draw all characters
         const scorebarHeight = 60;
+
         for (const character of this.characters) 
         {
             character.draw(this.ctx, this.resources, this.debugCheckbox.checked);
+            if(this.isGameOver())
+            {
+                continue;
+            }
             if (!character.isOpponent) 
             {
                 // Use GameState scores for player
                 this.uiManager.drawScoreBar(character, 10, scorebarHeight, this.getPlayerScore());
-                this.uiManager.drawDebugInfo(character, this.gameState, this.debugCheckbox.checked);
+                this.uiManager.drawDebugInfo(character, this.gameState, this.inputManager, this.debugCheckbox.checked);
             } 
             else 
             {
@@ -228,11 +242,40 @@ export class GameManager {
             this.uiManager.drawIndicator(character);
             this.uiManager.drawDodged(character);
         }
-        this.uiManager.drawScoreChanges();
-        this.vfxManager.draw(this.ctx);
 
-        
+        this.uiManager.drawScoreChanges();
     }
+
+    drawGameover()
+    {
+        if(this.isGameOver())
+        {
+            if(this.uiManager.drawGameOver(this.gameState.winner, this.inputManager)) // Checks if restart button is clicked
+            {
+                this.resetGame();
+            }
+        }
+    }
+
+    drawVFX()
+    {
+        this.vfxManager.draw(this.ctx);
+    }
+
+    draw() 
+    {
+        // Gameover drawing
+        this.drawGameover();
+
+        // Character drawing
+        this.drawCharacters();
+      
+        // Vfx drawing
+        this.drawVFX();
+       
+    }
+
+
 
     resetGame() 
     {

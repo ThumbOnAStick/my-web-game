@@ -10,7 +10,7 @@ export class GameState{
         if (this.isGameOver) return;        
         if (amount <= 0) 
         {
-            this.endGame('opponent');
+            this.endGame('computer');
         }
     }
 
@@ -23,6 +23,10 @@ export class GameState{
         }
     }
 
+    /**
+     * 
+     * @param {String} winner 
+     */
     endGame(winner) 
     {
         this.isGameOver = true;

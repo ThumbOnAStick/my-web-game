@@ -45,7 +45,7 @@ function characterDodge(character, obstacle = null)
         }
         character.rig.setAlpha(characterDodgeAlpha);
         gameEventManager.emit(EventHandlers.resetCharacterDodgingEvent, character, 1);
-
+        gameEventManager.emit(EventHandlers.playNamedClipEvent, 'dodge', 0.2);
         gameEventManager.freezeFor(5);
 }
 
@@ -79,6 +79,7 @@ function characterParry(defender, offender = null, offenderSource = null) {
         }
         breakFromSwing(defender, 1);
         gameEventManager.emit(EventHandlers.spawnParryFlashEvent, defender);
+        gameEventManager.emit(EventHandlers.playNamedClipEvent, 'parry');
 
         defender.score(5);
     }

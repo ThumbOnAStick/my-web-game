@@ -37,6 +37,10 @@ export class VFXManager
         this.objects = this.objects.filter(obj => obj.shouldBeRemoved(currentTicks));
     }
 
+    /**
+     * 
+     * @param {HTMLCanvasElement} ctx 
+     */
     draw(ctx)
     {
         this.objects.forEach
