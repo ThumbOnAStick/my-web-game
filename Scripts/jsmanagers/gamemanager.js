@@ -14,8 +14,7 @@ import { TickManager } from './tickmanager.js';
 import { VFXManager } from './vfxmanager.js';
 import { AudioManager } from './audiomanager.js';
 
-export class GameManager 
-{
+export class GameManager {
     /**
      * 
      * @param {HTMLCanvasElement} canvas 
@@ -49,10 +48,11 @@ export class GameManager
         this.tickManager = new TickManager(Date.now());
         // Set up manager references
         this.inputManager.setGameManager(this);
-
+        this.selectedLanguage = 'English';
         // Set up debug checkbox
         /**@type {HTMLInputElement} */
         this.debugCheckbox = /** @type {HTMLInputElement} */ (document.getElementById('debugCheckbox'));
+        this.languageSelector = /**@type {HTMLInputElement} */ (document.getElementById('languageSelector'));
         this.setupDebugControls();
     }
 
@@ -95,8 +95,7 @@ export class GameManager
         }
     }
 
-    async loadCharacters() 
-    {
+    async loadCharacters() {
         const characterHeight = 60;
 
         // Player character
@@ -110,7 +109,7 @@ export class GameManager
 
         // Opponent character
         const opponent = new Character(
-            this.canvas.width - 100,
+            this.canvas.width - 50,
             this.canvas.height - characterHeight / 2,
             40, // width
             characterHeight, // height
@@ -145,25 +144,15 @@ export class GameManager
         this.update();
     }
 
-    checkGameOver() 
-    {
-        if (this.gameState.isGameOver) 
-        {
-            return true;
-        }
-        return false;
-    }
-
-    update() 
-    {
-        requestAnimationFrame(() => this.update());
-        
+    update() {
         // Handle game over state - check both local and GameState
-        
-        if(gameEventManager.updateFreeze()) return;
-        
-        // Handle input even during game over (for reset functionality)
-        this.inputManager.handleMovement(this.characters[0]);
+        if (gameEventManager.updateFreeze()) {
+            requestAnimationFrame(() => this.update());
+            return;
+        }
+
+        // Update display language
+        this.selectedLanguage = this.languageSelector.value;
 
         // Update event manager for delayed events
         gameEventManager.update();
@@ -172,37 +161,42 @@ export class GameManager
         this.characterUpdate();
 
         // Only update when game is not over
-        if (!this.checkGameOver())
-        {
+        if (this.isGameRunning()) {
+            // Handle movement
+            this.inputManager.handleMovement(this.characters[0]);
+
             // Ticks update 
             this.tickManager.update();
-            
+
             // Check obstacle manager
             this.obstacleManager.update();
-    
+
             // Check collisions 
             this.obstacleManager.handleCharacterCollisions(this.characters);
-    
+
             // Manage VFX
             this.vfxManager.update();
-    
+
             // Update score, check game state
-            this.gameState.updatePlayerScore(this.getPlayerScore());
-            this.gameState.updateOpponentScore(this.getOpponentScore());
+            const labelPlayer = this.getTranslation('Player');
+            const labelPC = this.getTranslation('PC');
+            this.gameState.updatePlayerScore(this.getPlayerScore(), labelPlayer, labelPC);
+            this.gameState.updateOpponentScore(this.getOpponentScore(), labelPlayer, labelPC);
         }
-        
+
 
         // Clear screen before drawing
         this.uiManager.clearScreen();
 
         // Draw everything
         this.draw();
+
+        requestAnimationFrame(() => this.update());
+
     }
 
-    characterUpdate()
-    {
-        for (const character of this.characters) 
-        {
+    characterUpdate() {
+        for (const character of this.characters) {
             character.update(this.canvas);
         }
     }
@@ -211,80 +205,101 @@ export class GameManager
      * 
      * @param {Number} currentTick 
      */
-    aiControllerUpdate(currentTick) 
-    {
+    aiControllerUpdate(currentTick) {
         // AI updates at fixed intervals
         this.aiController.update(currentTick);
     }
 
-    drawCharacters()
-    {
+    drawCharacters() {
         const scorebarHeight = 60;
-
-        for (const character of this.characters) 
-        {
+        const scoreLabel = this.resourceManager.getTranslation(this, 'Score');
+        for (const character of this.characters) {
             character.draw(this.ctx, this.resources, this.debugCheckbox.checked);
-            if(this.isGameOver())
+            if (!this.isGameRunning()) // Only draw character UI when game is running
             {
                 continue;
             }
-            if (!character.isOpponent) 
-            {
+            if (!character.isOpponent) {
                 // Use GameState scores for player
-                this.uiManager.drawScoreBar(character, 10, scorebarHeight, this.getPlayerScore());
+                this.uiManager.drawScoreBar(character, scoreLabel, 10, scorebarHeight, this.getPlayerScore());
                 this.uiManager.drawDebugInfo(character, this.gameState, this.inputManager, this.debugCheckbox.checked);
-            } 
-            else 
-            {
+            }
+            else {
                 // Use GameState scores for opponent
-                this.uiManager.drawScoreBar(character, this.canvas.width - 210, scorebarHeight, this.getOpponentScore());
+                this.uiManager.drawScoreBar(character, scoreLabel, this.canvas.width - 210, scorebarHeight, this.getOpponentScore());
             }
             this.uiManager.drawIndicator(character);
-            this.uiManager.drawDodged(character);
+            this.uiManager.drawDodged(this.resourceManager.getTranslation(this, 'Dodge'), character);
         }
 
         this.uiManager.drawScoreChanges();
     }
 
-    drawGameover()
+    drawMenu() {
+        if (this.isInMenu()) {
+            if (this.uiManager.drawMenu(
+                this.inputManager,
+                this.resourceManager.getTranslation(this, 'Title'),
+                this.resourceManager.getTranslation(this, 'Start'))) {
+                this.gameState.startGame();
+            }
+        }
+    }
+
+    /**
+     * 
+     * @param {*} element 
+     * @returns {String}
+     */
+    getTranslation(element)
     {
-        if(this.isGameOver())
+        return this.resourceManager.getTranslation(this, element)
+    }
+
+    drawGameover() {
+        if (this.isGameOver()) 
         {
-            if(this.uiManager.drawGameOver(this.gameState.winner, this.inputManager)) // Checks if restart button is clicked
+            if (
+            this.uiManager.drawGameOver(
+            this.getTranslation('Gameover'), 
+            this.getTranslation('Restart'), 
+            this.gameState.winner,
+            this.getTranslation('Wins'), 
+             this.inputManager)) // Checks if restart button is clicked
             {
                 this.resetGame();
             }
         }
     }
 
-    drawVFX()
-    {
+    drawVFX() {
         this.vfxManager.draw(this.ctx);
     }
 
-    draw() 
-    {
+    draw() {
+
+        // Menu drawing
+        this.drawMenu();
+
         // Gameover drawing
         this.drawGameover();
 
         // Character drawing
         this.drawCharacters();
-      
+
         // Vfx drawing
         this.drawVFX();
-       
+
     }
 
 
 
-    resetGame() 
-    {
+    resetGame() {
         // Reset player character state (first character)
         const characterHeight = 60;
         const player = this.characters[0];
         player.y = this.canvas.height - characterHeight;
-        if (player.rigidbody) 
-        {
+        if (player.rigidbody) {
             player.rigidbody.velocityY = 0;
         }
         player.grounded = true;
@@ -293,8 +308,7 @@ export class GameManager
         this.obstacleManager.clearObstacles();
 
         // Restart with idle animation for all characters
-        for (const character of this.characters) 
-        {
+        for (const character of this.characters) {
             character.resetScore();
             character.playIdleAnimation();
         }
@@ -317,19 +331,19 @@ export class GameManager
     }
 
     // Getter methods for external access
-    isGameOver() { return this.gameState.isGameOver; }
+    isGameRunning() { return this.gameState.isGameRunning(); }
+    isGameOver() { return this.gameState.isGameOver(); }
+    isInMenu() { return this.gameState.isInMenu(); }
     getPlayer() { return this.characters[0]; }
-    getOpponent() {return this.characters[1];}
+    getOpponent() { return this.characters[1]; }
     getCharacters() { return this.characters; }
     getGameState() { return this.gameState; }
 
-    getPlayerScore() 
-    {
+    getPlayerScore() {
         return this.getPlayer().currentScore;
     }
 
-    getOpponentScore() 
-    {
+    getOpponentScore() {
         return this.getOpponent().currentScore;
     }
 }

@@ -2,6 +2,7 @@
 // Handles all resource loading for the game
 
 import { Resources } from '../jscomponents/resources.js';
+import { GameManager } from './gamemanager.js';
 
 export class ResourceManager {
     constructor() 
@@ -10,8 +11,11 @@ export class ResourceManager {
         this.resourcesLoaded = false;
         this.spriteNames = ['head', 'body', 'weapon', 'flash'];
         this.spritePaths = ['./Assets/Head.png', './Assets/Body.png', './Assets/Sword.png', './Assets/Flash.png'];
-        this.audioNames = ['parry', 'dodge'];
-        this.audioPaths = ['./Assets/blocked.wav', './Assets/dodge.wav'];
+        this.audioNames = ['parry', 'dodge', 'clapping'];
+        this.audioPaths = ['./Assets/blocked.wav', './Assets/dodge.wav', './Assets/clapping.wav'];
+        this.languageCodes = ['English', 'ChineseSimplified']
+        this.languagePaths = ['./Assets/Languages/English.xml', './Assets/Languages/ChineseSimplified.xml']
+
     }
 
     async trytoLoadAllResources() 
@@ -19,9 +23,10 @@ export class ResourceManager {
         return new Promise((resolve, reject) => {
             let imagesReady = false;
             let soundsReady = false;
+            let languagesReady = false;
 
             const checkComplete = () => {
-                if (imagesReady && soundsReady) {
+                if (imagesReady && soundsReady && languagesReady) {
                     console.log("All resources loaded successfully.");
                     resolve();
                 }
@@ -36,6 +41,11 @@ export class ResourceManager {
             // Load sounds with callback  
             this.resources.loadAllSounds(this.audioNames, this.audioPaths, () => {
                 soundsReady = true;
+                checkComplete();
+            });
+
+            this.resources.loadAllLanguages(this.languageCodes, this.languagePaths, () => {
+                languagesReady = true;
                 checkComplete();
             });
 
@@ -56,6 +66,8 @@ export class ResourceManager {
         return this.resources.getImage(name);
     }
 
+    
+
     /**
      * 
      * @param {String} name 
@@ -64,5 +76,16 @@ export class ResourceManager {
     getSound(name)
     {
         return this.resources.getSound(name);
+    }
+
+    /**
+     * 
+     * @param {GameManager} gamemanager 
+     * @param {String} elementName 
+     * @returns {String}
+     */
+    getTranslation(gamemanager, elementName)
+    {
+        return this.resources.getLanguageText(gamemanager.selectedLanguage, elementName)
     }
 }

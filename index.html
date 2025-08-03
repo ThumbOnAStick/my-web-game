@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -7,18 +8,48 @@
     <title>Simple Web Game</title>
     <link rel="icon" href="data:,">
     <style>
-        body { text-align: center; background: #f0f0f0; }
-        canvas { background: #fff; border: 2px solid #333; margin-top: 30px; }
+        body {
+            text-align: center;
+            background: #f0f0f0;
+        }
+
+        canvas {
+            background: #fff;
+            border: 2px solid #333;
+            margin-top: 30px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .language-selector {
+            margin-left: auto;
+        }
     </style>
 </head>
-<body>    
+
+<body>
     <h1>Prray & Dodge</h1>
-    <canvas id="gameCanvas" width="600" height="400"></canvas>     
-    <div>
+    <canvas id="gameCanvas" width="600" height="400"></canvas>
+    <div class="controls">
         <label>
             <input type="checkbox" id="debugCheckbox"> Debug
+        </label>
+        <label class="language-selector">
+            <select id="languageSelector">
+                <option value="English">En</option>
+                <option value="ChineseSimplified">中</option>
+            </select>
         </label>
     </div>
     <script type="module" src="./Scripts/main.js"></script>
 </body>
+
 </html>

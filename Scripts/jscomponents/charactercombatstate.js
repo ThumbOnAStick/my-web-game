@@ -1,7 +1,7 @@
 /**
  * Manages the combat state of a character including attack types, timing, and restrictions
  */
-const heavyDamage = 25;
+const heavyDamage = 5;
 const lightDamage = 3;
 
 export class CharacterCombatState {
@@ -101,7 +101,7 @@ export class CharacterCombatState {
     getSwingHitboxLifetime() {
         switch(this.swingType) {
             case 'heavy':
-                return 0.3;
+                return 0.2;
             case 'light':
                 return 0.1;
             default:

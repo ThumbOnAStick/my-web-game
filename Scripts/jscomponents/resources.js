@@ -1,22 +1,22 @@
 export class Resources {
-    constructor() 
-    {
+    constructor() {
         this.images = {};
         this.sounds = {};
+        /**
+         * @type {{ [key: string]: Document }}
+         */
+        this.languages = {};
     }
 
     loadAllImages(names, paths, callback) {
         let loadedCount = 0;
         const total = names.length;
 
-        names.forEach((name, index) => 
-        {
+        names.forEach((name, index) => {
             console.log(`Loading images: ${name} from ${paths[index]}`);
-            this.loadImage(name, paths[index], () => 
-                {
+            this.loadImage(name, paths[index], () => {
                 loadedCount++;
-                if (loadedCount === total) 
-                {
+                if (loadedCount === total) {
                     callback();
                 }
             });
@@ -24,8 +24,7 @@ export class Resources {
 
     }
 
-    loadAllSounds(names, paths, callback) 
-    {
+    loadAllSounds(names, paths, callback) {
         let loadedCount = 0;
         const total = names.length;
 
@@ -33,17 +32,29 @@ export class Resources {
             console.log(`Loading sounds: ${name} from ${paths[index]}`);
             this.loadSound(name, paths[index], () => {
                 loadedCount++;
-                console.log(`sound ${name} loadded!`);       
-                if (loadedCount === total) 
-                {
+                console.log(`sound ${name} loadded!`);
+                if (loadedCount === total) {
                     callback()
                 }
             });
         });
     }
 
-    loadAnimation(name, src, onLoad) 
-    {
+    loadAllLanguages(names, paths, callback) {
+        let loadedCount = 0;
+        const totalCount = names.length;
+
+        for (let i = 0; i < names.length; i++) {
+            this.loadLangauges(names[i], paths[i], () => {
+                loadedCount++;
+                if (loadedCount === totalCount) {
+                    callback();
+                }
+            });
+        }
+    }
+
+    loadAnimation(name, src, onLoad) {
         fetch('data.csv')
             .then(response => response.text())
             .then(text => {
@@ -60,35 +71,77 @@ export class Resources {
         this.images[name] = img;
     }
 
-    getImage(name) 
-    {
+    getImage(name) {
         return this.images[name];
-    }    
-    getSound(name) 
-    {
+    }
+    getSound(name) {
         return this.sounds[name];
     }
 
-   loadSound(name, src, onload) 
-{
-    const audio = new Audio();
-    
-    // Use canplaythrough for audio loading
-    if(onload) 
-    {
-        audio.addEventListener('canplaythrough', onload, { once: true });
+
+    /**
+     * 
+     * @param {*} languageCode 
+     * @param {*} elementName 
+     * @returns {String}
+     */
+    getLanguageText(languageCode, elementName) {
+        const xmlDoc = this.languages[languageCode];
+        if (!xmlDoc) {
+            console.error(`Language not found: ${languageCode}`);
+            return null;
+        }
+
+        const root = xmlDoc.querySelector('Root');
+        if (!root) {
+            console.error(`Language root not found: ${languageCode}`);
+            return null;
+        }
+
+        const element = root.querySelector(elementName);
+        if (!element) {
+            console.error(`Element not found: ${elementName}`);
+            return null;
+        }
+
+
+        return element.textContent;
     }
-    
-    // Add error handling
-    audio.addEventListener
-    ('error', (e) => {
-        console.error(`Failed to load audio: ${name}`, e);
-    });
-    
-    audio.src = src;
-    audio.preload = 'auto';  // Ensure audio preloads
-    this.sounds[name] = audio;
-}
+
+    loadSound(name, src, onload) {
+        const audio = new Audio();
+
+        // Use canplaythrough for audio loading
+        if (onload) {
+            audio.addEventListener('canplaythrough', onload, { once: true });
+        }
+
+        // Add error handling
+        audio.addEventListener
+            ('error', (e) => {
+                console.error(`Failed to load audio: ${name}`, e);
+            });
+
+        audio.src = src;
+        audio.preload = 'auto';  // Ensure audio preloads
+        this.sounds[name] = audio;
+    }
+
+    loadLangauges(name, path, callback) {
+        fetch(path)
+            .then(response => response.text())
+            .then(str => {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(str, "text/xml");
+                this.languages[name] = xmlDoc;
+                console.log(`XML loaded: ${name}`);
+                if (callback) callback();
+            })
+            .catch(error => {
+                console.error(`Failed to load XML ${name}:`, error);
+            });
+    }
+
 
     playSound(name) {
         if (this.sounds[name]) {

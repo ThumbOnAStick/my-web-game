@@ -44,7 +44,7 @@ export class AIController
      */
     moveAwayFrom(gameobject)
     {
-        this.movementX = gameobject.x + this.aiCharacter.x;
+        this.movementX =  this.aiCharacter.x - gameobject.x;
     }
 
     evaluateMovement()

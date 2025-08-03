@@ -83,6 +83,12 @@ export class Character extends GameObject
         this.rig.addPart('head', new SpritePart(resources.getImage('head'), 40, 40));
         this.rig.addPart('weapon', new SpritePart(resources.getImage('weapon'), 20, 50, ANGLE_90_DEG));
 
+        // Adjust facing
+        if(this.isOpponent)
+        {
+            this.flip();
+        }
+
         // Animation system
         this.animationController = /**@type {AnimationController} */ new AnimationController(this.rig);
         this.wasGrounded = true; // Track previous grounded state

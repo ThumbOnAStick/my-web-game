@@ -57,7 +57,7 @@ export class InputManager
     {
         if (!this.character) return; // Type guard
         if (this.character.swinging) return; // Action blocked when character is swinging 
-        if (this.gameManager.isGameOver()) return; // Action blocked when game is over
+        if (!this.gameManager.isGameRunning()) return; // Action blocked when game is over
         switch (e.code) 
         {
             case 'Space':
@@ -65,7 +65,7 @@ export class InputManager
                 break;
             // Press R for reset
             case 'KeyR':
-                if (this.gameManager && this.gameManager.isGameOver()) 
+                if (this.gameManager && this.gameManager.isGameRunning()) 
                 {
                     console.log('Try to reset game')
                     this.gameManager.resetGame();
@@ -153,7 +153,8 @@ export class InputManager
     }
 
     /**@param {Character} character*/
-    handleMovement(character) {
+    handleMovement(character) 
+    {
         if (!character) return;
         
         if (this.keys.a) {

@@ -14,8 +14,16 @@ export class UIManager {
         this.canvas = canvas;
     }
 
-    /** @param {Character} character */
-    drawScoreBar(character, x = 10, y = 50, score = null) 
+    /**
+     * 
+     * @param {Character} character 
+     * @param {String} scoreLabel 
+     * @param {*} x 
+     * @param {*} y 
+     * @param {*} score 
+     * @returns 
+     */
+    drawScoreBar(character, scoreLabel, x = 10, y = 50, score = null) 
     {
         if (!character) return;
         
@@ -42,7 +50,7 @@ export class UIManager {
         // Health text
         this.ctx.font = '14px Arial';
         this.ctx.fillStyle = 'black';
-        this.ctx.fillText(`Score: ${currentScore}/${maxScore}`, x, y - 5);
+        this.ctx.fillText(`${scoreLabel}: ${currentScore}/${maxScore}`, x, y - 5);
     }
 
     drawScoreChanges()
@@ -104,61 +112,110 @@ export class UIManager {
     }
 
     
-    drawGameoverSign()
+    /**
+     * 
+     * @param {String} gameOverLabel 
+     */
+    drawGameoverSign(gameOverLabel)
     {
         this.ctx.save();
         // Draw gameover sign
         this.ctx.textAlign = 'center';
         this.ctx.font = '40px Arial';
         this.ctx.fillStyle = 'black';
-        this.ctx.fillText('Game Over!', this.canvas.width / 2, this.canvas.height / 3);
+        this.ctx.fillText(gameOverLabel, this.canvas.width / 2, this.canvas.height / 3);
         this.ctx.restore();
 
     }
 
+    
+
     /**
      * 
-     * @param {String} winner 
+     * @param {String} winnerLabel 
+     * @param {String} winsLabel 
      */
-    drawGameResult(winner)
+    drawGameResult(winnerLabel, winsLabel)
     {
         // Draw game result
         this.ctx.save();
         this.ctx.textAlign = 'center';
         this.ctx.fillStyle = 'black';
         this.ctx.font = '20px Arial';
-        this.ctx.fillText(`${winner} wins.`, this.canvas.width / 2, this.canvas.height / 3 + 40);
+        this.ctx.fillText(`${winnerLabel} ${winsLabel}`, this.canvas.width / 2, this.canvas.height / 3 + 40);
         this.ctx.restore();
     }
 
     /**
      * @returns {boolean}
      * @param {InputManager} inputmanager 
+     * @param {String} reStartButtonLabel
      */
-    drawRestartButton(inputmanager)
+    drawRestartButton(inputmanager, reStartButtonLabel)
     {
-        return  this.drawButtonCenter('Restart', this.canvas.width/2, this.canvas.height/3 + 80, 100, 30, inputmanager);
+        return this.drawButtonCenter(reStartButtonLabel, this.canvas.width/2, this.canvas.height/3 + 80, 100, 30, inputmanager);
     }
 
     /**
      * @returns {boolean}
-     * @param {String} winner 
+     * @param {String} winnerLabel 
+     * @param {String} winsLabel 
+     * @param {String} restartButtonLabel 
+     * @param {String} gameoverLabel 
      * @param {InputManager} inputManager
      */
-    drawGameOver(winner, inputManager) 
+    drawGameOver(gameoverLabel,restartButtonLabel, winnerLabel, winsLabel, inputManager) 
     {
-        this.drawGameoverSign();
-        this.drawGameResult(winner);
-        return this.drawRestartButton(inputManager);
+        this.drawGameoverSign(gameoverLabel);
+        this.drawGameResult(winnerLabel, winsLabel);
+        return this.drawRestartButton(inputManager, restartButtonLabel);
       
+    }
+
+    /**
+     * @returns {boolean}
+     * @param {InputManager} inputmanager 
+     * @param {String} startButtonLabel 
+     */
+    drawStartButton(inputmanager, startButtonLabel)
+    {
+        return this.drawButtonCenter(startButtonLabel, this.canvas.width/2, this.canvas.height/3 + 80, 100, 30, inputmanager);
+    }
+
+     
+    /**
+     * 
+     * @param {String} title 
+     */
+    drawMenuSign(title)
+    {
+        this.ctx.save();
+        this.ctx.textAlign = 'center';
+        this.ctx.font = '40px Arial';
+        this.ctx.fillStyle = 'black';
+        this.ctx.fillText(title, this.canvas.width / 2, this.canvas.height / 3);
+        this.ctx.restore();
+
+    }
+
+    /**
+     * @param {InputManager} inputManager
+     * @param {String} title
+     * @param {String} startButtonLabel
+     * @returns {boolean}
+     */
+    drawMenu(inputManager, title, startButtonLabel)
+    {
+        this.drawMenuSign(title);
+        return this.drawStartButton(inputManager, startButtonLabel);
     }
 
 
     /**
-     * 
+     * @param {String} letter
      * @param {Character} character 
      */
-    drawDodged(character) 
+    drawDodged(letter, character) 
     {
         if(!character.dodging)
             return;
@@ -166,7 +223,7 @@ export class UIManager {
         this.ctx.fillStyle = '#444444';
         this.ctx.font = '20px Arial';
         this.ctx.textAlign = 'center';
-        this.ctx.fillText('Dodged', character.x, character.y + offsetY);
+        this.ctx.fillText(letter, character.x, character.y + offsetY);
         this.ctx.textAlign = 'start';  
     }
 

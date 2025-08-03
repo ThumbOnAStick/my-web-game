@@ -1,26 +1,71 @@
+import { gameEventManager } from "../jsmanagers/eventmanager.js";
+import * as EventHandlers from '../jsutils/eventhandlers.js'
+
 export class GameState{
     constructor()
     {
-        this.isGameOver = false;
+        this.scene = 'menu' // 'menu', 'gameover' or 'running'
         this.winner = null;
     }
 
-    updatePlayerScore(amount)
+    /**
+     * 
+     * @param {Number} amount 
+     * @param {String} labelPlayer 
+     * @param {String} labelPC 
+     */
+    updatePlayerScore(amount, labelPlayer, labelPC)
     {
-        if (this.isGameOver) return;        
+        if (this.isGameOver()) return;        
         if (amount <= 0) 
         {
-            this.endGame('computer');
+            this.endGame(labelPC);
+        }
+
+        if(amount >= 100)
+        {
+            this.endGame(labelPlayer)
         }
     }
 
-    updateOpponentScore(amount)
+       /**
+     * 
+     * @param {Number} amount 
+     * @param {String} labelPlayer 
+     * @param {String} labelPC 
+     */
+    updateOpponentScore(amount, labelPlayer, labelPC)
     {
-        if (this.isGameOver) return;        
+         if (this.isGameOver()) return;        
         if (amount <= 0) 
         {
-            this.endGame('player');
+            this.endGame(labelPlayer);
         }
+
+        if(amount >= 100)
+        {
+            this.endGame(labelPC)
+        }
+    }
+
+    startGame()
+    {
+        this.scene = 'running';
+    }
+
+    isInMenu()
+    {
+        return this.scene == 'menu'
+    }
+
+    isGameRunning()
+    {
+        return this.scene == 'running';
+    }
+
+    isGameOver()
+    {
+        return this.scene == 'gameover';
     }
 
     /**
@@ -29,21 +74,30 @@ export class GameState{
      */
     endGame(winner) 
     {
-        this.isGameOver = true;
+        this.scene = 'gameover';
         this.winner = winner;
         console.log(`Game Over! Winner: ${winner}`);
+        gameEventManager.emit(EventHandlers.playNamedClipEvent, 'clapping', 0.5);
      }
 
     reset()
     {
-        this.isGameOver = false;
+        this.scene = 'running'; 
         this.winner = null;
     }
 
 
-    getWinner() {
+    getWinner() 
+    {
         return this.winner;
     }
+
+    getScene()
+    {
+        return this.scene;
+    }
+
+
 
 
 

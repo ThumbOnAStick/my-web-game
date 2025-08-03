@@ -45,7 +45,7 @@ function characterDodge(character, obstacle = null)
         }
         character.rig.setAlpha(characterDodgeAlpha);
         gameEventManager.emit(EventHandlers.resetCharacterDodgingEvent, character, 1);
-        gameEventManager.emit(EventHandlers.playNamedClipEvent, 'dodge', 0.2);
+        // gameEventManager.emit(EventHandlers.playNamedClipEvent, 'dodge', 0.2);
         gameEventManager.freezeFor(5);
 }
 
@@ -81,7 +81,7 @@ function characterParry(defender, offender = null, offenderSource = null) {
         gameEventManager.emit(EventHandlers.spawnParryFlashEvent, defender);
         gameEventManager.emit(EventHandlers.playNamedClipEvent, 'parry');
 
-        defender.score(5);
+        defender.score(10);
     }
 }
 
@@ -115,6 +115,7 @@ export function handleCharacterDamageResult(defender, offender = null)
 }
 
 /**
+ * Move the character forward and create a hitbox
  * @param {Character} character 
  * @param {ObstacleManager} obstacleManager
  */
@@ -133,7 +134,7 @@ export function swingAndMoveForward(character, obstacleManager) {
                 coordinate.y - offsetY,
                 sizeX,
                 sizeY,
-                character.getSwingHitboxLifetime(),
+                character.getSwingHitboxLifetime(), // Lifetime
                 true,
                 character.id,
                 character,

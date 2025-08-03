@@ -9,7 +9,7 @@ export class AIMetaData
      * @param {Character} opponentCharacter 
      * @param {AIController} aiController
      */
-    constructor(selfCharacter, opponentCharacter, aiController, heavyDetectRange = 100, lightDetectRange = 150)
+    constructor(selfCharacter, opponentCharacter, aiController, heavyDetectRange = 75, lightDetectRange = 150)
     {
         this.selfCharacter = selfCharacter;
         this.opponentCharacter = opponentCharacter;

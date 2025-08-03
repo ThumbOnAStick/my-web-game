@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+    <Title>Parry &amp; Dodge</Title> 
+    <Dodge>Dodged</Dodge>
+    <PC>Computer</PC>
+    <Player>Player</Player>
+    <Start>Start</Start>
+    <Restart>Restart</Restart>
+    <Wins>wins.</Wins>
+    <Gameover>Game Over!</Gameover>
+    <Score>Score</Score>
+</Root>

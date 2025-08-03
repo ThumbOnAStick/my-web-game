@@ -27,7 +27,7 @@ function lightDistanceCheck(data)
  */
 function dangerCheck(data)
 {
-    return data.opponentCharacter.swinging;
+    return data.opponentCharacter.combatState.isCharging && !data.selfCharacter.combatState.isCharging;
 }
 
 /**
@@ -39,7 +39,14 @@ function swing(data)
     data.selfCharacter.performHeavyattack();
 }
 
-
+/**
+ * @param {AIMetaData} data
+ */
+function jump(data)
+{
+    data.selfCharacter.jump();
+    data.aiController.moveAwayFrom(data.opponentCharacter);
+}
 /**
  * @param {AIMetaData} data
  */
@@ -85,7 +92,20 @@ export function emptyNode()
  */
 export function distanceCheckNode1()
 {
-    return new DecisionNodeChance(heavyDistanceCheck);
+    let result = new DecisionNodeChance(heavyDistanceCheck);
+    result.appendTNode(heavyswingNode()); // t1
+    result.appendDNode(emptyNode()); // d1
+    result.appendDNode(distanceCheckNode2()); // d2
+    return result;
+}  
+
+/**
+ * @returns {DecisionNodeChance}
+ */
+export function dangerCheckNode()
+{
+    let result = new DecisionNodeChance(dangerCheck);
+    return result;
 }  
 
 /**
@@ -105,6 +125,14 @@ export function distanceCheckNode2()
 export function heavyswingNode()
 {
     return new TerminalNode(swing)
+}
+
+/**
+ * @returns {TerminalNode}
+ */
+export function jumpNode()
+{
+    return new TerminalNode(jump)
 }
 
 /**
@@ -132,10 +160,10 @@ export function buildDefaultAITree()
     try
     {
         /**@type {DecisionNodeChance} */
-        let root =  distanceCheckNode1();
-        root.appendTNode(heavyswingNode()); // t1
+        let root =  dangerCheckNode();
+        root.appendTNode(jumpNode()) // t1
         root.appendDNode(emptyNode()); // d1
-        root.appendDNode(distanceCheckNode2()); // d2
+        root.appendDNode(distanceCheckNode1()); // d2
         return root;
     }
     catch(exception)
