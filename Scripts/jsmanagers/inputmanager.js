@@ -1,6 +1,7 @@
 // InputManager.js
 // Handles all input and controls for the game
 
+import { ComboReader } from "../jscomponents/comboreader.js";
 import { Character } from "../jsgameobjects/character.js";
 import { GameManager } from "./gamemanager.js";
 
@@ -27,6 +28,8 @@ export class InputManager
         this.character = null;
         this.canvas = canvas;  
         this.gameManager = null;
+        /**@type {ComboReader} */
+        this.comboReader = new ComboReader();
         this.setupEventListeners();
     }
 
@@ -53,6 +56,12 @@ export class InputManager
         window.addEventListener('mousemove', (e) => this.handleMouseMovement(e));
     }
 
+    update()
+    {
+        this.comboReader.update(this.character);
+        this.handleMovement();
+    }
+
     handleKeyDown(e)
     {
         if (!this.character) return; // Type guard
@@ -67,7 +76,6 @@ export class InputManager
             case 'KeyR':
                 if (this.gameManager && this.gameManager.isGameRunning()) 
                 {
-                    console.log('Try to reset game')
                     this.gameManager.resetGame();
                 }
                 break;
@@ -79,11 +87,11 @@ export class InputManager
                 break;
             // 'J' for light attack
             case 'KeyJ':
-                this.character.performLightAttack();
+                this.comboReader.receiveInput(0);
                 break;
             // 'K' for heavy attack
             case 'KeyK':
-                this.character.performHeavyattack();
+                this.comboReader.receiveInput(1);
                 break;
 
         }
@@ -113,14 +121,12 @@ export class InputManager
 
     handleMouseDown(e) 
     {
-        console.log('Mouse down!!!');
         this.mouse.isDown = true;
         this.handleMouseMovement(e);
     }
 
     handleMouseUp(e) 
     {
-        console.log('Mouse up!!!');
         this.mouse.isDown = false;
     }
 
@@ -152,16 +158,16 @@ export class InputManager
                this.mouse.y <= y + height;
     }
 
-    /**@param {Character} character*/
-    handleMovement(character) 
+
+    handleMovement() 
     {
-        if (!character) return;
+        if (!this.character) return;
         
         if (this.keys.a) {
-            character.move(-1); // Move left
+            this.character.move(-1); // Move left
         }
         if (this.keys.d) {
-            character.move(1); // Move right
+            this.character.move(1); // Move right
         }
     }
 

@@ -95,7 +95,6 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
     function setScoreChanges(data)
     {
         const { value, character } = data;
-        console.log(`Score successfully set ${value}, ${character}`);
         gameEventManager.setScoreChanges(value, character);
         gameEventManager.emit(clearScoreChangesEvent, data, 1);
     }
@@ -110,7 +109,6 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         const character = /**@type {Character} */ (data);
         let weaponBone = character.weaponBone;
         let weaponWorldPos = weaponBone.getWorldPosition();
-        console.log('Flash created');
         vfxManager.make('flash', weaponBone.angle * character.facing, weaponWorldPos.x, weaponWorldPos.y, 10, 100, 1000);
     }
 
