@@ -49,6 +49,7 @@ export class CharacterManager {
                 await character.loadAnimation('idle', './Assets/character_idle_animation.csv');
                 await character.loadAnimation('swing', './Assets/character_swing_animation.csv');
                 await character.loadAnimation('lightswing', './Assets/character_lightswing_animation.csv');
+                await character.loadAnimation('spinswing', './Assets/character_spinswing_animation.csv');
                 await character.loadAnimation('dodge', './Assets/character_dodge_animation.csv');
                 await character.loadAnimation('stagger', './Assets/character_stagger_animation.csv');
             }

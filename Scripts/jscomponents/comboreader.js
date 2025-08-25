@@ -4,7 +4,7 @@ import * as ComboHandler from '../jsutils/combohandler.js';
 /**
  * Helps InputManager to analyze combos
  */
-const emitDuration = 0.3;
+const emitDuration = 0.2;
 export class ComboReader {
 
     constructor() 

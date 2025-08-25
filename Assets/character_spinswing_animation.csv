@@ -7,9 +7,11 @@ time,boneName,angle
 0.0,head,0.524
 0.8,head,0
 1.2,head,0.524
-0.0,arm,2.618
+0.0,arm,2
 0.8,arm,0
-1.1,arm,3
-0.0,weapon,-1
+1.4,arm,3
 0.8,weapon,-1
-1.1,weapon, -0.8
+1.1,weapon,-1
+1.3,weapon,7
+1.5,weapon,-1
+

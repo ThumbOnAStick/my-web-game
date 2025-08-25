@@ -37,7 +37,7 @@ export class Rig {
     }
 
     _drawBone(ctx, bone = new Bone(), resources, showDebug = true, facingDirection = 1) {
-        const pos = bone.getWorldPosition(facingDirection);
+        const pos = bone.getDrawPosition(facingDirection);
         const angle = bone.getWorldAngle(facingDirection);
         const baseAngle = bone.angle;
 
@@ -92,7 +92,7 @@ export class Rig {
         const angleDeg = Math.round(baseAngle * 180 / Math.PI);
         ctx.fillText(`${boneName} (${angleDeg}°)`, length / 2, -5);
 
-        // Draw bone joint (small circle at base)
+        // Draw bone end (small circle)
         ctx.beginPath();
         ctx.arc(0, 0, 3, 0, Math.PI * 2);
         ctx.fill();

@@ -61,6 +61,14 @@ export class CharacterCombatState {
         }
     }
 
+
+    switchSwingType() 
+    {
+       if(this.swingType == 'heavy'){
+            this.setSwingType('light');
+       }else this.setSwingType('heavy');
+    }
+
     /**
      * 
      * @param {String} other 
@@ -103,7 +111,7 @@ export class CharacterCombatState {
             case 'heavy':
                 return 0.2;
             case 'light':
-                return 0.1;
+                return 0.3;
             default:
                 return 0;
         }

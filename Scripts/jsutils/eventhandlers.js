@@ -7,6 +7,8 @@ import * as CombatHandler from '../jsutils/combathandler.js';
 
 export const characterSwingEvent = 'character_swing';
 export const characterLightSwingEvent = 'character_light_swing';
+export const characterSpinSwingEvent = 'spin_swing';
+export const characterSwitchSwingTypeEvent = 'switch_swingtype';
 export const postCharacterSwingEvent = 'create_obstacle';
 export const settleCharacterSwingEvent = 'settle_swing';
 export const resetCharacterDodgingEvent = 'reset_transparency';
@@ -26,7 +28,7 @@ export const playNamedClipEvent = 'play_sound_clip';
 export function createEventHandlers(obstacleManager, vfxManager, audiomanager) 
 {
     
-    function handleSwingEvent(data) 
+    function handleHeavySwingEvent(data) 
     {
         /**@type {Character} */
         const character = data;
@@ -44,7 +46,24 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         character.setIsCharging(true);
         gameEventManager.emit(postCharacterSwingEvent, data, 0.7);  
         gameEventManager.emit(settleCharacterSwingEvent, data, 1.5);
+    }
 
+    function handleSpinSwingEvent(data) 
+    {
+        /**@type {Character} */
+        const character = data;
+        character.setSwinging(true);
+        character.setIsCharging(true);
+        gameEventManager.emit(characterSwitchSwingTypeEvent, data, 1);  
+        gameEventManager.emit(postCharacterSwingEvent, data, 1.3);  
+        gameEventManager.emit(settleCharacterSwingEvent, data, 2);
+    }
+
+    function handleSwitchSwingTypeEvent(data)
+    {
+        /**@type {Character} */
+        const character = data;
+        character.combatState.switchSwingType();
     }
 
 
@@ -121,8 +140,10 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
 
     // Return the handlers
     return {
-        handleSwingEvent,
+        handleHeavySwingEvent,
         handleLightSwingEvent,
+        handleSpinSwingEvent,
+        handleSwitchSwingTypeEvent,
         handlePostSwingEvent,
         resetCharacterDodging,
         resetCharacterParried,
@@ -146,8 +167,10 @@ export function initialize(obstacleManager, vfxManager, audioManager)
 {
     const handlers = createEventHandlers(obstacleManager, vfxManager, audioManager);
     
-    gameEventManager.on(characterSwingEvent, handlers.handleSwingEvent);
+    gameEventManager.on(characterSwingEvent, handlers.handleHeavySwingEvent);
     gameEventManager.on(characterLightSwingEvent, handlers.handleLightSwingEvent);
+    gameEventManager.on(characterSpinSwingEvent, handlers.handleSpinSwingEvent);
+    gameEventManager.on(characterSwitchSwingTypeEvent, handlers.handleSwitchSwingTypeEvent);
     gameEventManager.on(postCharacterSwingEvent, handlers.handlePostSwingEvent);
     gameEventManager.on(resetCharacterDodgingEvent, handlers.resetCharacterDodging);
     gameEventManager.on(resetCharacterParriedEvent, handlers.resetCharacterParried);

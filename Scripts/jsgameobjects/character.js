@@ -21,6 +21,7 @@ const animationDefaults = {
     'swing': { loop: false },                  
     'dodge': { loop: false },                  
     'lightswing': { loop: false },              
+    'spinswing': { loop: false },              
     'stagger' : {loop: false}
 };
 
@@ -30,7 +31,8 @@ const animationSettings = {
     'swing': { transitionDuration: 0.2 },        
     'lightswing': { transitionDuration: 0.15 },  
     'dodge': { transitionDuration: 0.15 },     
-    'stagger' : {transitionDuration : 0.5}
+    'stagger' : {transitionDuration : 0.5},
+    'spinswing' : {transitionDuration : 0.1}
 };
 
 export class Character extends GameObject 
@@ -69,7 +71,7 @@ export class Character extends GameObject
         this.neckBone = new Bone('neck', 10, ANGLE_30_DEG, this.bodyBone); // Structural(Not visible)
         this.headBone = new Bone('head', this.headLength, ANGLE_30_DEG, this.neckBone);
         this.armBone = new Bone('arm', 30, ANGLE_120_DEG, this.bodyBone); // Structural(Not visible)
-        this.weaponBone = new Bone('weapon', 20, -ANGLE_90_DEG, this.armBone);
+        this.weaponBone = new Bone('weapon', 30, -ANGLE_90_DEG, this.armBone, true);
         this.bodyBone.addChild(this.neckBone);
         this.bodyBone.addChild(this.armBone);
         this.neckBone.addChild(this.headBone);
@@ -149,6 +151,11 @@ export class Character extends GameObject
     playLightSwingAnimation() 
     {
         this.playAnimation('lightswing');
+    }
+
+    playSpinSwingAnimation() 
+    {
+        this.playAnimation('spinswing');
     }
 
     playIdleAnimation(immediate = false) 
@@ -303,6 +310,11 @@ export class Character extends GameObject
         gameEventManager.emit(EventHandler.characterLightSwingEvent, this);
     }
 
+    callSpinSwingEvent() 
+    {
+        gameEventManager.emit(EventHandler.characterSpinSwingEvent, this);
+    }
+
     performHeavyattack() 
     {
         if (this.combatState.canAttack()) 
@@ -322,6 +334,17 @@ export class Character extends GameObject
             this.playLightSwingAnimation();
             // Calls for a light swing event
             this.callLightSwingEvent();
+        }
+    }
+
+    performSpinAttack() 
+    {
+        if (this.combatState.canAttack()) 
+        {
+            this.setSwingType('heavy');
+            this.playSpinSwingAnimation();
+            // Calls for a light swing event
+            this.callSpinSwingEvent();
         }
     }
     //#endregion
