@@ -1,0 +1,52 @@
+{
+  "name": "@yourusername/web-game-library",
+  "version": "1.0.0",
+  "description": "Reusable game library with animation, AI, and event management systems",
+  "type": "module",
+  "main": "./Scripts/library.js",
+  "exports": {
+    ".": "./Scripts/library.js",
+    "./events": "./Scripts/jsmanagers/eventmanager.js",
+    "./animation": {
+      "import": "./Scripts/jsanimation/animation.js"
+    },
+    "./animation-controller": {
+      "import": "./Scripts/jsanimation/animatoincontroller.js"
+    },
+    "./ai": {
+      "import": "./Scripts/jsai/aicontroller.js"
+    },
+    "./gameobject": {
+      "import": "./Scripts/jsgameobjects/gameobject.js"
+    },
+    "./character": {
+      "import": "./Scripts/jsgameobjects/character.js"
+    },
+    "./managers": {
+      "import": "./Scripts/library.js"
+    },
+    "./utils": {
+      "import": "./Scripts/library.js"
+    }
+  },
+  "files": [
+    "Scripts/jsmanagers",
+    "Scripts/jsanimation",
+    "Scripts/jsai",
+    "Scripts/jscomponents",
+    "Scripts/jsutils",
+    "Scripts/jsgameobjects",
+    "Scripts/library.js"
+  ],
+  "keywords": [
+    "game",
+    "animation",
+    "ai",
+    "event-system",
+    "game-engine",
+    "javascript",
+    "3d-game"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
