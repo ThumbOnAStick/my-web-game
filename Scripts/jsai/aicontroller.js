@@ -47,6 +47,11 @@ export class AIController
         this.movementX =  this.aiCharacter.x - gameobject.x;
     }
 
+    parryLightAttack() 
+    {
+        this.aiCharacter.performHeavyattack();
+    }
+
     evaluateMovement()
     {
         // When ai willing to move

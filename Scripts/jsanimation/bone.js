@@ -23,15 +23,15 @@ export class Bone {
         this.children.push(bone);
     }
 
-    getDrawPosition(facingDirection = 1)
+    getDrawPosition(facingDirection = 1, drawSize = 1)
     {
-        return this.drawOncenter ? this.getCenterWorldPosition(facingDirection) : this.getWorldPosition(facingDirection);
+        return this.drawOncenter ? this.getCenterWorldPosition(facingDirection, drawSize) : this.getWorldPosition(facingDirection, drawSize);
     }
 
-    getWorldPosition(facingDirection = 1) 
+    getWorldPosition(facingDirection = 1, drawSize = 1) 
     {
         if (this.parent) {
-           return this.parent.getEndWorldPosition(facingDirection);
+           return this.parent.getEndWorldPosition(facingDirection, drawSize);
         }
         return this.position;
     }
@@ -39,22 +39,29 @@ export class Bone {
     /**
      * 
      * @param {Number} facingDirection 
+     * @param {Number} drawSize
      * @returns 
      */
-    getEndWorldPosition(facingDirection = 1)
+    getEndWorldPosition(facingDirection = 1, drawSize = 1)
     {
         let angle = this.getWorldAngle(facingDirection);
-        let worldPo = this.getWorldPosition(facingDirection);
+        let worldPo = this.getWorldPosition(facingDirection, drawSize);
           return {
-                x: worldPo.x + Math.cos(angle) * this.length,
-                y: worldPo.y + Math.sin(angle) * this.length
+                x: worldPo.x + Math.cos(angle) * this.length * drawSize,
+                y: worldPo.y + Math.sin(angle) * this.length * drawSize
             };
     }
 
-    getCenterWorldPosition(facingDirection = 1) {
+    /**
+     * 
+     * @param {*} facingDirection 
+     * @param {Number} drawSize 
+     * @returns 
+     */
+    getCenterWorldPosition(facingDirection = 1, drawSize) {
 
-        let startPos = this.getWorldPosition(facingDirection);
-        let endPos = this.getEndWorldPosition(facingDirection);
+        let startPos = this.getWorldPosition(facingDirection, drawSize);
+        let endPos = this.getEndWorldPosition(facingDirection, drawSize);
         return {x: (startPos.x + endPos.x)/2,
             y: (startPos.y + endPos.y)/2
         };

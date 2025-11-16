@@ -25,45 +25,52 @@ export class GameManager {
      * @param {*} ctx 
      */
     constructor(canvas, ctx) {
-        this.canvas = canvas;
-        this.ctx = ctx;
-        
-        /**@type {Resources} */
-        this.resources = null;
-        /**@type {AIController} */
-        this.aiController = null;
-        /**@type {VFXManager} */
-        this.vfxManager = null; // Can't load vfxManager before resources are loaded
+      this.canvas = canvas;
+      this.ctx = ctx;
 
-        // Initialize game state
-        this.gameState = new GameState();
+      /**@type {Resources} */
+      this.resources = null;
+      /**@type {AIController} */
+      this.aiController = null;
+      /**@type {VFXManager} */
+      this.vfxManager = null; // Can't load vfxManager before resources are loaded
 
-        // Initialize core managers
-        this.inputManager = new InputManager(canvas);
-        this.obstacleManager = new ObstacleManager();
-        this.resourceManager = new ResourceManager();
-        this.audioManager = new AudioManager(this.resourceManager);
-        this.uiManager = new UIManager(ctx, canvas);
-        this.tickManager = new TickManager(Date.now());
+      // Initialize game state
+      this.gameState = new GameState();
 
-        // Initialize new specialized managers
-        this.gameLoopManager = new GameLoopManager();
-        this.characterManager = new CharacterManager(canvas, null); // Will be set after resources load
-        this.renderManager = new RenderManager(ctx, canvas, this.uiManager, null); // VFX manager set later
-        this.gameInitializer = new GameInitializer(this);
+      // Initialize core managers
+      this.inputManager = new InputManager(canvas);
+      this.obstacleManager = new ObstacleManager();
+      this.resourceManager = new ResourceManager();
+      this.audioManager = new AudioManager(this.resourceManager);
+      this.uiManager = new UIManager(ctx, canvas);
+      this.tickManager = new TickManager(Date.now());
 
-        // Set up manager references
-        this.inputManager.setGameManager(this);
-        this.selectedLanguage = 'English';
-        
-        // Set up debug checkbox
-        /**@type {HTMLInputElement} */
-        this.debugCheckbox = /** @type {HTMLInputElement} */ (document.getElementById('debugCheckbox'));
-        this.languageSelector = /**@type {HTMLInputElement} */ (document.getElementById('languageSelector'));
-        this.setupDebugControls();
+      // Initialize new specialized managers
+      this.gameLoopManager = new GameLoopManager();
+      this.characterManager = new CharacterManager(canvas, null); // Will be set after resources load
+      this.renderManager = new RenderManager(ctx, canvas, this.uiManager, null); // VFX manager set later
+      this.gameInitializer = new GameInitializer(this);
 
-        // Set up game loop callback
-        this.gameLoopManager.setUpdateCallback(() => this.update());
+      // Set up manager references
+      this.inputManager.setGameManager(this);
+      this.selectedLanguage = "English";
+
+      // Set up debug checkbox
+      /**@type {HTMLInputElement} */
+      this.debugCheckbox = /** @type {HTMLInputElement} */ (
+        document.getElementById("debugCheckbox")
+      );
+      this.debugSlider = /** @type {HTMLInputElement} */ (
+        document.getElementById("debugSlider")
+      );
+      this.languageSelector = /**@type {HTMLInputElement} */ (
+        document.getElementById("languageSelector")
+      );
+      this.setupDebugControls();
+
+      // Set up game loop callback
+      this.gameLoopManager.setUpdateCallback(() => this.update());
     }
 
     /**
@@ -95,6 +102,7 @@ export class GameManager {
     update() {
         // Update display language
         this.selectedLanguage = this.languageSelector.value;
+
 
         // Update event manager for delayed events
         gameEventManager.update();
@@ -174,6 +182,10 @@ export class GameManager {
     setupDebugControls() {
         this.debugCheckbox.addEventListener('change', () => {
             this.canvas.focus();
+        });
+
+        this.debugSlider.addEventListener('input', () => {
+            this.characterManager.setDrawSize(parseFloat(this.debugSlider.value) / 50.0);
         });
 
         // Make canvas focusable

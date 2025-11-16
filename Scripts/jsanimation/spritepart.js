@@ -16,17 +16,43 @@ export class SpritePart
         this.angleOffset = angleOffset || 0; // Optional angle offset for rotation
     }
 
-    /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, x, y, angle, showDebug = false, alpha = 1) {
+    /**
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {number} x
+     * @param {number} y
+     * @param {number} angle
+     * @param {boolean} showDebug
+     * @param {number} alpha
+     * @param {number} size
+     * @param {number} facingDirection
+     */
+    draw(ctx, x, y, angle, showDebug = false, alpha = 1, size = 1, facingDirection = 1) {
         ctx.save();
         ctx.globalAlpha = alpha;
-        ctx.translate(x, y);
+        
+        // When size changes, adjust position to maintain proper sprite placement relative to rotation
+        if (size !== 1) {
+            const totalAngle = angle + this.angleOffset;
+            const offsetDistance = (this.width / 2) * (size - 1);
+            // Account for facing direction when calculating offset
+            const adjustedX = x + Math.cos(totalAngle) * offsetDistance * facingDirection;
+            const adjustedY = y + Math.sin(totalAngle) * offsetDistance;
+            ctx.translate(adjustedX, adjustedY);
+        } else {
+            ctx.translate(x, y);
+        }
+        
         ctx.rotate(angle);
         ctx.rotate(this.angleOffset);
+        
+        // Scale the destination size, not the source
+        const scaledWidth = this.width * size;
+        const scaledHeight = this.height * size;
+        
         ctx.drawImage(
             this.image,
-            0, 0, this.image.width, this.image.height,
-            -this.width / 2, -this.height / 2, this.width, this.height
+            0, 0, this.image.width, this.image.height,  // Source: full image
+            -scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight  // Destination: scaled
         );
         ctx.restore();
     }

@@ -8,6 +8,7 @@ import * as CombatHandler from '../jsutils/combathandler.js';
 export const characterSwingEvent = 'character_swing';
 export const characterLightSwingEvent = 'character_light_swing';
 export const characterSpinSwingEvent = 'spin_swing';
+export const characterThrustSwingEvent = 'thrust_swing';
 export const characterSwitchSwingTypeEvent = 'switch_swingtype';
 export const postCharacterSwingEvent = 'create_obstacle';
 export const settleCharacterSwingEvent = 'settle_swing';
@@ -17,6 +18,8 @@ export const setScoreChangesEvent = 'set_score';
 export const clearScoreChangesEvent = 'reset_score';
 export const spawnParryFlashEvent = 'create_flash';
 export const playNamedClipEvent = 'play_sound_clip';
+export const handleCharacterShrinkEvent = 'character_shrink';
+
 
 
 // Create event handlers that capture obstacleManager
@@ -59,6 +62,16 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         gameEventManager.emit(settleCharacterSwingEvent, data, 2);
     }
 
+    function handleThrustSwingEvent(data) 
+    {
+        /**@type {Character} */
+        const character = data;
+        character.setSwinging(true);
+        character.setIsCharging(true);
+        gameEventManager.emit(characterSwitchSwingTypeEvent, data, 1);  
+        gameEventManager.emit(postCharacterSwingEvent, data, 1.3);  
+        gameEventManager.emit(settleCharacterSwingEvent, data, 2);
+    }
     function handleSwitchSwingTypeEvent(data)
     {
         /**@type {Character} */
@@ -138,11 +151,21 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
 
     }
 
+    function handleCharacterShrinkEvent(data) 
+    {
+
+    }
+
+    function handlecharacterResizeEvent(data){
+        
+    }
+
     // Return the handlers
     return {
         handleHeavySwingEvent,
         handleLightSwingEvent,
         handleSpinSwingEvent,
+        handleThrustSwingEvent,
         handleSwitchSwingTypeEvent,
         handlePostSwingEvent,
         resetCharacterDodging,
@@ -151,7 +174,8 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         setScoreChanges,
         resetScorechanges,
         spawnParryFlash,
-        playSoundClip
+        playSoundClip,
+        handleCharacterShrinkEvent
     };
 
 }
@@ -170,6 +194,7 @@ export function initialize(obstacleManager, vfxManager, audioManager)
     gameEventManager.on(characterSwingEvent, handlers.handleHeavySwingEvent);
     gameEventManager.on(characterLightSwingEvent, handlers.handleLightSwingEvent);
     gameEventManager.on(characterSpinSwingEvent, handlers.handleSpinSwingEvent);
+    gameEventManager.on(characterThrustSwingEvent, handlers.handleThrustSwingEvent);
     gameEventManager.on(characterSwitchSwingTypeEvent, handlers.handleSwitchSwingTypeEvent);
     gameEventManager.on(postCharacterSwingEvent, handlers.handlePostSwingEvent);
     gameEventManager.on(resetCharacterDodgingEvent, handlers.resetCharacterDodging);

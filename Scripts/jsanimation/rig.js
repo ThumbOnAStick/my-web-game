@@ -32,29 +32,29 @@ export class Rig {
         this.alpha = Math.max(0, Math.min(1, value));
     }
 
-    draw(ctx, resources, showDebug = true, facingDirection = 1) {
-        this._drawBone(ctx, this.rootBone, resources, showDebug, facingDirection);
+    draw(ctx, resources, showDebug = true, facingDirection = 1, drawSize = 1) {
+        this._drawBone(ctx, this.rootBone, resources, showDebug, facingDirection, drawSize);
     }
 
-    _drawBone(ctx, bone = new Bone(), resources, showDebug = true, facingDirection = 1) {
-        const pos = bone.getDrawPosition(facingDirection);
+    _drawBone(ctx, bone = new Bone(), resources, showDebug = true, facingDirection = 1, drawSize = 1) {
+        const pos = bone.getDrawPosition(facingDirection, drawSize);
         const angle = bone.getWorldAngle(facingDirection);
         const baseAngle = bone.angle;
 
-        if (showDebug) this._drawBoneArrow(ctx, pos.x, pos.y, angle, baseAngle, bone.length, bone.name);
+        if (showDebug) this._drawBoneArrow(ctx, pos.x, pos.y, angle, baseAngle, bone.length * drawSize, bone.name);
         else 
         {
             // Draw part if available and not in debug mode
             if (this.parts[bone.name]) 
             {
-                this.parts[bone.name].draw(ctx, pos.x, pos.y, angle, showDebug, this.alpha);
+                this.parts[bone.name].draw(ctx, pos.x, pos.y, angle, showDebug, this.alpha, drawSize, facingDirection);
             }
         }
 
         // Draw bone as black arrow
         for (const child of bone.children) 
         {
-            this._drawBone(ctx, child, resources, showDebug, facingDirection);
+            this._drawBone(ctx, child, resources, showDebug, facingDirection, drawSize);
         }
     }
 

@@ -4,8 +4,7 @@ const COMBOS = {
     LIGHT_ATTACK: new Uint8Array([0]),
     HEAVY_ATTACK: new Uint8Array([1]),
     SPIN_SWING: new Uint8Array([1, 0]),
-    // HEAVY_COMBO: new Uint8Array([1, 2]),
-    // SPECIAL_MOVE: new Uint8Array([1, 1, 2])
+    THRUST: new Uint8Array([0, 1]),
 };
 
 /**
@@ -46,6 +45,13 @@ export function handleCombos(character, input)
     if(arraysEqual(input, COMBOS.SPIN_SWING))
     {
         character.performSpinAttack();
+        return;
+    }
+
+    if(arraysEqual(input, COMBOS.THRUST))
+    {
+        console.log("thrust");
+        character.performThrustAttack();
         return;
     }
 }

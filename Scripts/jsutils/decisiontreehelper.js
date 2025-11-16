@@ -29,12 +29,26 @@ function dangerCheck(data)
 {
     return data.opponentCharacter.combatState.isCharging && !data.selfCharacter.combatState.isCharging;
 }
+/**
+ * @returns {boolean}
+ * @param {AIMetaData} data
+ */
+function dangerCheck2(data)
+{
+    let result = data.opponentCharacter.combatState.swingType == 'light';
+    console.log(`Danger Check2:${result}`);
+    return result;
+}
 
 /**
  * @param {AIMetaData} data
  */
 function swing(data)
 {
+    // Check if character can actually attack before performing
+    if (!data.selfCharacter.combatState.canAttack()) {
+        return;
+    }
     data.selfCharacter.adjustHitFacing(data.opponentCharacter);
     data.selfCharacter.performHeavyattack();
 }
@@ -52,6 +66,10 @@ function jump(data)
  */
 function lightSwing(data)
 {
+    // Check if character can actually attack before performing
+    if (!data.selfCharacter.combatState.canAttack()) {
+        return;
+    }
     data.aiController.halt();
     data.selfCharacter.adjustHitFacing(data.opponentCharacter);
     data.selfCharacter.performLightAttack();
@@ -65,14 +83,7 @@ function moveToOpponent(data)
     data.aiController.moveTowards(data.opponentCharacter);
 }
 
-/**
- * @param {AIMetaData} data
- */
-function moveAwayFromOpponent(data)
-{
-    data.aiController.moveAwayFrom(data.opponentCharacter);
-
-}
+ 
 
 
 //#endregion
@@ -111,11 +122,22 @@ export function dangerCheckNode()
 /**
  * @returns {DecisionNodeChance}
  */
+export function dangerCheckNode2()
+{
+    let result = new DecisionNodeChance(dangerCheck2);
+    result.appendTNode(parryLightAttackNode()); // t1
+    result.appendTNode(jumpNode()); // t2
+    return result;
+}  
+
+/**
+ * @returns {DecisionNodeChance}
+ */
 export function distanceCheckNode2()
 {
     let result = new DecisionNodeChance(lightDistanceCheck)
     result.appendTNode(lightswingNode()); // t1
-    result.appendTNode(moveToNode()); // t2
+    result.appendTNode(moveToOpponentNode()); // t2
     return result;
 }  
 
@@ -146,11 +168,19 @@ export function lightswingNode()
 /**
  * @returns {TerminalNode}
  */
-export function moveToNode()
+export function moveToOpponentNode()
 {
     return new TerminalNode(moveToOpponent);
 }
 
+/**
+ * @returns {TerminalNode}
+ */
+export function parryLightAttackNode()
+{
+    console.log("Try to parry")
+    return new TerminalNode(swing);
+}
 /**
  * This function builds a default decision tree for opponent AI
  * @returns {DecisionNode}
@@ -161,8 +191,7 @@ export function buildDefaultAITree()
     {
         /**@type {DecisionNodeChance} */
         let root =  dangerCheckNode();
-        root.appendTNode(jumpNode()) // t1
-        root.appendDNode(emptyNode()); // d1
+        root.appendDNode(dangerCheckNode2()) // d1
         root.appendDNode(distanceCheckNode1()); // d2
         return root;
     }

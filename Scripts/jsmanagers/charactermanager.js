@@ -8,6 +8,7 @@ export class CharacterManager {
         this.resources = resources;
         /**@type {Character[]} */
         this.characters = [];
+        this.globalDrawSize = 1;
     }
 
     /**
@@ -50,12 +51,24 @@ export class CharacterManager {
                 await character.loadAnimation('swing', './Assets/character_swing_animation.csv');
                 await character.loadAnimation('lightswing', './Assets/character_lightswing_animation.csv');
                 await character.loadAnimation('spinswing', './Assets/character_spinswing_animation.csv');
+                await character.loadAnimation('thrustswing', './Assets/character_thrust_animation.csv');
                 await character.loadAnimation('dodge', './Assets/character_dodge_animation.csv');
                 await character.loadAnimation('stagger', './Assets/character_stagger_animation.csv');
             }
             console.log('Animations loaded successfully');
         } catch (error) {
             console.error('Failed to load animations:', error);
+        }
+    }
+
+    /**
+     * 
+     * @param {Number} newDrawSize 
+     */
+    setDrawSize(newDrawSize) {
+        this.globalDrawSize = newDrawSize
+        for (const character of this.characters) {
+            character.setDrawSize(this.globalDrawSize)
         }
     }
 

@@ -1,0 +1,22 @@
+# For reference: π/2 ≈ 1.571 (90°), π ≈ 3.142 (180°), 2π ≈ 6.283 (360°)
+# Thrust sword animation - Duration: 1.0 seconds (longer than light swing, with forward thrust motion)
+time,boneName,angle
+0.0,body,0.0
+0.2,body,-0.2
+0.5,body,-0.3
+0.8,body,-0.2
+1.0,body,0.3
+0.0,head,0.524
+0.3,head,0.4
+0.7,head,0.4
+1.0,head,0
+0.0,arm,2.1
+0.2,arm,2.5
+0.5,arm,3.3
+0.8,arm,2.8
+1.0,arm,2.1
+0.0,weapon,-1
+0.2,weapon,-1.2
+0.5,weapon,-0.5
+0.8,weapon,-1
+1.0,weapon,-1
