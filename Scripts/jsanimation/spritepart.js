@@ -30,18 +30,7 @@ export class SpritePart
         ctx.save();
         ctx.globalAlpha = alpha;
         
-        // When size changes, adjust position to maintain proper sprite placement relative to rotation
-        if (size !== 1) {
-            const totalAngle = angle + this.angleOffset;
-            const offsetDistance = (this.width / 2) * (size - 1);
-            // Account for facing direction when calculating offset
-            const adjustedX = x + Math.cos(totalAngle) * offsetDistance * facingDirection;
-            const adjustedY = y + Math.sin(totalAngle) * offsetDistance;
-            ctx.translate(adjustedX, adjustedY);
-        } else {
-            ctx.translate(x, y);
-        }
-        
+        ctx.translate(x, y);
         ctx.rotate(angle);
         ctx.rotate(this.angleOffset);
         

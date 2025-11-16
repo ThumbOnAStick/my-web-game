@@ -5,6 +5,7 @@ import { GameState } from "../jscomponents/gamestate.js";
 import { Character } from "../jsgameobjects/character.js";
 import { gameEventManager } from "./eventmanager.js";
 import { InputManager } from "./inputmanager.js";
+import { COLORS, getHealthColor } from "../jsutils/colors.js";
 
 export class UIManager {
     constructor(ctx, canvas) 
@@ -36,20 +37,20 @@ export class UIManager {
         const maxScore = character.maxScore || 100; // Default max score
         const scorePercentage = currentScore / maxScore;
         
-        // Background (black)
-        this.ctx.fillStyle = '#000000';
+        // Background (dark)
+        this.ctx.fillStyle = COLORS.border;
         this.ctx.fillRect(x, y, barWidth + margin, barHeight + margin);
         
-        // Health bar (green to red gradient based on health)
+        // Health bar (color based on health percentage)
         const healthWidth = barWidth * scorePercentage;
-        this.ctx.fillStyle = '#FFFFFF';
+        this.ctx.fillStyle = getHealthColor(scorePercentage);
 
         this.ctx.fillRect(x, y, healthWidth, barHeight);
         
        
         // Health text
         this.ctx.font = '14px Arial';
-        this.ctx.fillStyle = 'black';
+        this.ctx.fillStyle = COLORS.primary;
         this.ctx.fillText(`${scoreLabel}: ${currentScore}/${maxScore}`, x, y - 5);
     }
 
@@ -70,7 +71,7 @@ export class UIManager {
         const drawLocY = 60;
         this.ctx.textAlign = 'center';
         this.ctx.font = '15px Arial';
-        this.ctx.fillStyle = 'black';
+        this.ctx.fillStyle = scoreChanges > 0 ? COLORS.success : COLORS.danger;
         this.ctx.fillText(sign + String(scoreChanges), drawLocX, drawLocY);
         this.ctx.restore();
     }
@@ -81,11 +82,11 @@ export class UIManager {
      */
     drawIndicator(character)
     {
-        let color = 'black';
+        let color = COLORS.player;
         if(character.isOpponent)
         {
-            // Red indicator
-            color = 'red';
+            // Opponent indicator
+            color = COLORS.opponent;
         }
         
         // Triangle dimensions
@@ -106,7 +107,7 @@ export class UIManager {
         this.ctx.fill();
         
         // Optional: Add a border for better visibility
-        this.ctx.strokeStyle = 'white';
+        this.ctx.strokeStyle = COLORS.background;
         this.ctx.lineWidth = 1;
         this.ctx.stroke();
     }
@@ -122,7 +123,7 @@ export class UIManager {
         // Draw gameover sign
         this.ctx.textAlign = 'center';
         this.ctx.font = '40px Arial';
-        this.ctx.fillStyle = 'black';
+        this.ctx.fillStyle = COLORS.primary;
         this.ctx.fillText(gameOverLabel, this.canvas.width / 2, this.canvas.height / 3);
         this.ctx.restore();
 
@@ -140,7 +141,7 @@ export class UIManager {
         // Draw game result
         this.ctx.save();
         this.ctx.textAlign = 'center';
-        this.ctx.fillStyle = 'black';
+        this.ctx.fillStyle = COLORS.secondary;
         this.ctx.font = '20px Arial';
         this.ctx.fillText(`${winnerLabel} ${winsLabel}`, this.canvas.width / 2, this.canvas.height / 3 + 40);
         this.ctx.restore();
@@ -192,7 +193,7 @@ export class UIManager {
         this.ctx.save();
         this.ctx.textAlign = 'center';
         this.ctx.font = '40px Arial';
-        this.ctx.fillStyle = 'black';
+        this.ctx.fillStyle = COLORS.primary;
         this.ctx.fillText(title, this.canvas.width / 2, this.canvas.height / 3);
         this.ctx.restore();
 
@@ -220,7 +221,7 @@ export class UIManager {
         if(!character.getDodging())
             return;
         const offsetY = -100; // Distance above character
-        this.ctx.fillStyle = '#444444';
+        this.ctx.fillStyle = COLORS.secondary;
         this.ctx.font = '20px Arial';
         this.ctx.textAlign = 'center';
         this.ctx.fillText(letter, character.x, character.y + offsetY);
@@ -229,7 +230,7 @@ export class UIManager {
 
     drawLoadingScreen() {
         this.ctx.font = '20px Arial';
-        this.ctx.fillStyle = 'black';
+        this.ctx.fillStyle = COLORS.primary;
         this.ctx.fillText('Loading Resources...', this.canvas.width / 2 - 100, this.canvas.height / 2);
     }
 
@@ -246,7 +247,7 @@ export class UIManager {
         if (!showDebug || !character) return;
         
         this.ctx.font = '12px Arial';
-        this.ctx.fillStyle = 'blue';
+        this.ctx.fillStyle = COLORS.secondary;
          
         // Draw character debug info
         const debugHeight = 15;
@@ -260,7 +261,8 @@ export class UIManager {
 
     clearScreen() 
     {
-        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.fillStyle = COLORS.background;
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
     }
 
     /**
@@ -281,18 +283,20 @@ export class UIManager {
     drawButton(text, x, y, width, height, inputManager)
     {
         this.ctx.save();
-        // Handles actual drawing
-        this.ctx.fillStyle = inputManager.isMouseWithin(x, y, width, height)? '#aaaaaa' : 'white'; // Draw mouse hover
+        const isHovered = inputManager.isMouseWithin(x, y, width, height);
+        
+        // Draw button background
+        this.ctx.fillStyle = isHovered ? COLORS.primary : COLORS.surface;
         this.ctx.fillRect(x, y, width, height);
 
         // Draw frame
-        this.ctx.strokeStyle = 'black';
+        this.ctx.strokeStyle = COLORS.primary;
         this.ctx.lineWidth = 2;
         this.ctx.strokeRect(x, y, width, height);
 
         // Draw text
         this.ctx.font = '10px Arial';
-        this.ctx.fillStyle = 'black';
+        this.ctx.fillStyle = isHovered ? COLORS.background : COLORS.primary;
         this.ctx.textAlign = 'center';
         this.ctx.fillText(text, x + width/2, y + height/2, width);
 

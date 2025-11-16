@@ -37,6 +37,7 @@ function damageResult(defender, combatStateOther = null)
 function characterDodge(character, obstacle = null)
 {
         character.setDodging(true);
+        character.shrinkController.turnOn();
         if(obstacle != null)
         {
             character.loseScore(obstacle.damage);

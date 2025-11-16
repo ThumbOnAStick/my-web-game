@@ -1,11 +1,13 @@
 // RenderManager.js
 // Manages all drawing and rendering operations
 import { Character } from '../jsgameobjects/character.js';
+import { UIManager } from './uimanager.js';
 
 export class RenderManager {
     constructor(ctx, canvas, uiManager, vfxManager) {
         this.ctx = ctx;
         this.canvas = canvas;
+        /**@type {UIManager} */
         this.uiManager = uiManager;
         this.vfxManager = vfxManager;
     }

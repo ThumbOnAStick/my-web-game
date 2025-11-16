@@ -12,6 +12,8 @@ import { CharacterAnimationMixin } from "./mixins/CharacterAnimationMixin.js";
 import { CharacterMovementMixin } from "./mixins/CharacterMovementMixin.js";
 import { CharacterCombatMixin } from "./mixins/CharacterCombatMixin.js";
 import { CharacterScoreMixin } from "./mixins/CharacterScoreMixin.js";
+import { ShrinkController, ShrinkStage } from "../jscomponents/shrinkcontroller.js";
+import { buildShrinkController } from "../jsutils/shrinkhelper.js";
 
 // Angle constants for better readability
 const ANGLE_90_DEG = Math.PI / 2;
@@ -66,7 +68,7 @@ export class Character extends GameObject {
       this.movementSpeed
     );
     //#endregion
-
+    
     //#region Score system
     this.maxScore = 100;
     this.currentScore = 50; // Starting score
@@ -118,275 +120,9 @@ export class Character extends GameObject {
     this.wasGrounded = true; // Track previous grounded state
     this.drawSize = 1;
     //#endregion
+    
+    this.shrinkController = buildShrinkController(1, 0.7, 1 )
   }
-
-  //#region Animation System
-  async loadAnimation(name, animationPath, options = {}) {
-    await this.animationController.loadAnimation(name, animationPath);
-
-    // Only proceed if animation was successfully loaded
-    if (!this.animationController.animations[name]) {
-      console.warn(`Animation '${name}' failed to load from ${animationPath}`);
-      return false;
-    }
-
-    // Predefined animation defaults (only for existing animations)
-
-    // Merge defaults with custom options
-    const finalOptions = { ...animationDefaults[name], ...options };
-
-    // Apply loop setting
-    if (finalOptions.loop !== undefined) {
-      this.animationController.animations[name].loop = finalOptions.loop;
-    }
-
-    // Auto-play if requested
-    if (finalOptions.autoPlay) {
-      this.animationController.playAnimation(name);
-    }
-
-    return true;
-  }
-
-  /**
-   * @param {string} name - Animation name ('idle', 'swing', 'dodge', etc.)
-   */
-  playAnimation(name) {
-    if (!this.animationController.animations[name]) {
-      console.warn(`Animation '${name}' not loaded`);
-      return;
-    }
-
-    const settings = animationSettings[name] || { transitionDuration: 0.3 };
-    this.animationController.playAnimationWithTransition(
-      name,
-      settings.transitionDuration
-    );
-  }
-
-  playHeavySwingAnimation() {
-    this.playAnimation("swing");
-  }
-
-  playLightSwingAnimation() {
-    this.playAnimation("lightswing");
-  }
-
-  playSpinSwingAnimation() {
-    this.playAnimation("spinswing");
-  }
-  playThrustSwingAnimation() {
-    this.playAnimation("thrustswing");
-  }
-  playIdleAnimation(immediate = false) {
-    if (immediate) {
-      // Play immediately without transition
-      this.animationController.playAnimation("idle");
-    } else {
-      // Use normal transition
-      this.playAnimation("idle");
-    }
-  }
-
-  playDodgeAnimation() {
-    this.playAnimation("dodge");
-  }
-
-  playStaggerAnimation(immediate = false) {
-    if (immediate) {
-      this.animationController.playAnimation("stagger");
-    } else {
-      this.playAnimation("stagger");
-    }
-  }
-  //#endregion
-
-  //#region Movement and Physics
-  jump() {
-    if (this.grounded) {
-      this.grounded = false;
-      this.rigidbody.applyForce(10, 0, -1);
-    }
-  }
-
-  cannotMove() {
-    return !this.combatState.canMove();
-  }
-
-  /**
-   * @param {number} dir
-   */
-  move(dir) {
-    if (this.cannotMove()) {
-      return;
-    }
-    this.facing = dir; // Set facing for animation
-    this.rigidbody.move(dir);
-  }
-
-  /**
-   *
-   * @param {GameObject} other
-   */
-  adjustHitFacing(other) {
-    const direction = other.x - this.x;
-    this.facing = direction > 0 ? 1 : -1;
-  }
-
-  flip() {
-    this.facing = -this.facing;
-  }
-  //#endregion
-
-  //#region Combat System
-  /**
-   * @param {boolean} isSwinging
-   */
-  setSwinging(isSwinging) {
-    this.combatState.setSwinging(isSwinging);
-  }
-
-  /**
-   * @param {boolean} isCharging
-   */
-  setIsCharging(isCharging) {
-    this.combatState.setCharging(isCharging);
-  }
-
-  setDodging(isDodging) {
-    this.combatState.setDodging(isDodging);
-  }
-
-  setParried(isParried) {
-    this.combatState.setParried(isParried);
-  }
-
-  /**
-   * @param {string} type
-   */
-  setSwingType(type) {
-    this.combatState.setSwingType(type);
-  }
-
-  getSwingHitboxLifetime() {
-    return this.combatState.getSwingHitboxLifetime();
-  }
-
-  getSwingDamage() {
-    return this.combatState.getSwingDamage();
-  }
-
-  getSwingRange() {
-    return this.combatState.getSwingRange();
-  }
-
-  getSwinging() {
-    return this.combatState.swinging;
-  }
-
-  getDodging() {
-    return this.combatState.dodging;
-  }
-
-  getSwingType() {
-    return this.combatState.swingType;
-  }
-
-  callHeavySwingEvent() {
-    gameEventManager.emit(EventHandler.characterSwingEvent, this);
-  }
-
-  callLightSwingEvent() {
-    gameEventManager.emit(EventHandler.characterLightSwingEvent, this);
-  }
-
-  callSpinSwingEvent() {
-    gameEventManager.emit(EventHandler.characterSpinSwingEvent, this);
-  }
-
-  callSpinThrustEvent() {
-    gameEventManager.emit(EventHandler.characterThrustSwingEvent, this);
-  }
-
-  performHeavyattack() {
-    if (this.combatState.canAttack()) {
-      this.setSwingType("heavy");
-      this.playHeavySwingAnimation();
-      // Calls for a swing event
-      this.callHeavySwingEvent();
-    }
-  }
-
-  performLightAttack() {
-    if (this.combatState.canAttack()) {
-      this.setSwingType("light");
-      this.playLightSwingAnimation();
-      // Calls for a light swing event
-      this.callLightSwingEvent();
-    }
-  }
-
-  performSpinAttack() {
-    if (this.combatState.canAttack()) {
-      this.setSwingType("heavy");
-      this.playSpinSwingAnimation();
-      // Calls for a light swing event
-      this.callSpinSwingEvent();
-    }
-  }
-
-  performThrustAttack() {
-    if (this.combatState.canAttack()) {
-      this.setSwingType("light");
-      this.playThrustSwingAnimation();
-      // Calls for a light swing event
-      this.callSpinThrustEvent();
-    }
-  }
-  //#endregion
-
-  //#region Score System
-  /**
-   *
-   * @param {Number} amount
-   * @returns
-   */
-  loseScore(amount) {
-    if (this.defeated) return;
-
-    this.currentScore = Math.max(0, this.currentScore - amount);
-
-    gameEventManager.emit(EventHandler.setScoreChangesEvent, {
-      value: -amount,
-      character: this,
-    }); // Notify event manager
-
-    if (this.currentScore <= 0) {
-      this.defeated = true;
-      // To be implemented - defeat animation
-    } else {
-      // Dodged
-    }
-  }
-
-  resetScore() {
-    this.currentScore = 50;
-    this.defeated = false;
-  }
-
-  score(amount) {
-    if (this.defeated) return;
-    this.currentScore = Math.min(this.maxScore, this.currentScore + amount);
-    gameEventManager.emit(EventHandler.setScoreChangesEvent, {
-      value: amount,
-      character: this,
-    }); // Notify event manager
-  }
-
-  getScorePercentage() {
-    return this.currentScore / this.maxScore;
-  }
-  //#endregion
 
   //#region Utility Functions
   /** @returns {{x: number, y: number}} */
@@ -435,6 +171,7 @@ export class Character extends GameObject {
 
   updateIdleAnimation() {
     if (this.shouldPlayIdleAnimation()) {
+      // @ts-ignore
       this.playIdleAnimation();
     }
   }
@@ -451,6 +188,10 @@ export class Character extends GameObject {
 
     // Update rigidbody
     this.rigidbody.update(canvas, this);
+
+    // Update shrink controller
+    // if (this.shrinkController.stage == ShrinkStage.RUNNING)
+      this.drawSize = this.shrinkController.getSize();
   }
 
   /**

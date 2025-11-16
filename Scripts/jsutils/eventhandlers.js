@@ -113,6 +113,7 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         if (!character) return;
         character.rig.setAlpha(1);
         character.setDodging(false);
+        character.shrinkController.turnOff();
     }
 
     function resetCharacterParried(data)
