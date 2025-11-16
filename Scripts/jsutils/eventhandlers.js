@@ -34,43 +34,43 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
     function handleHeavySwingEvent(data) 
     {
         /**@type {Character} */
-        const character = data;
+        const character = data.character;
         character.setSwinging(true);
         character.setIsCharging(true);
-        gameEventManager.emit(postCharacterSwingEvent, data, 1); // Calculate damage
-        gameEventManager.emit(settleCharacterSwingEvent, data, 2); // Reset character
+        gameEventManager.emit(postCharacterSwingEvent, character, 1); // Calculate damage
+        gameEventManager.emit(settleCharacterSwingEvent, character, 2); // Reset character
     }
 
     function handleLightSwingEvent(data) 
     {
         /**@type {Character} */
-        const character = data;
+        const character = data.character;
         character.setSwinging(true);
         character.setIsCharging(true);
-        gameEventManager.emit(postCharacterSwingEvent, data, 0.7);  
-        gameEventManager.emit(settleCharacterSwingEvent, data, 1.5);
+        gameEventManager.emit(postCharacterSwingEvent, character, 0.7);  
+        gameEventManager.emit(settleCharacterSwingEvent, character, 1.5);
     }
 
     function handleSpinSwingEvent(data) 
     {
         /**@type {Character} */
-        const character = data;
+        const character = data.character;
         character.setSwinging(true);
         character.setIsCharging(true);
-        gameEventManager.emit(characterSwitchSwingTypeEvent, data, 1);  
-        gameEventManager.emit(postCharacterSwingEvent, data, 1.3);  
-        gameEventManager.emit(settleCharacterSwingEvent, data, 2);
+        gameEventManager.emit(characterSwitchSwingTypeEvent, character, 1);  
+        gameEventManager.emit(postCharacterSwingEvent, character, 1.3);  
+        gameEventManager.emit(settleCharacterSwingEvent, character, 2);
     }
 
     function handleThrustSwingEvent(data) 
     {
         /**@type {Character} */
-        const character = data;
+        const character = data.character;
         character.setSwinging(true);
         character.setIsCharging(true);
-        gameEventManager.emit(characterSwitchSwingTypeEvent, data, 1);  
-        gameEventManager.emit(postCharacterSwingEvent, data, 1.3);  
-        gameEventManager.emit(settleCharacterSwingEvent, data, 2);
+        gameEventManager.emit(characterSwitchSwingTypeEvent, character, 1);  
+        gameEventManager.emit(postCharacterSwingEvent, character, 1.3);  
+        gameEventManager.emit(settleCharacterSwingEvent, character, 2);
     }
     function handleSwitchSwingTypeEvent(data)
     {
@@ -103,6 +103,7 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         }
         character.setIsCharging(false); // Reset character charging
         character.setSwinging(false); // Reset character swing
+        character.playIdleAnimation(true);
     }
 
 

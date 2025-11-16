@@ -8,6 +8,10 @@ import { GameObject } from "./gameobject.js";
 import { Rigidbody } from "../jscomponents/rigidbody.js";
 import { Resources } from "../jscomponents/resources.js";
 import { CharacterCombatState } from "../jscomponents/charactercombatstate.js";
+import { CharacterAnimationMixin } from "./mixins/CharacterAnimationMixin.js";
+import { CharacterMovementMixin } from "./mixins/CharacterMovementMixin.js";
+import { CharacterCombatMixin } from "./mixins/CharacterCombatMixin.js";
+import { CharacterScoreMixin } from "./mixins/CharacterScoreMixin.js";
 
 // Angle constants for better readability
 const ANGLE_90_DEG = Math.PI / 2;
@@ -276,15 +280,15 @@ export class Character extends GameObject {
     return this.combatState.getSwingRange();
   }
 
-  get swinging() {
+  getSwinging() {
     return this.combatState.swinging;
   }
 
-  get dodging() {
+  getDodging() {
     return this.combatState.dodging;
   }
 
-  get swingType() {
+  getSwingType() {
     return this.combatState.swingType;
   }
 
@@ -478,3 +482,9 @@ export class Character extends GameObject {
 
   //#endregion
 }
+
+// Apply mixins to Character class
+Object.assign(Character.prototype, CharacterAnimationMixin);
+Object.assign(Character.prototype, CharacterMovementMixin);
+Object.assign(Character.prototype, CharacterCombatMixin);
+Object.assign(Character.prototype, CharacterScoreMixin);

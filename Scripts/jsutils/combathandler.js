@@ -120,7 +120,7 @@ export function handleCharacterDamageResult(defender, offender = null)
  * @param {ObstacleManager} obstacleManager
  */
 export function swingAndMoveForward(character, obstacleManager) {
-    if (!character.dodging && !character.combatState.parried) // if character is dodging or is parried, following acts cannot be conducted
+    if (!character.combatState.isCharging && !character.combatState.dodging && !character.combatState.parried) // if character is dodging or is parried, following acts cannot be conducted
     {
         const coordinate = character.selfCoordinate()
         const sizeX = character.getSwingRange();

@@ -217,7 +217,7 @@ export class UIManager {
      */
     drawDodged(letter, character) 
     {
-        if(!character.dodging)
+        if(!character.getDodging())
             return;
         const offsetY = -100; // Distance above character
         this.ctx.fillStyle = '#444444';
@@ -252,7 +252,7 @@ export class UIManager {
         const debugHeight = 15;
         const debugY = this.canvas.height - debugHeight * 8;
         this.ctx.fillText(`Position: (${Math.round(character.x)}, ${Math.round(character.y)})`, 10, debugY);
-        this.ctx.fillText(`Swinging: ${character.swinging}`, 10, debugY + debugHeight * 3);
+        this.ctx.fillText(`Swinging: ${character.combatState.swinging}`, 10, debugY + debugHeight * 3);
         this.ctx.fillText(`Gamestate: Game Over: ${gamestate.isGameOver}\nPlayer score: ${character.currentScore}`, 10, debugY + debugHeight * 4);
         this.ctx.fillText(`MouseX: ${inputmanager.mouse.x}, MouseY: ${inputmanager.mouse.y}, MouseDown: ${inputmanager.mouse.isDown}`, 10, debugY + debugHeight * 5);
 

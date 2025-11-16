@@ -65,7 +65,7 @@ export class InputManager
     handleKeyDown(e)
     {
         if (!this.character) return; // Type guard
-        if (this.character.swinging) return; // Action blocked when character is swinging 
+        if (this.character.getSwinging()) return; // Action blocked when character is swinging 
         if (!this.gameManager.isGameRunning()) return; // Action blocked when game is over
         switch (e.code) 
         {
