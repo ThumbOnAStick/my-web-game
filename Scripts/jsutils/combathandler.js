@@ -7,6 +7,7 @@ import * as EventHandlers from './eventhandlers.js'
 
 
 const characterDodgeAlpha = 0.5;
+// @ts-ignore
 const characterDodgeForce = 30;
 const characterParryFallback = 15;
 const characterParryFreezeFrame = 10;
@@ -36,11 +37,14 @@ function damageResult(defender, combatStateOther = null)
  */
 function characterDodge(character, obstacle = null)
 {
+        // @ts-ignore
         character.setDodging(true);
         character.shrinkController.turnOn();
         if(obstacle != null)
         {
+            // @ts-ignore
             character.loseScore(obstacle.damage);
+            // @ts-ignore
             character.adjustHitFacing(obstacle);
             // character.rigidbody.applyForceTo(characterDodgeForce, character, obstacle, true, false, true);
         }
@@ -56,8 +60,11 @@ function characterDodge(character, obstacle = null)
  */
 function breakFromSwing(character, time)
 {
+    // @ts-ignore
     character.setSwinging(false); // Force exit swing
+    // @ts-ignore
     character.setParried(true);  
+    // @ts-ignore
     character.playStaggerAnimation(false);
     gameEventManager.emit(EventHandlers.resetCharacterDodgingEvent, character, time)
     gameEventManager.emit(EventHandlers.resetCharacterParriedEvent, character, time);
@@ -69,6 +76,7 @@ function breakFromSwing(character, time)
  * @param {GameObject} offender
  * @param {Character} offenderSource
  */
+// @ts-ignore
 function characterParry(defender, offender = null, offenderSource = null) {
     gameEventManager.freezeFor(characterParryFreezeFrame);
     if (offender)
@@ -76,12 +84,13 @@ function characterParry(defender, offender = null, offenderSource = null) {
         defender.rigidbody.applyForceTo(characterParryFallback, offender, defender, true, false, true);
         if(offender.source && offender.source instanceof Character)
         {
-            breakFromSwing(offender.source, 2);
+            breakFromSwing(offender.source, 1.2);
         }
-        breakFromSwing(defender, 1);
+        breakFromSwing(defender, 0.2);
         gameEventManager.emit(EventHandlers.spawnParryFlashEvent, defender);
         gameEventManager.emit(EventHandlers.playNamedClipEvent, 'parry');
 
+        // @ts-ignore
         defender.score(10);
     }
 }
@@ -124,6 +133,7 @@ export function swingAndMoveForward(character, obstacleManager) {
     if (!character.combatState.isCharging && !character.combatState.dodging && !character.combatState.parried) // if character is dodging or is parried, following acts cannot be conducted
     {
         const coordinate = character.selfCoordinate()
+        // @ts-ignore
         const sizeX = character.getSwingRange();
         const sizeY = 100;
         const offsetX = sizeX / 2;
@@ -135,10 +145,12 @@ export function swingAndMoveForward(character, obstacleManager) {
                 coordinate.y - offsetY,
                 sizeX,
                 sizeY,
+                // @ts-ignore
                 character.getSwingHitboxLifetime(), // Lifetime
                 true,
                 character.id,
                 character,
+                // @ts-ignore
                 character.getSwingDamage()
             );
         // Push character forward

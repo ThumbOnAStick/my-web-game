@@ -1,6 +1,6 @@
 import { GameObject } from "../jsgameobjects/gameobject.js";
 
-export class Rigidbody
+export class Rigidbody2D
 {
     /**
      * @param {*} offsetX 

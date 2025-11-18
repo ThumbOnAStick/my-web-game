@@ -1,14 +1,10 @@
 import { GameObject } from "../jsgameobjects/gameobject.js";
+import { Controller } from "./controller.js";
+import { ControllerStatus } from "./controllerstatus.js";
 
-/**
- * @enum {string}
- */
-export const ShrinkStage = {
-    OFF: 'off',
-    RUNNING: 'running'
-};
 
-export class ShrinkController{
+
+export class ShrinkController extends Controller{
     /**
      * 
      * @param {Number} speed 
@@ -16,32 +12,25 @@ export class ShrinkController{
      * @param {Number} max
      */
     constructor(speed, min, max) {
+        super();
         this.size = 1;
         this.speed = speed 
         this.direction = 1;
         this.min = min;
         this.max = max;
-        this.stage = ShrinkStage.OFF;
     }
 
     reverse(){
         this.direction = -this.direction;
     }
 
-    turnOn() {
-        this.stage = ShrinkStage.RUNNING;
-    }
-
-    turnOff() {
-        this.stage = ShrinkStage.OFF;
-    }
-
+  
     /**
      * 
      * @returns {Number}
      */
     getSize() {
-        if (this.stage === ShrinkStage.OFF){
+        if (this.status === ControllerStatus.OFF){
             this.size = 1;
             return 1;  
         } 

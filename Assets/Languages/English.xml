@@ -9,4 +9,8 @@
     <Wins>wins.</Wins>
     <Gameover>Game Over!</Gameover>
     <Score>Score</Score>
+    <ToMenu>Menu</ToMenu> 
+    <Level0>Tutor</Level0>
+    <Level1>Novice</Level1>
+    <Level2>Veteran</Level2>
 </Root>

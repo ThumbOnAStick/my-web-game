@@ -35,7 +35,9 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
     {
         /**@type {Character} */
         const character = data.character;
+        // @ts-ignore
         character.setSwinging(true);
+        // @ts-ignore
         character.setIsCharging(true);
         gameEventManager.emit(postCharacterSwingEvent, character, 1); // Calculate damage
         gameEventManager.emit(settleCharacterSwingEvent, character, 2); // Reset character
@@ -45,32 +47,40 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
     {
         /**@type {Character} */
         const character = data.character;
+        // @ts-ignore
         character.setSwinging(true);
+        // @ts-ignore
         character.setIsCharging(true);
         gameEventManager.emit(postCharacterSwingEvent, character, 0.7);  
         gameEventManager.emit(settleCharacterSwingEvent, character, 1.5);
     }
 
-    function handleSpinSwingEvent(data) 
-    {
-        /**@type {Character} */
-        const character = data.character;
-        character.setSwinging(true);
-        character.setIsCharging(true);
-        gameEventManager.emit(characterSwitchSwingTypeEvent, character, 1);  
-        gameEventManager.emit(postCharacterSwingEvent, character, 1.3);  
-        gameEventManager.emit(settleCharacterSwingEvent, character, 2);
+    function handleSpinSwingEvent(data) {
+      /**@type {Character} */
+      const character = data.character;
+      // @ts-ignore
+      character.setSwinging(true);
+      // @ts-ignore
+      character.setIsCharging(true);
+      // @ts-ignore
+      character.turnOnSmear(); // Start smearing
+      gameEventManager.emit(characterSwitchSwingTypeEvent, character, 1);
+      gameEventManager.emit(postCharacterSwingEvent, character, 1.3);
+      gameEventManager.emit(settleCharacterSwingEvent, character, 2);
     }
 
-    function handleThrustSwingEvent(data) 
-    {
-        /**@type {Character} */
-        const character = data.character;
-        character.setSwinging(true);
-        character.setIsCharging(true);
-        gameEventManager.emit(characterSwitchSwingTypeEvent, character, 1);  
-        gameEventManager.emit(postCharacterSwingEvent, character, 1.3);  
-        gameEventManager.emit(settleCharacterSwingEvent, character, 2);
+    function handleThrustSwingEvent(data) {
+      /**@type {Character} */
+      const character = data.character;
+      // @ts-ignore
+      character.setSwinging(true);
+      // @ts-ignore
+      character.setIsCharging(true);
+      // @ts-ignore
+      character.turnOnSmear(); // Start smearing
+      gameEventManager.emit(characterSwitchSwingTypeEvent, character, 1);
+      gameEventManager.emit(postCharacterSwingEvent, character, 1.3);
+      gameEventManager.emit(settleCharacterSwingEvent, character, 2);
     }
     function handleSwitchSwingTypeEvent(data)
     {
@@ -88,6 +98,7 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         {
             return;
         }
+        // @ts-ignore
         character.setIsCharging(false); // Reset character charging
         CombatHandler.swingAndMoveForward(character, obstacleManager); // Swing and move forward using rigidbody
     
@@ -101,8 +112,13 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         {
             return;
         }
+        // @ts-ignore
+        character.turnOffSmear(); // End smearing
+        // @ts-ignore
         character.setIsCharging(false); // Reset character charging
+        // @ts-ignore
         character.setSwinging(false); // Reset character swing
+        // @ts-ignore
         character.playIdleAnimation(true);
     }
 
@@ -112,6 +128,7 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         const character = /**@type {Character} */ (data);
         if (!character) return;
         character.rig.setAlpha(1);
+        // @ts-ignore
         character.setDodging(false);
         character.shrinkController.turnOff();
     }
@@ -133,6 +150,7 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         gameEventManager.emit(clearScoreChangesEvent, data, 1);
     }
 
+    // @ts-ignore
     function resetScorechanges(data)
     {
         gameEventManager.clearScoreChanges();
@@ -153,11 +171,13 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
 
     }
 
+    // @ts-ignore
     function handleCharacterShrinkEvent(data) 
     {
 
     }
 
+    // @ts-ignore
     function handlecharacterResizeEvent(data){
         
     }

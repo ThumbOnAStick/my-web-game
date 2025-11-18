@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Bone } from "../jsanimation/bone.js";
 import { SpritePart } from "../jsanimation/spritepart.js";
 import { Rig } from "../jsanimation/rig.js";
@@ -5,14 +6,14 @@ import { AnimationController } from "../jsanimation/animatoincontroller.js";
 import { gameEventManager } from "../jsmanagers/eventmanager.js";
 import * as EventHandler from "../jsutils/eventhandlers.js";
 import { GameObject } from "./gameobject.js";
-import { Rigidbody } from "../jscomponents/rigidbody.js";
+import { Rigidbody2D } from "../jscomponents/rigidbody.js";
 import { Resources } from "../jscomponents/resources.js";
 import { CharacterCombatState } from "../jscomponents/charactercombatstate.js";
 import { CharacterAnimationMixin } from "./mixins/CharacterAnimationMixin.js";
 import { CharacterMovementMixin } from "./mixins/CharacterMovementMixin.js";
 import { CharacterCombatMixin } from "./mixins/CharacterCombatMixin.js";
 import { CharacterScoreMixin } from "./mixins/CharacterScoreMixin.js";
-import { ShrinkController, ShrinkStage } from "../jscomponents/shrinkcontroller.js";
+import { ShrinkController } from "../jscomponents/shrinkcontroller.js";
 import { buildShrinkController } from "../jsutils/shrinkhelper.js";
 
 // Angle constants for better readability
@@ -61,8 +62,8 @@ export class Character extends GameObject {
     //#endregion
 
     //#region rigidbody system
-    /**@type {Rigidbody} */
-    this.rigidbody = new Rigidbody(
+    /**@type {Rigidbody2D} */
+    this.rigidbody = new Rigidbody2D(
       this.width / 2,
       this.height / 2,
       this.movementSpeed

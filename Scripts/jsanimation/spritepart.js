@@ -1,3 +1,6 @@
+import { ControllerStatus } from "../jscomponents/controllerstatus.js";
+import { SmearController } from "./smear/smearcontroller.js";
+
 // Represents a visual part (sprite) attached to a bone
 export class SpritePart 
 {
@@ -14,6 +17,7 @@ export class SpritePart
         this.width = width;
         this.height = height;
         this.angleOffset = angleOffset || 0; // Optional angle offset for rotation
+        this.smearController = new SmearController(this, {updateDuration: 2});
     }
 
     /**
@@ -44,7 +48,24 @@ export class SpritePart
             -scaledWidth / 2, -scaledHeight / 2, scaledWidth, scaledHeight  // Destination: scaled
         );
         ctx.restore();
+        
+        // Render smear
+        if(this.smearController.status == ControllerStatus.RUNNING){
+            this.smearController.update({
+                ctx: ctx,
+                x: x,
+                y: y,
+                width: this.width,
+                height: this.height,
+                size: size,
+                angle: angle,
+                angleOffset: this.angleOffset,
+                alpha: alpha
+            });
+        }
+        this.smearController.draw()
     }
+
 
     /**
      * @param {CanvasRenderingContext2D} ctx 
@@ -63,6 +84,14 @@ export class SpritePart
         }
         
         ctx.putImageData(imageData, 0, 0);
+    }
+
+    turnOnSmear() {
+        this.smearController.turnOn();
+    }
+
+    turnOffSmear() {
+        this.smearController.turnOff();
     }
 
 }

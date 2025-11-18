@@ -4,7 +4,7 @@
     "module": "ES2020",
     "moduleResolution": "node",
     "allowJs": true,
-    "checkJs": false,
+    "checkJs": true,
     "noEmit": true,
     "forceConsistentCasingInFileNames": true
   },

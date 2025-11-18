@@ -65,11 +65,13 @@ export class InputManager
     handleKeyDown(e)
     {
         if (!this.character) return; // Type guard
+        // @ts-ignore
         if (this.character.getSwinging()) return; // Action blocked when character is swinging 
         if (!this.gameManager.isGameRunning()) return; // Action blocked when game is over
         switch (e.code) 
         {
             case 'Space':
+                // @ts-ignore
                 this.character.jump();
                 break;
             // Press R for reset
@@ -164,9 +166,11 @@ export class InputManager
         if (!this.character) return;
         
         if (this.keys.a) {
+            // @ts-ignore
             this.character.move(-1); // Move left
         }
         if (this.keys.d) {
+            // @ts-ignore
             this.character.move(1); // Move right
         }
     }

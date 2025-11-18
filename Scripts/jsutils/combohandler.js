@@ -32,18 +32,21 @@ export function handleCombos(character, input)
 {
     if (arraysEqual(input, COMBOS.LIGHT_ATTACK)) 
     {
+        // @ts-ignore
         character.performLightAttack();
         return;
     }
 
     if(arraysEqual(input, COMBOS.HEAVY_ATTACK))
     {
+        // @ts-ignore
         character.performHeavyattack();
         return;
     }
 
     if(arraysEqual(input, COMBOS.SPIN_SWING))
     {
+        // @ts-ignore
         character.performSpinAttack();
         return;
     }
@@ -51,6 +54,7 @@ export function handleCombos(character, input)
     if(arraysEqual(input, COMBOS.THRUST))
     {
         console.log("thrust");
+        // @ts-ignore
         character.performThrustAttack();
         return;
     }

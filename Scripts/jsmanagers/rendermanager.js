@@ -74,7 +74,8 @@ export class RenderManager {
             return this.uiManager.drawMenu(
                 inputManager,
                 resourceManager.getTranslation(gameManager, 'Title'),
-                resourceManager.getTranslation(gameManager, 'Start')
+                resourceManager.getTranslation(gameManager, 'Start'),
+                gameManager 
             );
         }
         return false;
@@ -98,8 +99,16 @@ export class RenderManager {
                 resourceManager.getTranslation(gameManager, 'Wins'),
                 inputManager
             );
+
         }
         return false;
+    }
+
+    drawGotoMenuButton(isGameOver, inputManager, gameManager, resourceManager) {
+        if(!isGameOver){
+            return false;
+        }
+        return this.uiManager.drawGotoMenuButton(inputManager, resourceManager.getTranslation(gameManager, 'ToMenu'),)
     }
 
     /**

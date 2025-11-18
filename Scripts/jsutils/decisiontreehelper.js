@@ -49,7 +49,9 @@ function swing(data)
     if (!data.selfCharacter.combatState.canAttack()) {
         return;
     }
+    // @ts-ignore
     data.selfCharacter.adjustHitFacing(data.opponentCharacter);
+    // @ts-ignore
     data.selfCharacter.performHeavyattack();
 }
 
@@ -58,6 +60,7 @@ function swing(data)
  */
 function jump(data)
 {
+    // @ts-ignore
     data.selfCharacter.jump();
     data.aiController.moveAwayFrom(data.opponentCharacter);
 }
@@ -71,7 +74,9 @@ function lightSwing(data)
         return;
     }
     data.aiController.halt();
+    // @ts-ignore
     data.selfCharacter.adjustHitFacing(data.opponentCharacter);
+    // @ts-ignore
     data.selfCharacter.performLightAttack();
 }
 

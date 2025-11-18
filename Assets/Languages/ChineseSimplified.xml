@@ -9,4 +9,8 @@
     <Wins>获胜。</Wins>
     <Gameover>游戏结束！</Gameover>
     <Score>分数</Score>
+    <ToMenu>菜单</ToMenu>
+    <Level0>教练</Level0>
+    <Level1>新手</Level1>
+    <Level2>熟练选手</Level2>
 </Root>

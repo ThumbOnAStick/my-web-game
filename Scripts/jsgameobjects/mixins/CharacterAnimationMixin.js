@@ -122,4 +122,13 @@ export const CharacterAnimationMixin = {
       this.playIdleAnimation();
     }
   },
+
+  turnOnSmear() {
+    this.rig.turnOnSmear();
+  },
+
+  turnOffSmear() {
+    this.rig.turnOffSmear();
+  }
+  
 };

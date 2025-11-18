@@ -61,6 +61,16 @@
         #debugSlider.visible {
             display: inline-block;
         }
+
+        #loseGameButton {
+            display: none;
+        }
+
+        #loseGameButton.visible {
+            display: inline-block;
+        }
+
+
     </style>
 </head>
 
@@ -72,6 +82,7 @@
             <input type="checkbox" id="debugCheckbox"> Debug
         </label>
         <input type="range" id="debugSlider" min="0" max="100" value="50">
+        <button id="loseGameButton">Lose Game</button>
         <label class="language-selector">
             <select id="languageSelector">
                 <option value="English">En</option>
@@ -84,12 +95,15 @@
         // Show/hide slider when debug checkbox is toggled
         const debugCheckbox = document.getElementById('debugCheckbox');
         const debugSlider = document.getElementById('debugSlider');
-        
+        const loseGameButton = document.getElementById("loseGameButton")
+;
         debugCheckbox.addEventListener('change', function() {
             if (this.checked) {
                 debugSlider.classList.add('visible');
+                loseGameButton.classList.add('visible');
             } else {
                 debugSlider.classList.remove('visible');
+                loseGameButton.classList.remove('visible');
             }
         });
 

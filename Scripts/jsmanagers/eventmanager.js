@@ -26,6 +26,16 @@ export class EventManager
     // Emit events to all listeners (with optional delay)
     emit(eventName, data, delay = 0) {
         if (delay > 0) {
+            // If data is a Character, remove existing delayed events with same eventName and character ID
+            if (data instanceof Character) {
+                this.delayedEvents = this.delayedEvents.filter(delayedEvent => {
+                    const isSameEvent = delayedEvent.eventName === eventName;
+                    const isSameCharacter = delayedEvent.data instanceof Character && 
+                                           delayedEvent.data.id === data.id;
+                    return !(isSameEvent && isSameCharacter);
+                });
+            }
+            
             // Schedule delayed event
             this.delayedEvents.push({
                 eventName,

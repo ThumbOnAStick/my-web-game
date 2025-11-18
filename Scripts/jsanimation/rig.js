@@ -99,4 +99,16 @@ export class Rig {
 
         ctx.restore();
     }
+
+    turnOnSmear() {
+        for (const boneName in this.parts) {
+            this.parts[boneName].turnOnSmear();
+        }
+    }
+
+    turnOffSmear() {
+        for (const boneName in this.parts) {
+            this.parts[boneName].turnOffSmear();
+        }
+    }
 }
