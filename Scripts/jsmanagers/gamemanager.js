@@ -54,7 +54,6 @@ export class GameManager {
 
     // Set up manager references
     this.inputManager.setGameManager(this);
-    this.selectedLanguage = "English";
 
     // Set up debug checkbox
     /**@type {HTMLInputElement} */
@@ -104,7 +103,7 @@ export class GameManager {
 
   update() {
     // Update display language
-    this.selectedLanguage = this.languageSelector.value;
+    this.resourceManager.selectedLanguage = this.languageSelector.value;
 
     // Update event manager for delayed events
     gameEventManager.update();
@@ -157,9 +156,9 @@ export class GameManager {
     // Menu drawing
     if (
       this.renderManager.drawMenu(
+        this.gameState,
         this.isInMenu(),
         this.inputManager,
-        this,
         this.resourceManager
       )
     ) {
@@ -172,7 +171,6 @@ export class GameManager {
         this.isGameOver(),
         this.gameState.winner,
         this.inputManager,
-        this,
         this.resourceManager
       )
     ) {
@@ -255,7 +253,7 @@ export class GameManager {
    * @returns {String}
    */
   getTranslation(element) {
-    return this.resourceManager.getTranslation(this, element);
+    return this.resourceManager.getTranslation(element);
   }
 
   // Getter methods for external access

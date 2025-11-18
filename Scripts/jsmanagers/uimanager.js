@@ -6,9 +6,11 @@ import { Character } from "../jsgameobjects/character.js";
 import { gameEventManager } from "./eventmanager.js";
 import { InputManager } from "./inputmanager.js";
 import { COLORS, getHealthColor } from "../jsutils/colors.js";
-import { SnappedSlider } from "../jscomponents/SnappedSlider.js";
 import { ResourceManager } from "./resourcemanager.js";
 import { GameManager } from "./gamemanager.js";
+import { Button } from "../jscomponents/uielements/button.js";
+import { Indicator } from "../jscomponents/uielements/indicator.js";
+import { SnappedSlider } from "../jscomponents/uielements/snappedslider.js";
 
 export class UIManager {
   /**
@@ -32,6 +34,8 @@ export class UIManager {
       300,
       10
     );
+    /** @type {Map<Character, Indicator>} */
+    this.indicators = new Map();
   }
 
   /**
@@ -96,33 +100,15 @@ export class UIManager {
    * @param {Character} character
    */
   drawIndicator(character) {
-    let color = COLORS.player;
-    if (character.isOpponent) {
-      // Opponent indicator
-      color = COLORS.opponent;
+    if (!character) return;
+
+    // Get or create indicator for this character
+    if (!this.indicators.has(character)) {
+      this.indicators.set(character, new Indicator(character));
     }
 
-    // Triangle dimensions
-    const triangleSize = 15;
-    const offsetY = 50; // Distance above character
-
-    // Position above character center
-    const centerX = character.x;
-    const topY = character.y - character.height / 2 - offsetY;
-
-    // Draw triangle pointing down at character
-    this.ctx.fillStyle = color;
-    this.ctx.beginPath();
-    this.ctx.moveTo(centerX, topY + triangleSize); // Bottom point (pointing down)
-    this.ctx.lineTo(centerX - triangleSize / 2, topY); // Top left
-    this.ctx.lineTo(centerX + triangleSize / 2, topY); // Top right
-    this.ctx.closePath();
-    this.ctx.fill();
-
-    // Optional: Add a border for better visibility
-    this.ctx.strokeStyle = COLORS.background;
-    this.ctx.lineWidth = 1;
-    this.ctx.stroke();
+    const indicator = this.indicators.get(character);
+    indicator.draw(this.ctx);
   }
 
   /**
@@ -228,12 +214,15 @@ export class UIManager {
     );
   }
 
+
   /**
    * 
-   * @param {GameManager} gameManager 
+   * @param {GameState} gameState 
    */
-  drawSnappedSlider(gameManager) {
-    this.snappedSlider.draw(gameManager);
+  drawSnappedSlider(gameState) {
+    this.snappedSlider.draw();
+    // Update gamestate 
+    gameState.difficulty = this.snappedSlider.currentIndex;
   }
 
   /**
@@ -250,15 +239,15 @@ export class UIManager {
   }
 
   /**
+   * @param {GameState} gameState
    * @param {InputManager} inputManager
    * @param {String} title
    * @param {String} startButtonLabel
-   * @param {GameManager} gameManager
    * @returns {boolean} 
    */
-  drawMenu(inputManager, title, startButtonLabel, gameManager) {
+  drawMenu(gameState, inputManager, title, startButtonLabel) {
     this.drawMenuSign(title);
-    this.drawSnappedSlider(gameManager);
+    this.drawSnappedSlider(gameState);
     return this.drawStartButton(inputManager, startButtonLabel);
   }
 
@@ -336,17 +325,8 @@ export class UIManager {
    * @returns {boolean}
    */
   drawButtonCenter(text, x, y, width, height, inputManager, offsetY = 0) {
-    let newAnchorX = x - width / 2;
-    let newAnchorY = y - height / 2;
-    newAnchorY += offsetY;
-    return this.drawButton(
-      text,
-      newAnchorX,
-      newAnchorY,
-      width,
-      height,
-      inputManager
-    );
+    const button = Button.createCentered(text, x, y, width, height, offsetY);
+    return button.draw(this.ctx, inputManager);
   }
 
   /**
@@ -359,25 +339,7 @@ export class UIManager {
    * @param {number} height
    */
   drawButton(text, x, y, width, height, inputManager) {
-    this.ctx.save();
-    const isHovered = inputManager.isMouseWithin(x, y, width, height);
-
-    // Draw button background
-    this.ctx.fillStyle = isHovered ? COLORS.primary : COLORS.surface;
-    this.ctx.fillRect(x, y, width, height);
-
-    // Draw frame
-    this.ctx.strokeStyle = COLORS.primary;
-    this.ctx.lineWidth = 2;
-    this.ctx.strokeRect(x, y, width, height);
-
-    // Draw text
-    this.ctx.font = "10px Arial";
-    this.ctx.fillStyle = isHovered ? COLORS.background : COLORS.primary;
-    this.ctx.textAlign = "center";
-    this.ctx.fillText(text, x + width / 2, y + height / 2, width);
-
-    this.ctx.restore();
-    return inputManager.isMouseDownWithin(x, y, width, height);
+    const button = new Button(text, x, y, width, height);
+    return button.draw(this.ctx, inputManager);
   }
 }

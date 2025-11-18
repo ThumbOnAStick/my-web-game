@@ -15,7 +15,7 @@ export class ResourceManager {
         this.audioPaths = ['./Assets/blocked.wav', './Assets/dodge.wav', './Assets/clapping.wav'];
         this.languageCodes = ['English', 'ChineseSimplified']
         this.languagePaths = ['./Assets/Languages/English.xml', './Assets/Languages/ChineseSimplified.xml']
-
+        this.selectedLanguage = 'English';
     }
 
     async trytoLoadAllResources() 
@@ -66,6 +66,10 @@ export class ResourceManager {
         return this.resources.getImage(name);
     }
 
+    setSelectedLanguage(code){
+        this.selectedLanguage = code;
+    }
+
     
 
     /**
@@ -80,12 +84,20 @@ export class ResourceManager {
 
     /**
      * 
-     * @param {GameManager} gamemanager 
      * @param {String} elementName 
      * @returns {String}
      */
-    getTranslation(gamemanager, elementName)
+    getTranslation(elementName)
     {
-        return this.resources.getLanguageText(gamemanager.selectedLanguage, elementName)
+        return this.resources.getLanguageText(this.selectedLanguage, elementName)
+    }
+
+    /**
+     * 
+     * @param {String[]} elementNames 
+     * @returns {String[]}
+     */
+    getTranslations(elementNames) {
+        return elementNames.map(name => this.getTranslation(name));
     }
 }

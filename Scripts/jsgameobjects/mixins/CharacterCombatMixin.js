@@ -2,6 +2,7 @@
 // Contains all combat-related methods for Character
 import { gameEventManager } from "../../jsmanagers/eventmanager.js";
 import * as EventHandler from "../../jsutils/eventhandlers.js";
+import { SwingType } from "../../jscomponents/charactercombatstate.js";
 
 
 export const CharacterCombatMixin = {
@@ -31,7 +32,7 @@ export const CharacterCombatMixin = {
 
   /**
    * Set swing type
-   * @param {string} type - 'heavy', 'light', or 'none'
+   * @param {string} type - SwingType enum value
    */
   setSwingType(type) {
     this.combatState.setSwingType(type);
@@ -79,7 +80,7 @@ export const CharacterCombatMixin = {
 
   performHeavyattack() {
     if (this.combatState.canAttack()) {
-      this.setSwingType("heavy");
+      this.setSwingType(SwingType.HEAVY);
       this.playHeavySwingAnimation();
       this.callHeavySwingEvent();
     }
@@ -87,7 +88,7 @@ export const CharacterCombatMixin = {
 
   performLightAttack() {
     if (this.combatState.canAttack()) {
-      this.setSwingType("light");
+      this.setSwingType(SwingType.LIGHT);
       this.playLightSwingAnimation();
       this.callLightSwingEvent();
     }
@@ -95,7 +96,7 @@ export const CharacterCombatMixin = {
 
   performSpinAttack() {
     if (this.combatState.canAttack()) {
-      this.setSwingType("heavy");
+      this.setSwingType(SwingType.HEAVY);
       this.playSpinSwingAnimation();
       this.callSpinSwingEvent();
     }
@@ -103,7 +104,7 @@ export const CharacterCombatMixin = {
 
   performThrustAttack() {
     if (this.combatState.canAttack()) {
-      this.setSwingType("light");
+      this.setSwingType(SwingType.LIGHT);
       this.playThrustSwingAnimation();
       this.callSpinThrustEvent();
     }

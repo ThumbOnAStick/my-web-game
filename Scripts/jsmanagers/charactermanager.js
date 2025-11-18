@@ -47,12 +47,19 @@ export class CharacterManager {
         try {
             // Load animations for all characters
             for (const character of this.characters) {
+                // @ts-ignore
                 await character.loadAnimation('idle', './Assets/character_idle_animation.csv');
+                // @ts-ignore
                 await character.loadAnimation('swing', './Assets/character_swing_animation.csv');
+                // @ts-ignore
                 await character.loadAnimation('lightswing', './Assets/character_lightswing_animation.csv');
+                // @ts-ignore
                 await character.loadAnimation('spinswing', './Assets/character_spinswing_animation.csv');
+                // @ts-ignore
                 await character.loadAnimation('thrustswing', './Assets/character_thrust_animation.csv');
+                // @ts-ignore
                 await character.loadAnimation('dodge', './Assets/character_dodge_animation.csv');
+                // @ts-ignore
                 await character.loadAnimation('stagger', './Assets/character_stagger_animation.csv');
             }
             console.log('Animations loaded successfully');
@@ -94,6 +101,10 @@ export class CharacterManager {
         if (player.rigidbody) {
             player.rigidbody.velocityY = 0;
         }
+        if(opponent){
+            // @ts-ignore
+            player.adjustHitFacing(opponent);
+        }
         player.grounded = true;
 
         // Reset positions
@@ -102,7 +113,9 @@ export class CharacterManager {
 
         // Reset scores and animations
         for (const character of this.characters) {
+            // @ts-ignore
             character.resetScore();
+            // @ts-ignore
             character.playIdleAnimation();
         }
 

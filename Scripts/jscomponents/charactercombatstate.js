@@ -1,4 +1,15 @@
 /**
+ * @enum {string}
+ */
+export const SwingType = {
+    LIGHT: 'light',
+    HEAVY: 'heavy',
+    NONE: 'none'
+};
+
+
+
+/**
  * Manages the combat state of a character including attack types, timing, and restrictions
  */
 const heavyDamage = 5;
@@ -11,7 +22,7 @@ export class CharacterCombatState {
         this.swinging = false;  
         this.dodging = false;  
         this.parried = false;
-        this.swingType = 'none'; // 'heavy', 'light', or 'none'
+        this.swingType = SwingType.NONE;
     }
 
     /**
@@ -20,7 +31,7 @@ export class CharacterCombatState {
     setSwinging(isSwinging) {
         this.swinging = isSwinging;
         if (!isSwinging) {
-            this.swingType = 'none'; // Reset swing type when not swinging
+            this.swingType = SwingType.NONE;
         }
     }
 
@@ -51,12 +62,12 @@ export class CharacterCombatState {
   
 
     /**
-     * @param {string} type - 'heavy', 'light', or 'none'
+     * @param {string} type - SwingType enum value
      */
     setSwingType(type) 
     {
         this.swingType = type;
-        if (type !== 'none') {
+        if (type !== SwingType.NONE) {
             this.swinging = true;
         }
     }
@@ -64,9 +75,9 @@ export class CharacterCombatState {
 
     switchSwingType() 
     {
-       if(this.swingType == 'heavy'){
-            this.setSwingType('light');
-       }else this.setSwingType('heavy');
+       if(this.swingType == SwingType.HEAVY){
+            this.setSwingType(SwingType.LIGHT);
+       }else this.setSwingType(SwingType.HEAVY);
     }
 
     /**
@@ -108,9 +119,9 @@ export class CharacterCombatState {
      */
     getSwingHitboxLifetime() {
         switch(this.swingType) {
-            case 'heavy':
+            case SwingType.HEAVY:
                 return 0.2;
-            case 'light':
+            case SwingType.LIGHT:
                 return 0.3;
             default:
                 return 0;
@@ -123,9 +134,9 @@ export class CharacterCombatState {
      */
     getSwingDamage() {
         switch(this.swingType) {
-            case 'heavy':
+            case SwingType.HEAVY:
                 return heavyDamage;
-            case 'light':
+            case SwingType.LIGHT:
                 return lightDamage;
             default:
                 return 0;
@@ -135,9 +146,9 @@ export class CharacterCombatState {
      getSwingRange() 
      {
         switch(this.swingType) {
-            case 'heavy':
+            case SwingType.HEAVY:
                 return 100;
-            case 'light':
+            case SwingType.LIGHT:
                 return 150;
             default:
                 return 0;
@@ -150,6 +161,6 @@ export class CharacterCombatState {
     reset() {
         this.swinging = false;
         this.dodging = false;
-        this.swingType = 'none';
+        this.swingType = SwingType.NONE;
     }
 }

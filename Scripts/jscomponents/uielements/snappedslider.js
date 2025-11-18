@@ -1,5 +1,5 @@
-import { InputManager, ResourceManager } from "../library.js";
-import { COLORS } from "../jsutils/colors.js";
+import { InputManager, ResourceManager } from "../../library.js";
+import { COLORS } from "../../jsutils/colors.js";
 
 export class SnappedSlider {
   /**
@@ -33,6 +33,14 @@ export class SnappedSlider {
     this.height = height;
     this.increment =
       labels.length > 1 ? this.length / (labels.length - 1) : this.length;
+    this.interactionArea = {
+      x: this.x - this.height,
+      y: this.y - this.height,
+      width: this.length + this.height * 2,
+      height: this.height * 3,
+    };
+    this.dragged = false;
+    this.mouseX = -1;
   }
 
   drawBar() {
@@ -40,20 +48,52 @@ export class SnappedSlider {
     this.ctx.fillRect(this.x, this.y, this.length, this.height);
   }
 
+  isMouseDownInArea(index = 0) {
+    const width = this.interactionArea.width/3;
+    return this.inputManager.isMouseDownWithin(
+      this.interactionArea.x + index * width,
+      this.interactionArea.y,
+      width,
+      this.interactionArea.height
+    );
+  }
+
   /**
-   * @param {import("../library.js").GameManager} gamemanager
+   * 
+   * @returns {boolean}
    */
-  drawIndicators(gamemanager) {
+  checkDragging() {
+    for (let index = 0; index < this.labels.length; index++) {
+      if (!this.isMouseDownInArea(index)) {
+        continue;
+      }
+      this.currentIndex = index;
+      return true;
+    }
+    return false;
+  }
+  
+  updateHandle() {
+    if(!this.checkDragging()) {
+      this.mouseX = -1
+      return;
+    }
+    this.mouseX = this.inputManager.mouse.x;
+  }
+
+
+  drawIndicators() {
     for (let index = 0; index < this.labels.length; index++) {
       const label = this.labels[index];
       const labelX = this.x + index * this.increment;
       let defaultColor = COLORS.primary;
 
-      // Draw Bar
+      // Draw handle
       if (this.currentIndex == index) {
+        const handleX = this.mouseX > -1 ? this.mouseX : labelX;
         defaultColor = COLORS.secondary;
         this.ctx.fillStyle = defaultColor;
-        this.ctx.fillRect(labelX, this.y, this.height, this.height * 2);
+        this.ctx.fillRect(handleX, this.y, this.height, this.height * 2);
       }
 
       // Draw text
@@ -61,22 +101,19 @@ export class SnappedSlider {
       this.ctx.fillStyle = defaultColor;
       this.ctx.textAlign = "center";
       this.ctx.fillText(
-        this.resourceManager.getTranslation(gamemanager, label),
+        this.resourceManager.getTranslation(label),
         labelX,
         this.y - this.height
       );
-
-    
     }
   }
 
-  /**
-   * @param {import("../library.js").GameManager} [gamemanager]
-   */
-  draw(gamemanager) {
+
+  draw() {
     this.ctx.save();
     this.drawBar();
-    this.drawIndicators(gamemanager);
+    this.drawIndicators();
     this.ctx.restore();
+    this.updateHandle();
   }
 }

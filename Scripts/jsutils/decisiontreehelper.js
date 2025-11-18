@@ -1,6 +1,7 @@
 import { AIMetaData } from "../jsai/aimetadata.js";
 import { DecisionNode, DecisionNodeChance } from "../jsai/decisionnode.js";
 import { TerminalNode } from "../jsai/terminalnode.js";
+import { SwingType } from "../jscomponents/charactercombatstate.js";
 
 //#region Calbacks
 /**
@@ -35,7 +36,7 @@ function dangerCheck(data)
  */
 function dangerCheck2(data)
 {
-    let result = data.opponentCharacter.combatState.swingType == 'light';
+    let result = data.opponentCharacter.combatState.swingType == SwingType.LIGHT;
     console.log(`Danger Check2:${result}`);
     return result;
 }

@@ -138,8 +138,11 @@ export class InputManager
     }
 
     /**
-     * 
      * @returns {boolean}
+     * @param {number} x
+     * @param {number} [y]
+     * @param {number} [width]
+     * @param {number} [height]
      */
     isMouseDownWithin(x, y, width, height) 
     {

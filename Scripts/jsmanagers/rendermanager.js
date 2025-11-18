@@ -1,6 +1,9 @@
 // RenderManager.js
 // Manages all drawing and rendering operations
 import { Character } from '../jsgameobjects/character.js';
+import { GameState } from '../library.js';
+import { InputManager } from './inputmanager.js';
+import { ResourceManager } from './resourcemanager.js';
 import { UIManager } from './uimanager.js';
 
 export class RenderManager {
@@ -28,12 +31,11 @@ export class RenderManager {
      * @param {*} gameState - Current game state
      * @param {*} inputManager - Input manager reference
      * @param {*} gameManager - Game manager reference for translations
-     * @param {*} resourceManager - Resource manager for translations
+     * @param {ResourceManager} resourceManager - Resource manager for translations
      */
     drawCharacters(characters, resources, isGameRunning, debugMode, gameState, inputManager, gameManager, resourceManager) {
         const scorebarHeight = 60;
-        const scoreLabel = resourceManager.getTranslation(gameManager, 'Score');
-        
+        const scoreLabel = resourceManager.getTranslation('Score');
         for (const character of characters) {
             // Draw the character sprite
             character.draw(this.ctx, resources, debugMode);
@@ -54,7 +56,7 @@ export class RenderManager {
             
             // Draw common UI elements
             this.uiManager.drawIndicator(character);
-            this.uiManager.drawDodged(resourceManager.getTranslation(gameManager, 'Dodge'), character);
+            this.uiManager.drawDodged(resourceManager.getTranslation('Dodge'), character);
         }
 
         // Draw score changes
@@ -63,19 +65,19 @@ export class RenderManager {
 
     /**
      * Draw the main menu
+     * @param {GameState} gameState
      * @param {boolean} isInMenu - Whether we're currently in menu state
      * @param {*} inputManager - Input manager reference
-     * @param {*} gameManager - Game manager reference for translations
-     * @param {*} resourceManager - Resource manager for translations
+     * @param {ResourceManager} resourceManager - Resource manager for translations
      * @returns {boolean} - Whether the start button was clicked
      */
-    drawMenu(isInMenu, inputManager, gameManager, resourceManager) {
+    drawMenu(gameState, isInMenu, inputManager, resourceManager) {
         if (isInMenu) {
             return this.uiManager.drawMenu(
+                gameState,
                 inputManager,
-                resourceManager.getTranslation(gameManager, 'Title'),
-                resourceManager.getTranslation(gameManager, 'Start'),
-                gameManager 
+                resourceManager.getTranslation('Title'),
+                resourceManager.getTranslation('Start'),
             );
         }
         return false;
@@ -85,18 +87,17 @@ export class RenderManager {
      * Draw the game over screen
      * @param {boolean} isGameOver - Whether the game is over
      * @param {string} winner - The winner of the game
-     * @param {*} inputManager - Input manager reference
-     * @param {*} gameManager - Game manager reference for translations
-     * @param {*} resourceManager - Resource manager for translations
+     * @param {InputManager} inputManager - Input manager reference
+     * @param {ResourceManager} resourceManager - Resource manager for translations
      * @returns {boolean} - Whether the restart button was clicked
      */
-    drawGameOver(isGameOver, winner, inputManager, gameManager, resourceManager) {
+    drawGameOver(isGameOver, winner, inputManager, resourceManager) {
         if (isGameOver) {
             return this.uiManager.drawGameOver(
-                resourceManager.getTranslation(gameManager, 'Gameover'),
-                resourceManager.getTranslation(gameManager, 'Restart'),
+                resourceManager.getTranslation('Gameover'),
+                resourceManager.getTranslation('Restart'),
                 winner,
-                resourceManager.getTranslation(gameManager, 'Wins'),
+                resourceManager.getTranslation('Wins'),
                 inputManager
             );
 
@@ -108,7 +109,7 @@ export class RenderManager {
         if(!isGameOver){
             return false;
         }
-        return this.uiManager.drawGotoMenuButton(inputManager, resourceManager.getTranslation(gameManager, 'ToMenu'),)
+        return this.uiManager.drawGotoMenuButton(inputManager, resourceManager.getTranslation('ToMenu'),)
     }
 
     /**

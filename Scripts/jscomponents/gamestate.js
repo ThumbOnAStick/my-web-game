@@ -1,10 +1,12 @@
 import { gameEventManager } from "../jsmanagers/eventmanager.js";
 import * as EventHandlers from '../jsutils/eventhandlers.js'
 
+
 export class GameState {
   constructor() {
     this.scene = "menu"; // 'menu', 'gameover' or 'running'
     this.winner = null;
+    this.difficulty = 0;
   }
 
   /**
@@ -22,6 +24,14 @@ export class GameState {
     if (amount >= 100) {
       this.endGame(labelPlayer);
     }
+  }
+
+  /**
+   * 
+   * @param {Number} value 
+   */
+  setDifficulty(value){
+    this.difficulty = value;
   }
 
   /**
