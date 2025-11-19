@@ -3,6 +3,7 @@
 
 import { InputManager } from "../../jsmanagers/inputmanager.js";
 import { COLORS } from "../../jsutils/colors.js";
+import { GlobalFonts } from "../../jsutils/globalfont.js";
 
 export class Button {
   /**
@@ -40,7 +41,7 @@ export class Button {
     ctx.strokeRect(this.x, this.y, this.width, this.height);
 
     // Draw text
-    ctx.font = "10px Arial";
+    ctx.font = GlobalFonts.small;
     ctx.fillStyle = isHovered ? COLORS.secondary : COLORS.primary;
     ctx.textAlign = "center";
     ctx.fillText(this.text, this.x + this.width / 2, this.y + this.height / 2, this.width);

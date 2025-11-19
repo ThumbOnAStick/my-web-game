@@ -1,7 +1,7 @@
 // RenderManager.js
 // Manages all drawing and rendering operations
 import { Character } from '../jsgameobjects/character.js';
-import { GameState } from '../library.js';
+import { GameManager, GameState } from '../library.js';
 import { InputManager } from './inputmanager.js';
 import { ResourceManager } from './resourcemanager.js';
 import { UIManager } from './uimanager.js';
@@ -35,7 +35,8 @@ export class RenderManager {
      */
     drawCharacters(characters, resources, isGameRunning, debugMode, gameState, inputManager, gameManager, resourceManager) {
         const scorebarHeight = 60;
-        const scoreLabel = resourceManager.getTranslation('Score');
+        const playerLabel = resourceManager.getTranslation('Player');
+        const pcLabel = resourceManager.getTranslation('PC');
         for (const character of characters) {
             // Draw the character sprite
             character.draw(this.ctx, resources, debugMode);
@@ -47,11 +48,11 @@ export class RenderManager {
             
             if (!character.isOpponent) {
                 // Player UI
-                this.uiManager.drawScoreBar(character, scoreLabel, 10, scorebarHeight, character.currentScore);
+                this.uiManager.drawScoreBar(character, playerLabel, 10, scorebarHeight, character.currentScore);
                 this.uiManager.drawDebugInfo(character, gameState, inputManager, debugMode);
             } else {
                 // Opponent UI
-                this.uiManager.drawScoreBar(character, scoreLabel, this.canvas.width - 210, scorebarHeight, character.currentScore);
+                this.uiManager.drawScoreBar(character, pcLabel, this.canvas.width - 210, scorebarHeight, character.currentScore);
             }
             
             // Draw common UI elements
@@ -89,24 +90,44 @@ export class RenderManager {
      * @param {string} winner - The winner of the game
      * @param {InputManager} inputManager - Input manager reference
      * @param {ResourceManager} resourceManager - Resource manager for translations
-     * @returns {boolean} - Whether the restart button was clicked
+     * @param {import("../jscomponents/gamestate.js").GameState} gameState
+     * @returns {string|null} - Action to take ('restart', 'next', or null)
      */
-    drawGameOver(isGameOver, winner, inputManager, resourceManager) {
+    drawGameOver(isGameOver, winner, inputManager, resourceManager, gameState) {
         if (isGameOver) {
+            const isTutorial = gameState.difficulty === 0;
+            const playerWon = winner === 'Player';
+            
+            const gameoverLabel = (isTutorial && playerWon) 
+                ? resourceManager.getTranslation('TutorialOver') 
+                : resourceManager.getTranslation('Gameover');
+                
+            const showNextLevel = isTutorial && playerWon;
+
             return this.uiManager.drawGameOver(
-                resourceManager.getTranslation('Gameover'),
+                gameoverLabel,
                 resourceManager.getTranslation('Restart'),
-                winner,
+                resourceManager.getTranslation(winner),
                 resourceManager.getTranslation('Wins'),
-                inputManager
+                inputManager,
+                showNextLevel,
+                resourceManager.getTranslation('NextLevel')
             );
 
         }
-        return false;
+        return null;
     }
 
+    /**
+     * 
+     * @param {*} isGameOver 
+     * @param {*} inputManager 
+     * @param {GameManager} gameManager 
+     * @param {*} resourceManager 
+     * @returns 
+     */
     drawGotoMenuButton(isGameOver, inputManager, gameManager, resourceManager) {
-        if(!isGameOver){
+        if(!isGameOver || gameManager.gameState.difficulty < 1){
             return false;
         }
         return this.uiManager.drawGotoMenuButton(inputManager, resourceManager.getTranslation('ToMenu'),)
@@ -124,5 +145,22 @@ export class RenderManager {
      */
     drawLoadingScreen() {
         this.uiManager.drawLoadingScreen();
+    }
+
+    /**
+     * Draw the exit button during gameplay
+     * @param {boolean} isGameRunning
+     * @param {InputManager} inputManager
+     * @param {ResourceManager} resourceManager
+     * @returns {boolean}
+     */
+    drawExitButton(isGameRunning, inputManager, resourceManager) {
+        if (isGameRunning) {
+            return this.uiManager.drawExitButton(
+                inputManager,
+                resourceManager.getTranslation('ToMenu')
+            );
+        }
+        return false;
     }
 }

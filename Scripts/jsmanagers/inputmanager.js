@@ -30,6 +30,7 @@ export class InputManager
         this.gameManager = null;
         /**@type {ComboReader} */
         this.comboReader = new ComboReader();
+        this.canvas.setAttribute("tabindex", "0");
         this.setupEventListeners();
     }
 
@@ -66,7 +67,7 @@ export class InputManager
     {
         if (!this.character) return; // Type guard
         // @ts-ignore
-        if (this.character.getSwinging()) return; // Action blocked when character is swinging 
+        // if (this.character.getSwinging()) return; // Action blocked when character is swinging 
         if (!this.gameManager.isGameRunning()) return; // Action blocked when game is over
         switch (e.code) 
         {

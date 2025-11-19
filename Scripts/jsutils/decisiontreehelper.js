@@ -84,6 +84,38 @@ function lightSwing(data)
 /**
  * @param {AIMetaData} data
  */
+function spinAttack(data)
+{
+    // Check if character can actually attack before performing
+    if (!data.selfCharacter.combatState.canAttack()) {
+        return;
+    }
+    data.aiController.halt();
+    // @ts-ignore
+    data.selfCharacter.adjustHitFacing(data.opponentCharacter);
+    // @ts-ignore
+    data.selfCharacter.performSpinAttack();
+}
+
+/**
+ * @param {AIMetaData} data
+ */
+function thrustAttack(data)
+{
+    // Check if character can actually attack before performing
+    if (!data.selfCharacter.combatState.canAttack()) {
+        return;
+    }
+    data.aiController.halt();
+    // @ts-ignore
+    data.selfCharacter.adjustHitFacing(data.opponentCharacter);
+    // @ts-ignore
+    data.selfCharacter.performThrustAttack();
+}
+
+/**
+ * @param {AIMetaData} data
+ */
 function moveToOpponent(data)
 {
     data.aiController.moveTowards(data.opponentCharacter);
@@ -91,6 +123,11 @@ function moveToOpponent(data)
 
  
 
+
+/**
+ * @param {AIMetaData} data
+ */
+function doNothing(data) {}
 
 //#endregion
 
@@ -105,6 +142,14 @@ export function emptyNode()
 }  
 
 /**
+ * @returns {TerminalNode}
+ */
+export function emptyTerminalNode()
+{
+    return new TerminalNode(doNothing);
+}
+
+/**
  * @returns {DecisionNodeChance}
  */
 export function distanceCheckNode1()
@@ -115,6 +160,54 @@ export function distanceCheckNode1()
     result.appendDNode(distanceCheckNode2()); // d2
     return result;
 }  
+
+/**
+ * @returns {DecisionNodeChance}
+ */
+export function veteranDistanceCheckNode1()
+{
+    let result = new DecisionNodeChance(heavyDistanceCheck);
+    result.appendDNode(veteranHeavyAttackChoiceNode()); // d1 (True)
+    result.appendDNode(veteranDistanceCheckNode2()); // d2 (False)
+    return result;
+}
+
+/**
+ * @returns {DecisionNodeChance}
+ */
+export function veteranHeavyAttackChoiceNode()
+{
+    // 50% chance to do a combo (spin attack) instead of normal heavy
+    let result = new DecisionNodeChance(() => Math.random() > 0.5);
+    result.appendTNode(spinAttackNode()); // t1 (True)
+    result.appendTNode(heavyswingNode()); // t2 (False)
+    return result;
+}
+
+/**
+ * @returns {DecisionNodeChance}
+ */
+export function veteranDistanceCheckNode2()
+{
+    let result = new DecisionNodeChance(lightDistanceCheck)
+    result.appendDNode(veteranLightAttackChoiceNode()); // d1 (True)
+    
+    result.appendTNode(emptyTerminalNode()); // t1 (True - dummy)
+    result.appendTNode(moveToOpponentNode()); // t2 (False)
+    return result;
+}
+
+/**
+ * @returns {DecisionNodeChance}
+ */
+export function veteranLightAttackChoiceNode()
+{
+    // 50% chance to do a combo (thrust attack) instead of normal light
+    let result = new DecisionNodeChance(() => Math.random() > 0.5);
+    result.appendTNode(thrustAttackNode()); // t1 (True)
+    result.appendTNode(lightswingNode()); // t2 (False)
+    return result;
+}
 
 /**
  * @returns {DecisionNodeChance}
@@ -153,6 +246,22 @@ export function distanceCheckNode2()
 export function heavyswingNode()
 {
     return new TerminalNode(swing)
+}
+
+/**
+ * @returns {TerminalNode}
+ */
+export function spinAttackNode()
+{
+    return new TerminalNode(spinAttack)
+}
+
+/**
+ * @returns {TerminalNode}
+ */
+export function thrustAttackNode()
+{
+    return new TerminalNode(thrustAttack)
 }
 
 /**
@@ -204,6 +313,26 @@ export function buildDefaultAITree()
     catch(exception)
     {
         console.error(`Failed to generate default decision tree: ${exception}`);
+    }
+}
+
+/**
+ * This function builds a veteran decision tree for opponent AI
+ * @returns {DecisionNode}
+ */
+export function buildVeteranAITree()
+{
+    try
+    {
+        /**@type {DecisionNodeChance} */
+        let root =  dangerCheckNode();
+        root.appendDNode(dangerCheckNode2()) // d1
+        root.appendDNode(veteranDistanceCheckNode1()); // d2
+        return root;
+    }
+    catch(exception)
+    {
+        console.error(`Failed to generate veteran decision tree: ${exception}`);
     }
 }
 

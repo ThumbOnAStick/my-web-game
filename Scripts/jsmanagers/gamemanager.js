@@ -17,6 +17,9 @@ import { GameLoopManager } from "./gameloopmanager.js";
 import { CharacterManager } from "./charactermanager.js";
 import { RenderManager } from "./rendermanager.js";
 import { GameInitializer } from "./gameinitializer.js";
+import { TutorialManager } from "./tutorialmanager.js";
+import { setupTutorials } from "../jsutils/tutorialhelper.js";
+import { DebugManager } from "./debugmanager.js";
 
 export class GameManager {
   /**
@@ -51,25 +54,12 @@ export class GameManager {
     this.characterManager = new CharacterManager(canvas, null); // Will be set after resources load
     this.renderManager = new RenderManager(ctx, canvas, this.uiManager, null); // VFX manager set later
     this.gameInitializer = new GameInitializer(this);
+    this.tutorialManager = new TutorialManager(this.gameState, this.resourceManager);
 
     // Set up manager references
     this.inputManager.setGameManager(this);
 
-    // Set up debug checkbox
-    /**@type {HTMLInputElement} */
-    this.debugCheckbox = /** @type {HTMLInputElement} */ (
-      document.getElementById("debugCheckbox")
-    );
-    this.debugSlider = /** @type {HTMLInputElement} */ (
-      document.getElementById("debugSlider")
-    );
-    this.loseGameButton = /** @type {HTMLInputElement} */ (
-      document.getElementById("loseGameButton")
-    );
-    this.languageSelector = /**@type {HTMLInputElement} */ (
-      document.getElementById("languageSelector")
-    );
-    this.setupDebugControls();
+    this.debugManager = new DebugManager(this);
 
     // Set up game loop callback
     this.gameLoopManager.setUpdateCallback(() => this.update());
@@ -87,6 +77,7 @@ export class GameManager {
     await this.gameInitializer.initialize();
     // Update character manager with loaded resources
     this.characterManager.resources = this.resources;
+    setupTutorials(this.tutorialManager);
   }
 
   start() {
@@ -102,8 +93,7 @@ export class GameManager {
   }
 
   update() {
-    // Update display language
-    this.resourceManager.selectedLanguage = this.languageSelector.value;
+    this.uiManager.update();
 
     // Update event manager for delayed events
     gameEventManager.update();
@@ -130,9 +120,12 @@ export class GameManager {
       // Manage VFX
       this.vfxManager.update();
 
+      // Update tutorial manager
+      this.tutorialManager.update();
+
       // Update score, check game state
-      const labelPlayer = this.getTranslation("Player");
-      const labelPC = this.getTranslation("PC");
+      const labelPlayer = "Player";
+      const labelPC = "PC";
       this.gameState.updatePlayerScore(
         this.characterManager.getPlayerScore(),
         labelPlayer,
@@ -163,17 +156,27 @@ export class GameManager {
       )
     ) {
       this.gameState.startGame();
+      if (this.aiController) {
+        this.aiController.setDifficulty(this.gameState.difficulty);
+      }
+      if (this.gameState.difficulty === 0) {
+        this.tutorialManager.start();
+      }
     }
 
     // Gameover drawing
-    if (
-      this.renderManager.drawGameOver(
-        this.isGameOver(),
-        this.gameState.winner,
-        this.inputManager,
-        this.resourceManager
-      )
-    ) {
+    const gameOverAction = this.renderManager.drawGameOver(
+      this.isGameOver(),
+      this.gameState.winner,
+      this.inputManager,
+      this.resourceManager,
+      this.gameState
+    );
+
+    if (gameOverAction === 'restart') {
+      this.resetGame();
+    } else if (gameOverAction === 'next') {
+      this.gameState.difficulty = 1;
       this.resetGame();
     }
 
@@ -189,12 +192,23 @@ export class GameManager {
       this.gotoMenu();
     }
 
+    // Exit button drawing
+    if (
+      this.renderManager.drawExitButton(
+        this.isGameRunning(),
+        this.inputManager,
+        this.resourceManager
+      )
+    ) {
+      this.gotoMenu();
+    }
+
     // Character drawing
     this.renderManager.drawCharacters(
       this.characterManager.getCharacters(),
       this.resources,
       this.isGameRunning(),
-      this.debugCheckbox.checked,
+      this.debugManager.isDebugMode(),
       this.gameState,
       this.inputManager,
       this,
@@ -214,6 +228,14 @@ export class GameManager {
 
     // Reset game state using GameState
     this.gameState.reset();
+    if (this.aiController) {
+      this.aiController.setDifficulty(this.gameState.difficulty);
+    }
+    if (this.gameState.difficulty === 0) {
+      this.tutorialManager.start();
+    } else {
+      this.tutorialManager.stop();
+    }
   }
 
   gotoMenu() {
@@ -223,28 +245,6 @@ export class GameManager {
     // Clear obstacles
     this.obstacleManager.clearObstacles();
     this.gameState.gotoMenu();
-  }
-
-  setupDebugControls() {
-    this.debugCheckbox.addEventListener("change", () => {
-      this.canvas.focus();
-    });
-
-    this.debugSlider.addEventListener("input", () => {
-      this.characterManager.setDrawSize(
-        parseFloat(this.debugSlider.value) / 50.0
-      );
-    });
-
-    this.loseGameButton.addEventListener("click", () => {
-      if (this.isGameRunning()) {
-        const labelPC = this.getTranslation("PC");
-        this.gameState.endGame(labelPC);
-      }
-    });
-
-    // Make canvas focusable
-    this.canvas.setAttribute("tabindex", "0");
   }
 
   /**

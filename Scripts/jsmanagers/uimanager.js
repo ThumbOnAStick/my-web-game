@@ -11,6 +11,7 @@ import { GameManager } from "./gamemanager.js";
 import { Button } from "../jscomponents/uielements/button.js";
 import { Indicator } from "../jscomponents/uielements/indicator.js";
 import { SnappedSlider } from "../jscomponents/uielements/snappedslider.js";
+import { GlobalFonts } from "../jsutils/globalfont.js";
 
 export class UIManager {
   /**
@@ -24,6 +25,7 @@ export class UIManager {
     /** @type {CanvasRenderingContext2D} */
     this.ctx = ctx;
     this.canvas = canvas;
+    this.resourceManager = resourceManager;
     this.snappedSlider = new SnappedSlider(
       ["Level0", "Level1", "Level2"],
       resourceManager,
@@ -32,10 +34,32 @@ export class UIManager {
       canvas.width / 2,
       canvas.height / 2 + 100,
       300,
-      10
+      10,
+      () => this.changeSubtitleViaSlider()
     );
     /** @type {Map<Character, Indicator>} */
     this.indicators = new Map();
+    this.subtitle = /**@type {HTMLInputElement} */ (
+      document.getElementById("subtitle")
+    );
+    this.languageSelector = /**@type {HTMLInputElement} */ (
+      document.getElementById("languageSelector")
+    );
+
+    // Set default language based on system language
+    if (this.languageSelector && navigator.language && navigator.language.startsWith('zh')) {
+        this.languageSelector.value = 'ChineseSimplified';
+    }
+  }
+
+  initialize() {
+      this.changeSubtitleViaSlider();
+  }
+
+  update() {
+      if (this.languageSelector && this.resourceManager) {
+          this.resourceManager.selectedLanguage = this.languageSelector.value;
+      }
   }
 
   /**
@@ -70,7 +94,7 @@ export class UIManager {
     this.ctx.fillRect(x, y, healthWidth, barHeight);
 
     // Health text
-    this.ctx.font = "14px Arial";
+    this.ctx.font = GlobalFonts.normal;
     this.ctx.fillStyle = COLORS.primary;
     this.ctx.fillText(`${scoreLabel}: ${currentScore}/${maxScore}`, x, y - 5);
   }
@@ -89,10 +113,26 @@ export class UIManager {
     this.ctx.save();
     const drawLocY = 60;
     this.ctx.textAlign = "center";
-    this.ctx.font = "15px Arial";
+    this.ctx.font = GlobalFonts.normal;
     this.ctx.fillStyle = scoreChanges > 0 ? COLORS.success : COLORS.danger;
     this.ctx.fillText(sign + String(scoreChanges), drawLocX, drawLocY);
     this.ctx.restore();
+  }
+  
+  changeSubtitleViaSlider(){
+    this.changeSubtitle(this.snappedSlider.getDescriptionKey())
+  }
+
+  /**
+   * 
+   * @param {String|Object} keyOrData 
+   */
+  changeSubtitle(keyOrData){
+    if (typeof keyOrData === 'string') {
+        this.subtitle.textContent = this.resourceManager.getTranslation(keyOrData);
+    } else if (keyOrData && keyOrData.key) {
+        this.subtitle.textContent = this.resourceManager.getFormattedTranslation(keyOrData.key, keyOrData.args);
+    }
   }
 
   /**
@@ -119,7 +159,7 @@ export class UIManager {
     this.ctx.save();
     // Draw gameover sign
     this.ctx.textAlign = "center";
-    this.ctx.font = "40px Arial";
+    this.ctx.font = GlobalFonts.large;
     this.ctx.fillStyle = COLORS.primary;
     this.ctx.fillText(
       gameOverLabel,
@@ -139,7 +179,7 @@ export class UIManager {
     this.ctx.save();
     this.ctx.textAlign = "center";
     this.ctx.fillStyle = COLORS.secondary;
-    this.ctx.font = "20px Arial";
+    this.ctx.font = GlobalFonts.medium;
     this.ctx.fillText(
       `${winnerLabel} ${winsLabel}`,
       this.canvas.width / 2,
@@ -166,22 +206,51 @@ export class UIManager {
 
   /**
    * @returns {boolean}
+   * @param {InputManager} inputmanager
+   * @param {String} nextLevelButtonLabel
+   */
+  drawNextLevelButton(inputmanager, nextLevelButtonLabel) {
+    return this.drawButtonCenter(
+      nextLevelButtonLabel,
+      this.canvas.width / 2,
+      (this.canvas.height * 2) / 3,
+      100,
+      30,
+      inputmanager
+    );
+  }
+
+  /**
+   * @returns {string|null}
    * @param {String} winnerLabel
    * @param {String} winsLabel
    * @param {String} restartButtonLabel
    * @param {String} gameoverLabel
    * @param {InputManager} inputManager
+   * @param {boolean} showNextLevelButton
+   * @param {String} nextLevelLabel
    */
   drawGameOver(
     gameoverLabel,
     restartButtonLabel,
     winnerLabel,
     winsLabel,
-    inputManager
+    inputManager,
+    showNextLevelButton = false,
+    nextLevelLabel = ""
   ) {
     this.drawGameoverSign(gameoverLabel);
     this.drawGameResult(winnerLabel, winsLabel);
-    return this.drawRestartButton(inputManager, restartButtonLabel);
+    const restartClicked = this.drawRestartButton(inputManager, restartButtonLabel);
+    
+    let nextLevelClicked = false;
+    if (showNextLevelButton) {
+        nextLevelClicked = this.drawNextLevelButton(inputManager, nextLevelLabel);
+    }
+
+    if (restartClicked) return 'restart';
+    if (nextLevelClicked) return 'next';
+    return null;
   }
 
   /**
@@ -232,7 +301,7 @@ export class UIManager {
   drawMenuSign(title) {
     this.ctx.save();
     this.ctx.textAlign = "center";
-    this.ctx.font = "40px Arial";
+    this.ctx.font = GlobalFonts.large;
     this.ctx.fillStyle = COLORS.primary;
     this.ctx.fillText(title, this.canvas.width / 2, this.canvas.height / 3);
     this.ctx.restore();
@@ -260,17 +329,18 @@ export class UIManager {
     if (!character.getDodging()) return;
     const offsetY = -100; // Distance above character
     this.ctx.fillStyle = COLORS.secondary;
-    this.ctx.font = "20px Arial";
+    this.ctx.font = GlobalFonts.medium;
     this.ctx.textAlign = "center";
     this.ctx.fillText(letter, character.x, character.y + offsetY);
     this.ctx.textAlign = "start";
   }
 
   drawLoadingScreen() {
-    this.ctx.font = "20px Arial";
+    this.ctx.font = GlobalFonts.medium;
     this.ctx.fillStyle = COLORS.primary;
+    const text = this.resourceManager.getTranslation("Loading") || "Loading Resources...";
     this.ctx.fillText(
-      "Loading Resources...",
+      text,
       this.canvas.width / 2 - 100,
       this.canvas.height / 2
     );
@@ -287,7 +357,7 @@ export class UIManager {
   drawDebugInfo(character, gamestate, inputmanager, showDebug = false) {
     if (!showDebug || !character) return;
 
-    this.ctx.font = "12px Arial";
+    this.ctx.font = GlobalFonts.debug;
     this.ctx.fillStyle = COLORS.secondary;
 
     // Draw character debug info
@@ -341,5 +411,21 @@ export class UIManager {
   drawButton(text, x, y, width, height, inputManager) {
     const button = new Button(text, x, y, width, height);
     return button.draw(this.ctx, inputManager);
+  }
+
+  /**
+   * @returns {boolean}
+   * @param {InputManager} inputmanager
+   * @param {String} exitButtonLabel
+   */
+  drawExitButton(inputmanager, exitButtonLabel) {
+    return this.drawButtonCenter(
+      exitButtonLabel,
+      this.canvas.width / 2,
+      30,
+      100,
+      30,
+      inputmanager
+    );
   }
 }

@@ -2,8 +2,13 @@
 // Handles game initialization and resource loading
 import * as Eventhandler from '../jsutils/eventhandlers.js';
 import { AIController } from '../jsai/aicontroller.js';
+import { GameManager } from './gamemanager.js';
 
 export class GameInitializer {
+    /**
+     * 
+     * @param {GameManager} gameManager 
+     */
     constructor(gameManager) {
         this.gameManager = gameManager;
         this.isInitialized = false;
@@ -39,15 +44,20 @@ export class GameInitializer {
                 this.gameManager.characterManager.getOpponent(), 
                 this.gameManager.characterManager.getPlayer()
             );
+            this.gameManager.aiController.setDifficulty(this.gameManager.gameState.difficulty);
+            this.gameManager.tutorialManager.setAIController(this.gameManager.aiController);
 
             // Setup tick manager for AI updates
             this.gameManager.tickManager.append((currentTick) => this.aiControllerUpdate(currentTick));
-
+            // Initialize UIManager
+            this.gameManager.uiManager.initialize();
             // Initialize event manager
             Eventhandler.initialize(
                 this.gameManager.obstacleManager, 
                 this.gameManager.vfxManager, 
-                this.gameManager.audioManager
+                this.gameManager.audioManager,
+                this.gameManager.uiManager,
+                this.gameManager.gameState
             );
 
             this.isInitialized = true;

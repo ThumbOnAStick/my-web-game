@@ -9,8 +9,27 @@
     <Wins>获胜。</Wins>
     <Gameover>游戏结束！</Gameover>
     <Score>分数</Score>
+    <Loading>正在加载资源...</Loading>
     <ToMenu>菜单</ToMenu>
     <Level0>教练</Level0>
     <Level1>新手</Level1>
     <Level2>熟练爱好者</Level2>
+
+    <!-- Subtitles -->
+    <Level0Description>教练：练习教程关卡。</Level0Description>
+    <Level1Description>新手：对战弱电脑。</Level1Description>
+    <Level2Description>熟练爱好者：对战强电脑。</Level2Description>
+
+    <!-- Tutorials -->
+    <Tutorial_Movement>使用 A 和 D 键移动。</Tutorial_Movement>
+    <Tutorial_Jump>按空格键跳跃。</Tutorial_Jump>
+    <Tutorial_LightAttack>按 J 键进行轻攻击。</Tutorial_LightAttack>
+    <Tutorial_HeavyAttack>按 K 键进行重攻击。</Tutorial_HeavyAttack>
+    <Tutorial_Parry>在敌人攻击时按重攻击键进行格挡。</Tutorial_Parry>
+    <Tutorial_ParryHeavy>在敌人重攻击时按轻攻击键进行格挡。</Tutorial_ParryHeavy>
+    <Tutorial_Combo>尝试组合攻击：重攻击 + 轻攻击 (K + J) 或 轻攻击 + 重攻击 (J + K)。</Tutorial_Combo>
+    <TutorialOver>教程结束！</TutorialOver>
+    <NextLevel>下一关</NextLevel>
+	<ScoreGain>你获得了 {0} 分！</ScoreGain>
+	<ScoreLoss>你失去了 {0} 分！</ScoreLoss>
 </Root>

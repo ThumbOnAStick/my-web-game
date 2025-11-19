@@ -9,8 +9,27 @@
     <Wins>wins.</Wins>
     <Gameover>Game Over!</Gameover>
     <Score>Score</Score>
+    <Loading>Loading Resources...</Loading>
     <ToMenu>Menu</ToMenu> 
     <Level0>Tutor</Level0>
     <Level1>Novice</Level1>
     <Level2>Veteran</Level2>
+
+    <!-- Subtitles -->
+    <Level0Description>Tutor: Play a tutorial level.</Level0Description>
+    <Level1Description>Novice: Play agianst a weak bot.</Level1Description>
+    <Level2Description>Veteran: Play agianst a strong bot.</Level2Description>
+
+    <!-- Tutorials -->
+    <Tutorial_Movement>Use A and D keys to move.</Tutorial_Movement>
+    <Tutorial_Jump>Press Space to jump.</Tutorial_Jump>
+    <Tutorial_LightAttack>Press J for light attack.</Tutorial_LightAttack>
+    <Tutorial_HeavyAttack>Press K for heavy attack.</Tutorial_HeavyAttack>
+    <Tutorial_Parry>Press heavy attack to parry when enemy attacks.</Tutorial_Parry>
+    <Tutorial_ParryHeavy>Press light attack to parry when enemy performs heavy attacks.</Tutorial_ParryHeavy>
+    <Tutorial_Combo>Try combos: Heavy + Light (K + J) or Light + Heavy (J + K).</Tutorial_Combo>
+    <TutorialOver>Tutorial Complete!</TutorialOver>
+    <NextLevel>Next Level</NextLevel>
+	<ScoreGain>You gained {0} score!</ScoreGain>
+	<ScoreLoss>You lost {0} score!</ScoreLoss>
 </Root>

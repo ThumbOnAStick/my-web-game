@@ -37,6 +37,11 @@ export class CharacterManager {
         );
 
         this.characters = [player, opponent];
+        
+        // Set opponents
+        player.setOpponent(opponent);
+        opponent.setOpponent(player);
+
         console.log('Characters loaded successfully');
     }
 

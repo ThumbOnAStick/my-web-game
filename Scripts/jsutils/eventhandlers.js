@@ -4,12 +4,17 @@ import { gameEventManager } from "../jsmanagers/eventmanager.js";
 import { ObstacleManager } from "../jsmanagers/obstaclemanager.js";
 import { VFXManager } from "../jsmanagers/vfxmanager.js";
 import * as CombatHandler from '../jsutils/combathandler.js';
+import { GameState, UIManager } from "../library.js";
+import { changeSubtitle, changeSubtitleEvent, initialize_ui } from "./evenhandlerui.js";
 
 export const characterSwingEvent = 'character_swing';
 export const characterLightSwingEvent = 'character_light_swing';
 export const characterSpinSwingEvent = 'spin_swing';
 export const characterThrustSwingEvent = 'thrust_swing';
 export const characterSwitchSwingTypeEvent = 'switch_swingtype';
+export const characterMoveEvent = 'character_move';
+export const characterJumpEvent = 'character_jump';
+export const characterDodgeEvent = 'character_dodge';
 export const postCharacterSwingEvent = 'create_obstacle';
 export const settleCharacterSwingEvent = 'settle_swing';
 export const resetCharacterDodgingEvent = 'reset_transparency';
@@ -24,11 +29,12 @@ export const handleCharacterShrinkEvent = 'character_shrink';
 
 // Create event handlers that capture obstacleManager
 /**
- * @param {ObstacleManager} obstacleManager 
- * @param {VFXManager} vfxManager 
+ * @param {ObstacleManager} obstacleManager
+ * @param {VFXManager} vfxManager
  * @param {AudioManager} audiomanager
-*/
-export function createEventHandlers(obstacleManager, vfxManager, audiomanager) 
+ * @param {GameState} gameState
+ */
+export function createEventHandlers(obstacleManager, vfxManager, audiomanager, gameState) 
 {
     
     function handleHeavySwingEvent(data) 
@@ -148,6 +154,15 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         const { value, character } = data;
         gameEventManager.setScoreChanges(value, character);
         gameEventManager.emit(clearScoreChangesEvent, data, 1);
+        
+        // Update subtitle for player score changes
+        if (!character.isOpponent && gameState.difficulty > 0) {
+            if (value > 0) {
+                gameEventManager.emit(changeSubtitleEvent, { key: 'ScoreGain', args: [value] });
+            } else if (value < 0) {
+                gameEventManager.emit(changeSubtitleEvent, { key: 'ScoreLoss', args: [-value] });
+            }
+        }
     }
 
     // @ts-ignore
@@ -177,6 +192,23 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
 
     }
 
+    function handleCharacterMoveEvent(data) {
+        // Optional: Add logic if needed, or just use for tutorial listening
+    }
+
+    function handleCharacterJumpEvent(data) {
+        // Optional: Add logic if needed
+    }
+
+    function handleCharacterDodgeEvent(data) {
+        const character = /**@type {Character} */ (data.character);
+        // @ts-ignore
+        character.setDodging(true);
+        character.rig.setAlpha(0.5);
+        character.shrinkController.turnOn();
+        gameEventManager.emit(resetCharacterDodgingEvent, character, 0.5);
+    }
+
     // @ts-ignore
     function handlecharacterResizeEvent(data){
         
@@ -197,7 +229,10 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
         resetScorechanges,
         spawnParryFlash,
         playSoundClip,
-        handleCharacterShrinkEvent
+        handleCharacterShrinkEvent,
+        handleCharacterMoveEvent,
+        handleCharacterJumpEvent,
+        handleCharacterDodgeEvent
     };
 
 }
@@ -208,16 +243,22 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager)
  * @param {ObstacleManager} obstacleManager 
  * @param {VFXManager} vfxManager 
  * @param {AudioManager} audioManager
+ * @param {GameState} gameState
+ * @param {UIManager} uiManager
  */
-export function initialize(obstacleManager, vfxManager, audioManager) 
+export function initialize(obstacleManager, vfxManager, audioManager, uiManager, gameState) 
 {
-    const handlers = createEventHandlers(obstacleManager, vfxManager, audioManager);
-    
+    initialize_ui(uiManager);
+
+    const handlers = createEventHandlers(obstacleManager, vfxManager, audioManager, gameState);
     gameEventManager.on(characterSwingEvent, handlers.handleHeavySwingEvent);
     gameEventManager.on(characterLightSwingEvent, handlers.handleLightSwingEvent);
     gameEventManager.on(characterSpinSwingEvent, handlers.handleSpinSwingEvent);
     gameEventManager.on(characterThrustSwingEvent, handlers.handleThrustSwingEvent);
     gameEventManager.on(characterSwitchSwingTypeEvent, handlers.handleSwitchSwingTypeEvent);
+    gameEventManager.on(characterMoveEvent, handlers.handleCharacterMoveEvent);
+    gameEventManager.on(characterJumpEvent, handlers.handleCharacterJumpEvent);
+    gameEventManager.on(characterDodgeEvent, handlers.handleCharacterDodgeEvent);
     gameEventManager.on(postCharacterSwingEvent, handlers.handlePostSwingEvent);
     gameEventManager.on(resetCharacterDodgingEvent, handlers.resetCharacterDodging);
     gameEventManager.on(resetCharacterParriedEvent, handlers.resetCharacterParried);
@@ -226,7 +267,7 @@ export function initialize(obstacleManager, vfxManager, audioManager)
     gameEventManager.on(clearScoreChangesEvent, handlers.resetScorechanges);
     gameEventManager.on(spawnParryFlashEvent, handlers.spawnParryFlash);
     gameEventManager.on(playNamedClipEvent, handlers.playSoundClip);
-
+    gameEventManager.on(changeSubtitleEvent, changeSubtitle);
 
 
 }

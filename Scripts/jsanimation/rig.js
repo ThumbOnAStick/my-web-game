@@ -1,5 +1,6 @@
 import { Bone } from "./bone.js";
 import { SpritePart } from "./spritepart.js";
+import { GlobalFonts } from "../jsutils/globalfont.js";
 
  
 // Manages the hierarchy of bones and parts
@@ -87,7 +88,7 @@ export class Rig {
 
         // Draw bone label
         ctx.fillStyle = 'black';
-        ctx.font = '12px Arial';
+        ctx.font = GlobalFonts.debug;
         // Convert angle from radians to degrees and round
         const angleDeg = Math.round(baseAngle * 180 / Math.PI);
         ctx.fillText(`${boneName} (${angleDeg}°)`, length / 2, -5);

@@ -1,7 +1,10 @@
 import { Character } from '../jsgameobjects/character.js';
 import { GameObject } from '../jsgameobjects/gameobject.js';
 import { AIMetaData } from './aimetadata.js';
-import * as DecisionTreeHelper from '../jsutils/decisiontreehelper.js'
+import * as DecisionTreeHelperTutor from '../jsutils/decisiontreehelpertutor.js'
+import { buildNoviceAITree } from './trees/novicetree.js';
+import { buildVeteranAITree } from './trees/veterantree.js';
+import { DecisionNode } from './decisionnode.js';
  
 const aiControllerPeriodicUpdateInterval = 16 * 2; // Update action tree once every 32 ticks (2s)
 
@@ -24,9 +27,25 @@ export class AIController
         this.decisionCooldown = 0;
         this.decisionInterval = 30; 
         this.metaData = new AIMetaData(aiCharacter, playerCharacter, this);
-        this.rootNode = DecisionTreeHelper.buildDefaultAITree();
+        /** @type {DecisionNode} */
+        this.rootNode = buildNoviceAITree();
+        this.difficulty = 1;
     }
 
+    /**
+     * Set the difficulty level and update the decision tree
+     * @param {number} difficulty 
+     */
+    setDifficulty(difficulty) {
+        this.difficulty = difficulty;
+        if (difficulty === 0) {
+            this.rootNode = DecisionTreeHelperTutor.buildDoNothingTree();
+        } else if (difficulty === 2) {
+            this.rootNode = buildVeteranAITree();
+        } else {
+            this.rootNode = buildNoviceAITree();
+        }
+    }
 
     //#region Movements
     /**
@@ -49,6 +68,7 @@ export class AIController
 
     parryLightAttack() 
     {
+        // @ts-ignore
         this.aiCharacter.performHeavyattack();
     }
 
@@ -58,6 +78,7 @@ export class AIController
         if(Math.abs(this.movementX) > 0.1 )
         {
             let dir = this.movementX > 0 ? 1 : -1;
+            // @ts-ignore
             this.aiCharacter.move(dir);
         }
     }
@@ -88,7 +109,14 @@ export class AIController
      */
     periodicUpdate(ticks)
     {
-        if (ticks % aiControllerPeriodicUpdateInterval < 0.1)
+        let interval = aiControllerPeriodicUpdateInterval;
+        if (this.difficulty === 2) {
+            interval = 16;
+        } else if (this.difficulty === 1) {
+            interval = 64;
+        }
+
+        if (ticks % interval < 0.1)
         {
             // Update meta data before tree update
             this.metaData.periodicUpdate();

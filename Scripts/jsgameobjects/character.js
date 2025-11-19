@@ -44,6 +44,9 @@ const animationSettings = {
   thrustswing: { transitionDuration: 0.1 },
 };
 
+/**
+ * @extends {GameObject}
+ */
 export class Character extends GameObject {
   constructor(x, y, width = 40, height = 60, resources, isOpponent = false) {
     // Note: x, y represent the CENTER position of the character (root bone center)
@@ -222,6 +225,13 @@ export class Character extends GameObject {
     );
   }
 
+  /**
+   * Set the opponent character
+   * @param {Character} opponent
+   */
+  setOpponent(opponent) {
+    this.opponent = opponent;
+  }
   //#endregion
 }
 

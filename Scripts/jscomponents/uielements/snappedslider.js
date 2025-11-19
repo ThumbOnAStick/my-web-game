@@ -1,5 +1,6 @@
 import { InputManager, ResourceManager } from "../../library.js";
 import { COLORS } from "../../jsutils/colors.js";
+import { GlobalFonts } from "../../jsutils/globalfont.js";
 
 export class SnappedSlider {
   /**
@@ -11,6 +12,7 @@ export class SnappedSlider {
    * @param {Number} y
    * @param {Number} length
    * @param {Number} height
+   * @param {Function} onValueChanged - Callback function when index changes
    */
   constructor(
     labels,
@@ -20,7 +22,8 @@ export class SnappedSlider {
     x,
     y,
     length,
-    height
+    height,
+    onValueChanged = null
   ) {
     this.labels = labels;
     this.resourceManager = resourceManager;
@@ -41,6 +44,7 @@ export class SnappedSlider {
     };
     this.dragged = false;
     this.mouseX = -1;
+    this.onValueChanged = onValueChanged;
   }
 
   drawBar() {
@@ -63,11 +67,18 @@ export class SnappedSlider {
    * @returns {boolean}
    */
   checkDragging() {
+    const formerIndex = this.currentIndex;
     for (let index = 0; index < this.labels.length; index++) {
       if (!this.isMouseDownInArea(index)) {
         continue;
       }
       this.currentIndex = index;
+      
+      // Call onValueChanged if index changed
+      if (formerIndex !== this.currentIndex && this.onValueChanged) {
+        this.onValueChanged();
+      }
+      
       return true;
     }
     return false;
@@ -97,7 +108,7 @@ export class SnappedSlider {
       }
 
       // Draw text
-      this.ctx.font = "10px Arial";
+      this.ctx.font = GlobalFonts.small;
       this.ctx.fillStyle = defaultColor;
       this.ctx.textAlign = "center";
       this.ctx.fillText(
@@ -108,6 +119,10 @@ export class SnappedSlider {
     }
   }
 
+  getDescriptionKey() {
+    let key =  this.labels[this.currentIndex]
+    return `${key}Description`
+  }
 
   draw() {
     this.ctx.save();

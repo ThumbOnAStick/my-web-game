@@ -28,6 +28,7 @@ export class ResourceManager {
             const checkComplete = () => {
                 if (imagesReady && soundsReady && languagesReady) {
                     console.log("All resources loaded successfully.");
+                    this.resourcesLoaded = true;
                     resolve();
                 }
             };
@@ -89,6 +90,8 @@ export class ResourceManager {
      */
     getTranslation(elementName)
     {
+        if (!elementName) return "";
+        if (!this.resourcesLoaded) return null;
         return this.resources.getLanguageText(this.selectedLanguage, elementName)
     }
 
@@ -99,5 +102,23 @@ export class ResourceManager {
      */
     getTranslations(elementNames) {
         return elementNames.map(name => this.getTranslation(name));
+    }
+
+    /**
+     * Get a translation with formatted arguments
+     * @param {String} elementName 
+     * @param {Array} args 
+     * @returns {String}
+     */
+    getFormattedTranslation(elementName, args) {
+        let text = this.getTranslation(elementName);
+        if (!text) return "";
+        
+        if (args && args.length > 0) {
+            args.forEach((arg, index) => {
+                text = text.replace(`{${index}}`, arg);
+            });
+        }
+        return text;
     }
 }
