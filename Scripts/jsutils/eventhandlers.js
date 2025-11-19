@@ -125,6 +125,8 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager, g
         // @ts-ignore
         character.setSwinging(false); // Reset character swing
         // @ts-ignore
+        character.setIsCombo(false); // Reset combo state
+        // @ts-ignore
         character.playIdleAnimation(true);
     }
 

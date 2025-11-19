@@ -51,4 +51,9 @@ export class VFXManager
             }
         });
     }
+
+    clear()
+    {
+        this.objects = [];
+    }
 }

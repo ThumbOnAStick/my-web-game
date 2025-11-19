@@ -226,6 +226,11 @@ export class GameManager {
     // Clear obstacles
     this.obstacleManager.clearObstacles();
 
+    // Clear VFX
+    if (this.vfxManager) {
+      this.vfxManager.clear();
+    }
+
     // Reset game state using GameState
     this.gameState.reset();
     if (this.aiController) {

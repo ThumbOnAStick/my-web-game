@@ -30,6 +30,10 @@ export const CharacterCombatMixin = {
     this.combatState.setParried(isParried);
   },
 
+  setIsCombo(isCombo) {
+    this.combatState.setIsCombo(isCombo);
+  },
+
   /**
    * Set swing type
    * @param {string} type - SwingType enum value
@@ -96,6 +100,7 @@ export const CharacterCombatMixin = {
 
   performSpinAttack() {
     if (this.combatState.canAttack()) {
+      this.setIsCombo(true);
       this.setSwingType(SwingType.HEAVY);
       this.playSpinSwingAnimation();
       this.callSpinSwingEvent();
@@ -104,6 +109,7 @@ export const CharacterCombatMixin = {
 
   performThrustAttack() {
     if (this.combatState.canAttack()) {
+      this.setIsCombo(true);
       this.setSwingType(SwingType.LIGHT);
       this.playThrustSwingAnimation();
       this.callSpinThrustEvent();

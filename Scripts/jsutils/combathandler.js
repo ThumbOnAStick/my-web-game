@@ -79,19 +79,21 @@ function breakFromSwing(character, time)
 // @ts-ignore
 function characterParry(defender, offender = null, offenderSource = null) {
     gameEventManager.freezeFor(characterParryFreezeFrame);
+    let scoreGain = 5;
     if (offender)
     {
         defender.rigidbody.applyForceTo(characterParryFallback, offender, defender, true, false, true);
         if(offender.source && offender.source instanceof Character)
         {
             breakFromSwing(offender.source, 1.2);
+            // scoreGain = offender.source.combatState.getSwingDamage() * 2;
         }
         breakFromSwing(defender, 0.2);
         gameEventManager.emit(EventHandlers.spawnParryFlashEvent, defender);
         gameEventManager.emit(EventHandlers.playNamedClipEvent, 'parry');
 
         // @ts-ignore
-        defender.score(10);
+        defender.score(scoreGain);
     }
 }
 

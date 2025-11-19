@@ -197,7 +197,7 @@ export class UIManager {
     return this.drawButtonCenter(
       reStartButtonLabel,
       this.canvas.width / 2,
-      this.canvas.height / 3 + 80,
+      this.canvas.height / 2 + 30,
       100,
       30,
       inputmanager

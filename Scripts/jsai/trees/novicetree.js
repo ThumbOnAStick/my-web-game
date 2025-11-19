@@ -14,9 +14,17 @@ export function buildNoviceAITree() {
             // Danger Check 2 False: Jump
             dangerCheck2.appendTNode(Nodes.createJumpNode());
 
-        // Branch 2 (False): Distance Check 1 (Heavy Range)
+        // Branch 2 (False): Random Chance
+        let attackChance = Nodes.createRandomChanceNode(0.6); // 40% chance to attack
+        root.appendDNode(attackChance);
+
+        // Chance True: Distance Check 1 (Heavy Range)
         let distanceCheck1 = Nodes.createHeavyDistanceCheckNode();
-        root.appendDNode(distanceCheck1);
+        attackChance.appendDNode(distanceCheck1);
+        
+        // Chance False: Move To Opponent
+        attackChance.appendTNode(Nodes.createEmptyTerminalNode()); // True terminal (none)
+        attackChance.appendTNode(Nodes.createMoveToOpponentNode()); // False terminal
 
             // Distance Check 1 True: Heavy Swing
             // Note: Original logic had emptyNode as dNode[0] and heavyswingNode as tNode[0]
