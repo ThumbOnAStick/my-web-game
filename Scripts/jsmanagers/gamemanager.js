@@ -62,7 +62,7 @@ export class GameManager {
     this.debugManager = new DebugManager(this);
 
     // Set up game loop callback
-    this.gameLoopManager.setUpdateCallback(() => this.update());
+    this.gameLoopManager.setUpdateCallback((deltaTime) => this.update(deltaTime));
   }
 
   /**
@@ -92,7 +92,11 @@ export class GameManager {
     this.gameLoopManager.stop();
   }
 
-  update() {
+  /**
+   * 
+   * @param {Number} deltaTime 
+   */
+  update(deltaTime) {
     this.uiManager.update();
 
     // Update event manager for delayed events

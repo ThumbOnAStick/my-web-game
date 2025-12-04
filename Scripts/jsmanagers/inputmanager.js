@@ -117,8 +117,10 @@ export class InputManager
         if (this.canvas) 
         {
             const rect = this.canvas.getBoundingClientRect();
-            this.mouse.x = e.clientX - rect.left;
-            this.mouse.y = e.clientY - rect.top;
+            const scaleX = this.canvas.width / rect.width;
+            const scaleY = this.canvas.height / rect.height;
+            this.mouse.x = (e.clientX - rect.left) * scaleX;
+            this.mouse.y = (e.clientY - rect.top) * scaleY;
         }
     }
 

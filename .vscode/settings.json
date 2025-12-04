@@ -2,5 +2,6 @@
   "typescript.preferences.includePackageJsonAutoImports": "off",
   "typescript.suggest.autoImports": true,
   "typescript.validate.enable": true,
-  "javascript.validate.enable": true
+  "javascript.validate.enable": true,
+  "liveServer.settings.port": 5501
 }
