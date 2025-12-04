@@ -1,6 +1,7 @@
-import { InputManager, ResourceManager } from "../../library.js";
-import { COLORS } from "../../jsutils/colors.js";
-import { GlobalFonts } from "../../jsutils/globalfont.js";
+import { ResourceManager } from "../jsmanagers/resourcemanager.js";
+import { InputManager } from "../jsmanagers/inputmanager.js";
+import { COLORS } from "../jsutils/colors.js";
+import { GlobalFonts } from "../jsutils/globalfont.js";
 
 export class SnappedSlider {
   /**

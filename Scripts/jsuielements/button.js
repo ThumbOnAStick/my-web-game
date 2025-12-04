@@ -1,9 +1,9 @@
 // Button.js
 // Handles button rendering and interaction
 
-import { InputManager } from "../../jsmanagers/inputmanager.js";
-import { COLORS } from "../../jsutils/colors.js";
-import { GlobalFonts } from "../../jsutils/globalfont.js";
+import { InputManager } from "../jsmanagers/inputmanager.js";
+import { COLORS } from "../jsutils/colors.js";
+import { GlobalFonts } from "../jsutils/globalfont.js";
 
 export class Button {
   /**

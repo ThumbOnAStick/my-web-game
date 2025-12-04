@@ -1,9 +1,9 @@
 // Indicator.js
 // Handles indicator rendering for characters
 
-import { Character } from "../../jsgameobjects/character.js";
-import { COLORS } from "../../jsutils/colors.js";
-import { SwingType } from "../charactercombatstate.js";
+import { Character } from "../jsgameobjects/character.js";
+import { COLORS } from "../jsutils/colors.js";
+import { SwingType } from "../jscomponents/charactercombatstate.js";
 
 export class Indicator {
   /**

@@ -8,9 +8,9 @@ import { InputManager } from "./inputmanager.js";
 import { COLORS, getHealthColor } from "../jsutils/colors.js";
 import { ResourceManager } from "./resourcemanager.js";
 import { GameManager } from "./gamemanager.js";
-import { Button } from "../jscomponents/uielements/button.js";
-import { Indicator } from "../jscomponents/uielements/indicator.js";
-import { SnappedSlider } from "../jscomponents/uielements/snappedslider.js";
+import { Button } from "../jsuielements/button.js";
+import { Indicator } from "../jsuielements/indicator.js";
+import { SnappedSlider } from "../jsuielements/snappedslider.js";
 import { GlobalFonts } from "../jsutils/globalfont.js";
 
 export class UIManager {

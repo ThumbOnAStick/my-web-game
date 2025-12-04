@@ -1,7 +1,8 @@
 // RenderManager.js
 // Manages all drawing and rendering operations
 import { Character } from '../jsgameobjects/character.js';
-import { GameManager, GameState } from '../library.js';
+import { GameManager } from './gamemanager.js';
+import { GameState } from '../jscomponents/gamestate.js';
 import { InputManager } from './inputmanager.js';
 import { ResourceManager } from './resourcemanager.js';
 import { UIManager } from './uimanager.js';

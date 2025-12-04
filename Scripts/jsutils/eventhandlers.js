@@ -4,7 +4,8 @@ import { gameEventManager } from "../jsmanagers/eventmanager.js";
 import { ObstacleManager } from "../jsmanagers/obstaclemanager.js";
 import { VFXManager } from "../jsmanagers/vfxmanager.js";
 import * as CombatHandler from '../jsutils/combathandler.js';
-import { GameState, UIManager } from "../library.js";
+import { GameState } from "../jscomponents/gamestate.js";
+import { UIManager } from "../jsmanagers/uimanager.js";
 import { changeSubtitle, changeSubtitleEvent, initialize_ui } from "./evenhandlerui.js";
 
 export const characterSwingEvent = 'character_swing';

@@ -3,9 +3,7 @@
   "version": "1.0.0",
   "description": "Reusable game library with animation, AI, and event management systems",
   "type": "module",
-  "main": "./Scripts/library.js",
   "exports": {
-    ".": "./Scripts/library.js",
     "./events": "./Scripts/jsmanagers/eventmanager.js",
     "./animation": {
       "import": "./Scripts/jsanimation/animation.js"
@@ -21,12 +19,6 @@
     },
     "./character": {
       "import": "./Scripts/jsgameobjects/character.js"
-    },
-    "./managers": {
-      "import": "./Scripts/library.js"
-    },
-    "./utils": {
-      "import": "./Scripts/library.js"
     }
   },
   "files": [
@@ -36,7 +28,6 @@
     "Scripts/jscomponents",
     "Scripts/jsutils",
     "Scripts/jsgameobjects",
-    "Scripts/library.js"
   ],
   "keywords": [
     "game",

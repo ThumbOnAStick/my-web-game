@@ -1,5 +1,4 @@
-import { UIManager } from "../library.js";
-
+import { UIManager } from "../jsmanagers/uimanager.js";
 export const changeSubtitleEvent = "change_subtitle";
 
 /**
