@@ -1,4 +1,5 @@
-import { UIElement } from '../jsuielements-ctx/uielement.js';
+// oxlint-disable no-unused-vars
+import { UIElementCanvas } from '../jsuielements-ctx/uielement.js';
 import { IScene } from './scene.js';
 
 /**
@@ -10,7 +11,7 @@ export class CanvasScene extends IScene {
     constructor(ctx) {
         super();
         this.ctx = ctx;
-        /**@type {UIElement[]} */
+        /**@type {UIElementCanvas[]} */
         this.canvasUIElements = [];
     }
 
@@ -19,7 +20,6 @@ export class CanvasScene extends IScene {
      */
     render() {
         super.render();
-        console.log("Try to draw");
         // Runtime check to ensure we are using the correct renderer
         if (!(this.ctx instanceof CanvasRenderingContext2D)) {
             console.warn("CanvasScene: Renderer is not a CanvasRenderingContext2D. Skipping render.");
@@ -33,30 +33,38 @@ export class CanvasScene extends IScene {
      * 
      * @param {Number} deltaTime 
      */
-    update(deltaTime){
+    update(deltaTime) {
         super.update(deltaTime)
         for (let index = 0; index < this.canvasUIElements.length; index++) {
             const element = this.canvasUIElements[index];
             element.update();
-         }
+        }
     }
 
     /**
      * Draw UI elements.
      */
     draw() {
-         for (let index = 0; index < this.canvasUIElements.length; index++) {
+        for (let index = 0; index < this.canvasUIElements.length; index++) {
             const element = this.canvasUIElements[index];
             element.draw(this.ctx);
-         }
+        }
+    }
+
+    unload() {
+        super.unload();
+        for (let index = 0; index < this.canvasUIElements.length; index++) {
+            const element = this.canvasUIElements[index];
+            element.dispose();
+        }
     }
 
 
     /**
      * 
-     * @param {UIElement} uiElement 
+     * @param {UIElementCanvas} uiElement 
      */
-    registerUIElement(uiElement){
+    registerUIElement(uiElement) {
         this.canvasUIElements.push(uiElement);
     }
 

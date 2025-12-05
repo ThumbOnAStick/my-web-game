@@ -6,7 +6,9 @@ import { VFXManager } from "../jsmanagers/vfxmanager.js";
 import * as CombatHandler from '../jsutils/combathandler.js';
 import { GameState } from "../jscomponents/gamestate.js";
 import { GlobalUIManager } from "../jsmanagers/globaluimanager.js";
-import { changeSubtitle, changeSubtitleEvent, initialize_ui } from "./evenhandlerui.js";
+import { changeSubtitle, changeSubtitleEvent, initialize_ui, startGame, startGameEvent } from "./evenhandlerui.js";
+import { IScene } from "../jsscenes/scene.js";
+import { GameManager } from "../jsmanagers/gamemanager.js";
 
 export const characterSwingEvent = 'character_swing';
 export const characterLightSwingEvent = 'character_light_swing';
@@ -248,10 +250,11 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager, g
  * @param {AudioManager} audioManager
  * @param {GameState} gameState
  * @param {GlobalUIManager} uiManager
+ * @param {IScene} rootScene
  */
-export function initialize(obstacleManager, vfxManager, audioManager, uiManager, gameState) 
+export function initialize(obstacleManager, vfxManager, audioManager, uiManager, gameState, rootScene) 
 {
-    initialize_ui(uiManager);
+    initialize_ui(uiManager, rootScene);
 
     const handlers = createEventHandlers(obstacleManager, vfxManager, audioManager, gameState);
     gameEventManager.on(characterSwingEvent, handlers.handleHeavySwingEvent);
@@ -270,7 +273,11 @@ export function initialize(obstacleManager, vfxManager, audioManager, uiManager,
     gameEventManager.on(clearScoreChangesEvent, handlers.resetScorechanges);
     gameEventManager.on(spawnParryFlashEvent, handlers.spawnParryFlash);
     gameEventManager.on(playNamedClipEvent, handlers.playSoundClip);
+
+    /** UI */
     gameEventManager.on(changeSubtitleEvent, changeSubtitle);
+    gameEventManager.on(startGameEvent, startGame);
+
 
 
 }

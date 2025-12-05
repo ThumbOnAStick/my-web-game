@@ -60,7 +60,8 @@ export class GameInitializer {
                 this.gameManager.vfxManager, 
                 this.gameManager.audioManager,
                 this.gameManager.uiManager,
-                this.gameManager.gameState
+                this.gameManager.gameState,
+                this.gameManager.rootScene
             );
             // Initialize charactermanger
             this.gameManager.characterManager.initialize(this.gameManager.resources);

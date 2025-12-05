@@ -5,19 +5,25 @@
 import { InputManager } from "../jsmanagers/inputmanager.js";
 import { COLORS } from "../jsutils/colors.js";
 import { GlobalFonts } from "../jsutils/globalfont.js";
-import { UIElement, UIElementConfigurations } from "./uielement.js";
+import { UIElementCanvas, UIElementConfigurations } from "./uielement.js";
 
-export class ButtonText extends UIElement {
+export class ButtonText extends UIElementCanvas {
 
   /**
    * 
    * @param {String} translationKey 
+   * @param {function} onClick
    * @param {UIElementConfigurations} config 
    */
-  constructor(translationKey, config) {
+  constructor(translationKey, onClick, config) {
     super(config);
     this.isHovered = false;
+    this.onClick = onClick;
     this.translationKey = translationKey;
+    this.handleMouseMove = this.handleMouseMove.bind(this);
+    this.handleMouseDown = this.handleMouseDown.bind(this);
+    window.addEventListener("mousemove", this.handleMouseMove);
+    window.addEventListener("mousedown", this.handleMouseDown);
   }
 
   /**
@@ -39,11 +45,26 @@ export class ButtonText extends UIElement {
     ctx.restore();
   }
 
-  update(){
-    
+  handleMouseMove() {
+    if (typeof this.config.isMouseWithin !== "function") return;
+    const hovered = this.config.isMouseWithin();
+    if (hovered === this.isHovered) return;
+    this.isHovered = hovered;
   }
 
+  handleMouseDown(){
+    if(this.config.isMouseWithin()){
+      this.onClick();
+    }
+  }
 
+  dispose() {
+    super.dispose();
+    window.removeEventListener("mousemove", this.handleMouseMove);
+    window.removeEventListener("mousedown", this.handleMouseDown);
+  }
+
+ 
   getText(){
     return this.config.resourceManager.getTranslation(this.translationKey)
   }

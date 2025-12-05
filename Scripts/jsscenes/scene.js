@@ -10,17 +10,23 @@ export class IScene {
         if (this.constructor === IScene) {
             throw new Error("IScene is an abstract class (interface) and cannot be instantiated directly.");
         }
-        /** @type {IScene[]} */
-        this.subScenes = [];
+        /** @type {Map<string, IScene>} */
+        this.subScenes = new Map();
     }
 
     /**
      * Add a subscene to this scene.
+     * @param {string} name - Identifier for the subscene.
      * @param {IScene} scene - The scene to add.
      */
-    addSubScene(scene) {
+    addSubScene(name, scene) {
+        if (typeof name !== "string" || !name.length) {
+            console.warn("Attempted to add subscene without a valid name.");
+            return;
+        }
+
         if (scene instanceof IScene) {
-            this.subScenes.push(scene);
+            this.subScenes.set(name, scene);
         } else {
             console.warn("Attempted to add invalid scene as subscene.");
         }
@@ -28,13 +34,19 @@ export class IScene {
 
     /**
      * Remove a subscene from this scene.
-     * @param {IScene} scene - The scene to remove.
+     * @param {string} name - Identifier for the subscene to remove.
      */
-    removeSubScene(scene) {
-        const index = this.subScenes.indexOf(scene);
-        if (index > -1) {
-            this.subScenes.splice(index, 1);
-        }
+    removeSubScene(name) {
+        this.subScenes.delete(name);
+    }
+
+    /**
+     * Retrieve a previously registered subscene.
+     * @param {string} name
+     * @returns {IScene | undefined}
+     */
+    getSubScene(name) {
+        return this.subScenes.get(name);
     }
 
     /**
@@ -53,7 +65,8 @@ export class IScene {
      * @returns {Promise<void>} A promise that resolves when loading is complete.
      */
     async load() {
-        const loadPromises = this.subScenes.map(scene => scene.load());
+        const loadPromises = [];
+        this.subScenes.forEach(scene => loadPromises.push(scene.load()));
         await Promise.all(loadPromises);
     }
 

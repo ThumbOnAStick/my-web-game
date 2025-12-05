@@ -28,12 +28,13 @@ export function setupUIUtil(inputmanager, resourceManager){
  * @param {number} centerY
  * @param {UISize} uiSize
  * @param {string} translationKey
+ * @param {function} onClick
  */
-export function createTextButtonCentered(centerX, centerY, uiSize, translationKey){
+export function createTextButtonCentered(centerX, centerY, uiSize, translationKey, onClick){
     if(!initialized){
         throw new Error("ButtonUtil not initialized; call initialize() first.")
     }
     const config = makeCenteredUIConfig(centerX, centerY, uiSize.width, uiSize.height, inputManagerCache, resourceManagerCache);
-    const result = new ButtonText(translationKey, config);
+    const result = new ButtonText(translationKey, onClick, config);
     return result;
 }

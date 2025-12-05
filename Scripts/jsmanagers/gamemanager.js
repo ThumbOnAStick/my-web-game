@@ -23,6 +23,7 @@ import { setupTutorials } from "../jsutils/tutorialhelper.js";
 import { DebugManager } from "./debugmanager.js";
 import { CanvasScene } from "../jsscenes/canvasscene.js";
 import { MenuScene } from "../jsscenes/menuscene.js";
+import { SCENENAMES } from "../jsutils/scenenames.js";
 
 export class GameManager {
   /**
@@ -63,7 +64,7 @@ export class GameManager {
 
     // Set up root scene
     this.rootScene = new CanvasScene(ctx);
-    this.rootScene.addSubScene(new MenuScene(ctx));
+    this.rootScene.addSubScene(SCENENAMES.menu, new MenuScene(ctx));
 
     // Set up game loop callback
     this.gameLoopManager.setUpdateCallback(

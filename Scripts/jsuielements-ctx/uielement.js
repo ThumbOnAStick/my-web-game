@@ -19,15 +19,36 @@ export class UIElementConfigurations{
         this.inputManager = inputManager;
         this.resourceManager = resourceManager;
     }
+
+    /**
+     * @returns {boolean}
+     */
+    isMouseWithin(){
+        return this.inputManager.isMouseWithin(this.x,
+            this.y,
+            this.width,
+            this.height
+        )
+    }
 }
 
-export class UIElement {
+export class UIElementCanvas {
     /**
      * 
      * @param {UIElementConfigurations} config 
      */
     constructor(config) {
-        this.config = Object.assign({}, config);
+        if (!config) {
+            /**@type {UIElementConfigurations} */
+            this.config = null;
+            return;
+        }
+
+        // Clone while preserving prototype methods (e.g., isMouseWithin)
+        this.config = Object.create(
+            Object.getPrototypeOf(config),
+            Object.getOwnPropertyDescriptors(config)
+        );
     }
 
     /**
@@ -39,5 +60,9 @@ export class UIElement {
 
     update(){
         // To be implemented by subclasses
+    }
+
+    dispose(){
+        // Remove all listeners. Must be called when scene clears!
     }
 }

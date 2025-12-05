@@ -1,3 +1,5 @@
+import { gameEventManager } from "../jsmanagers/eventmanager.js";
+import { startGameEvent } from "../jsutils/evenhandlerui.js";
 import { UISize } from "../jsutils/uisize.js";
 import { createTextButtonCentered } from "../jsutils/uiutil.js";
 import { CanvasScene } from "./canvasscene.js";
@@ -20,9 +22,14 @@ export class MenuScene extends CanvasScene {
             centerX,
             centerY,
             UISize.ButtonCommon,
-            "Start"
+            "Start",
+            this.callStartGameEvent
         )); 
         
+    }
+
+    callStartGameEvent(){
+        gameEventManager.emit(startGameEvent);
     }
 
 }

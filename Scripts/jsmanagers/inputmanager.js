@@ -159,6 +159,12 @@ export class InputManager
     }
 
     // Check if mouse is within bounds (without requiring click)
+    /**
+     * @param {number} [x]
+     * @param {number} [y]
+     * @param {number} [width]
+     * @param {number} [height]
+     */
     isMouseWithin(x, y, width, height) 
     {
         return this.mouse.x >= x && 
