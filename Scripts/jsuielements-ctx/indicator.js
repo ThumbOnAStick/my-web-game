@@ -5,16 +5,18 @@
 import { Character } from "../jsgameobjects/character.js";
 import { COLORS } from "../jsutils/colors.js";
 import { SwingType } from "../jscomponents/charactercombatstate.js";
+import { UIElementCanvas, UIElementConfigurations } from "./uielement.js";
 
-export class Indicator {
+export class Indicator extends UIElementCanvas {
   /**
+   * @param {UIElementConfigurations} config 
    * @param {Character} character - The character this indicator points to
-   * @param {number} triangleSize - Size of the triangle indicator
    * @param {number} offsetY - Distance above character
    */
-  constructor(character, triangleSize = 15, offsetY = 50) {
+  constructor(config, character, offsetY = 50) {
+    super(config);
     this.character = character;
-    this.triangleSize = triangleSize;
+    this.triangleSize = config.height;
     this.offsetY = offsetY;
   }
 
