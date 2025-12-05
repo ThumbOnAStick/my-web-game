@@ -1,36 +1,34 @@
 import { GameObject } from "../jsgameobjects/gameobject.js";
 
-export class Rigidbody2D
-{
+export class Rigidbody2D {
     /**
      * @param {*} offsetX 
      * @param {*} offsetY 
      * @param {*} movementSpeed 
      * @param {Number} drag
      */
-    constructor(offsetX, offsetY, movementSpeed, drag = 2.5) 
-    {
+    constructor(offsetX, offsetY, movementSpeed, drag = 2.5) {
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.velocityY = 0;
         this.velocityX = 0;
         this.drag = drag;
         this.mass = 1;
-        this.acceleration = 1;
+        this.acceleration = 10;
         this.movementSpeed = movementSpeed;
-        this.gravity = 0.5; // Add missing gravity property
+        this.gravity = 0.5; 
+        this.accelerationG = 50; 
+
     }
 
     /**
      * 
      * @param {Number} dir 
      */
-    move(dir)
-    {
+    move(dir) {
         let idealVector = this.movementSpeed * dir;
-        let accelerationVector = this.acceleration * dir; 
-        if(Math.abs(this.velocityX - idealVector) > 0.1)
-        {
+        let accelerationVector = this.acceleration * dir;
+        if (Math.abs(this.velocityX - idealVector) > 0.1) {
             this.velocityX += accelerationVector;
         }
     }
@@ -40,15 +38,13 @@ export class Rigidbody2D
      * @param {GameObject} other
      * @param {Number} amount
      */
-    applyForceTo(amount, self, other, applyHorizontal = true, applyVertical = false, checkSource = false)
-    {
+    applyForceTo(amount, self, other, applyHorizontal = true, applyVertical = false, checkSource = false) {
         let target = other;
-        if(checkSource && other.source)
-        {
+        if (checkSource && other.source) {
             target = other.source;
         }
-        const forceHorizontal = applyHorizontal? target.x - self.x : 0;
-        const forceVertical = applyVertical? target.y - self.y : 0;
+        const forceHorizontal = applyHorizontal ? target.x - self.x : 0;
+        const forceVertical = applyVertical ? target.y - self.y : 0;
         this.applyForce(amount, forceHorizontal, forceVertical);
     }
 
@@ -59,34 +55,38 @@ export class Rigidbody2D
      * @param {Number} forceVertical 
      * @returns 
      */
-    applyForce(amount, forceHorizontal, forceVertical = 0)
-    {
+    applyForce(amount, forceHorizontal, forceVertical = 0) {
         // Normalize direction
         const length = Math.sqrt(forceHorizontal * forceHorizontal + forceVertical * forceVertical);
         if (length === 0) return;
 
-        this.velocityX = (amount * forceHorizontal) / length;
+        this.velocityX = (amount * forceHorizontal) * this.acceleration / length;
         this.velocityY = (amount * forceVertical) / length;
     }
 
-    /**@param {HTMLCanvasElement} canvas */
-    /**@param {GameObject} gameObject */
-    update(canvas = null, gameObject = null)
-    {
-        if(!canvas || !gameObject) return;
+    /**
+     * 
+     * @param {HTMLCanvasElement} canvas 
+     * @param {GameObject} gameObject 
+     * @param {Number} deltaTime 
+     * @returns 
+     */
+    update(canvas = null, gameObject = null, deltaTime = 1 / 60) {
+        if (!canvas || !gameObject) return;
+        const dt = typeof deltaTime === "number" && isFinite(deltaTime) ? deltaTime : 1 / 60;
 
         //#region Horizontal checks
-        if(Math.abs(this.velocityX) > 0.1)
-        {
+        if (Math.abs(this.velocityX) > 0.1) {
             // Move the object when velocityX is greater than 0.1
-            gameObject.x += this.velocityX;
-            this.velocityX *= (1 - this.drag * 0.1);            
+            gameObject.x += this.velocityX * dt;
+            const dragFactor = Math.max(0, 1 - this.drag * dt);
+            this.velocityX *= dragFactor;
         }
 
         if (gameObject.x - this.offsetX < 0) // Left Boundary 
         {
             gameObject.x = this.offsetX;
-        } 
+        }
         else if (gameObject.x + gameObject.width > canvas.width) // Right Boundary
         {
             gameObject.x = canvas.width - gameObject.width;
@@ -94,13 +94,11 @@ export class Rigidbody2D
         //#endregion
 
         //#region Vertical checks
-        if (!gameObject.grounded) 
-        {
-            gameObject.y += this.velocityY; // Apply vertical movement
-            this.velocityY += this.gravity;
+        if (!gameObject.grounded) {
+            gameObject.y += this.velocityY * dt * this.accelerationG; // Apply vertical movement
+            this.velocityY += this.gravity * dt * this.accelerationG;
         }
-        if (gameObject.y + this.offsetY >= canvas.height) 
-        {
+        if (gameObject.y + this.offsetY >= canvas.height) {
             gameObject.y = canvas.height - this.offsetY;
             this.velocityY = 0;
             gameObject.grounded = true;
@@ -110,6 +108,6 @@ export class Rigidbody2D
         //#endregion
 
     }
- 
-    
+
+
 }

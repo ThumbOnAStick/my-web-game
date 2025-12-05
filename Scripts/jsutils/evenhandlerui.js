@@ -3,6 +3,7 @@
  * Event handler UI handles events emitted by UI elements.
  */
 import { GlobalUIManager } from "../jsmanagers/globaluimanager.js";
+import { GameScene } from "../jsscenes/gamescene.js";
 import { IScene } from "../jsscenes/scene.js";
 import { SCENENAMES } from "./scenenames.js";
 export const changeSubtitleEvent = "change_subtitle";
@@ -27,7 +28,9 @@ export function changeSubtitle(data) {
 }
 
 export function startGame(){
-    rootScene.removeSubScene(SCENENAMES.menu);
+    rootScene.disableSubScene(SCENENAMES.menu);
+    rootScene.enableSubScene(SCENENAMES.game); 
+    console.log("Enable Game Scene");
 }
 
 

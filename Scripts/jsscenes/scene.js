@@ -12,6 +12,8 @@ export class IScene {
         }
         /** @type {Map<string, IScene>} */
         this.subScenes = new Map();
+        /** @type {boolean} */
+        this.enabled = true;
     }
 
     /**
@@ -83,7 +85,11 @@ export class IScene {
      * @param {number} deltaTime - Time elapsed since the last frame (in seconds).
      */
     update(deltaTime) {
-        this.subScenes.forEach(scene => scene.update(deltaTime));
+        this.subScenes.forEach(scene => {
+            if (scene.enabled) {
+                scene.update(deltaTime);
+            }
+        });
     }
 
     /**
@@ -92,7 +98,11 @@ export class IScene {
      * @param {Object} renderer - The rendering provider (e.g., CanvasRenderingContext2D, WebGLRenderer, etc.).
      */
     render(renderer) {
-        this.subScenes.forEach(scene => scene.render(renderer));
+        this.subScenes.forEach(scene => {
+            if (scene.enabled) {
+                scene.render(renderer);
+            }
+        });
     }
 
     /**
@@ -125,4 +135,38 @@ export class IScene {
     resume() {
         this.subScenes.forEach(scene => scene.resume());
     }
+
+    /**
+     * 
+     * @param {String} sceneKey 
+     */
+    disableSubScene(sceneKey){
+        const subScene = this.subScenes.get(sceneKey);
+        if(subScene != null){
+            subScene.enabled = false;
+            subScene.onDisabled()
+        }
+    }
+
+    /**
+     * 
+     * @param {String} sceneKey 
+     */
+    enableSubScene(sceneKey){
+        const subScene = this.subScenes.get(sceneKey);
+        if(subScene != null){
+            subScene.enabled = true;
+            subScene.onEnabled()
+        }
+    }
+
+    onEnabled(){
+
+    }
+
+    onDisabled(){
+
+    }
+
+
 }

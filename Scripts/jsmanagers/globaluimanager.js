@@ -374,7 +374,7 @@ export class GlobalUIManager {
       debugY + debugHeight * 3
     );
     this.ctx.fillText(
-      `Gamestate: Game Over: ${gamestate.isGameOver()}\nPlayer score: ${character.currentScore}`,
+      `Gamestate: Game Over: ${gamestate.isGameOver}\nPlayer score: ${character.currentScore}`,
       10,
       debugY + debugHeight * 4
     );

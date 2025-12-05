@@ -24,6 +24,7 @@ import { DebugManager } from "./debugmanager.js";
 import { CanvasScene } from "../jsscenes/canvasscene.js";
 import { MenuScene } from "../jsscenes/menuscene.js";
 import { SCENENAMES } from "../jsutils/scenenames.js";
+import { buildDefaultRootScene } from "../jsutils/scenehelper.js";
 
 export class GameManager {
   /**
@@ -58,13 +59,13 @@ export class GameManager {
     this.gameInitializer = new GameInitializer(this);
     this.tutorialManager = new TutorialManager(this.gameState, this.resourceManager);
     this.debugManager = new DebugManager(this);
-
+    this.vfxManager = new VFXManager(this.resourceManager);
+    this.renderManager.vfxManager = this.vfxManager;
     // Set up manager references
     this.inputManager.setGameManager(this);
 
     // Set up root scene
-    this.rootScene = new CanvasScene(ctx);
-    this.rootScene.addSubScene(SCENENAMES.menu, new MenuScene(ctx));
+    this.rootScene = buildDefaultRootScene(this);
 
     // Set up game loop callback
     this.gameLoopManager.setUpdateCallback(
@@ -73,14 +74,6 @@ export class GameManager {
        */
       (deltaTime) => this.update(deltaTime)
     );
-  }
-
-  /**
-   * Initialize VFX Manager after resources are loaded
-   */
-  initializeVFXManager() {
-    this.vfxManager = new VFXManager(this.resourceManager);
-    this.renderManager.vfxManager = this.vfxManager;
   }
 
   async initialize() {
@@ -106,52 +99,18 @@ export class GameManager {
    * @param {Number} deltaTime 
    */
   update(deltaTime) {
+    // Update UI Manager.
     this.uiManager.update();
 
+    // Update all scenes.
     this.rootScene.update(deltaTime);
 
     // Update event manager for delayed events
     gameEventManager.update();
 
     // Update all characters (every frame)
-    this.characterManager.updateCharacters();
+    this.characterManager.update(deltaTime);
 
-    // Only update when game is not over
-    if (this.isGameRunning()) {
-      // Handle movement
-      this.inputManager.update();
-
-      // Ticks update
-      this.tickManager.update();
-
-      // Check obstacle manager
-      this.obstacleManager.update();
-
-      // Check collisions
-      this.obstacleManager.handleCharacterCollisions(
-        this.characterManager.getCharacters()
-      );
-
-      // Manage VFX
-      this.vfxManager.update();
-
-      // Update tutorial manager
-      this.tutorialManager.update();
-
-      // Update score, check game state
-      const labelPlayer = "Player";
-      const labelPC = "PC";
-      this.gameState.updatePlayerScore(
-        this.characterManager.getPlayerScore(),
-        labelPlayer,
-        labelPC
-      );
-      this.gameState.updateOpponentScore(
-        this.characterManager.getOpponentScore(),
-        labelPlayer,
-        labelPC
-      );
-    }
     // Render everything
     this.render();
   }
@@ -168,7 +127,6 @@ export class GameManager {
     this.renderManager.drawCharacters(
       this.characterManager.getCharacters(),
       this.resources,
-      this.isGameRunning(),
       this.debugManager.isDebugMode(),
       this.gameState,
       this.inputManager,
@@ -180,37 +138,15 @@ export class GameManager {
     this.renderManager.drawVFX();
   }
 
-  resetGame() {
-    // Reset characters
-    this.characterManager.resetCharacters();
-
-    // Clear obstacles
-    this.obstacleManager.clearObstacles();
-
-    // Clear VFX
-    if (this.vfxManager) {
-      this.vfxManager.clear();
-    }
-
-    // Reset game state using GameState
-    this.gameState.reset();
-    if (this.aiController) {
-      this.aiController.setDifficulty(this.gameState.difficulty);
-    }
-    if (this.gameState.difficulty === 0) {
-      this.tutorialManager.start();
-    } else {
-      this.tutorialManager.stop();
-    }
-  }
-
   gotoMenu() {
     // Reset characters
     this.characterManager.resetCharacters();
 
     // Clear obstacles
     this.obstacleManager.clearObstacles();
-    this.gameState.gotoMenu();
+
+    // Reveal UI
+    // this.gameState.gotoMenu();
   }
 
   /**
@@ -222,32 +158,4 @@ export class GameManager {
     return this.resourceManager.getTranslation(element);
   }
 
-  // Getter methods for external access
-  isGameRunning() {
-    return this.gameState.isGameRunning();
-  }
-  isGameOver() {
-    return this.gameState.isGameOver();
-  }
-  isInMenu() {
-    return this.gameState.isInMenu();
-  }
-  getPlayer() {
-    return this.characterManager.getPlayer();
-  }
-  getOpponent() {
-    return this.characterManager.getOpponent();
-  }
-  getCharacters() {
-    return this.characterManager.getCharacters();
-  }
-  getGameState() {
-    return this.gameState;
-  }
-  getPlayerScore() {
-    return this.characterManager.getPlayerScore();
-  }
-  getOpponentScore() {
-    return this.characterManager.getOpponentScore();
-  }
 }

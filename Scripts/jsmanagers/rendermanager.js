@@ -28,14 +28,13 @@ export class RenderManager {
      * Draw all characters with their UI elements
      * @param {Character[]} characters - Array of characters to draw
      * @param {*} resources - Game resources for drawing
-     * @param {boolean} isGameRunning - Whether the game is currently running
      * @param {boolean} debugMode - Whether debug mode is enabled
      * @param {*} gameState - Current game state
      * @param {*} inputManager - Input manager reference
      * @param {*} gameManager - Game manager reference for translations
      * @param {ResourceManager} resourceManager - Resource manager for translations
      */
-    drawCharacters(characters, resources, isGameRunning, debugMode, gameState, inputManager, gameManager, resourceManager) {
+    drawCharacters(characters, resources, debugMode, gameState, inputManager, gameManager, resourceManager) {
         const scorebarHeight = 60;
         const playerLabel = resourceManager.getTranslation('Player');
         const pcLabel = resourceManager.getTranslation('PC');
@@ -44,9 +43,8 @@ export class RenderManager {
             character.draw(this.ctx, resources, debugMode);
             
             // Only draw character UI when game is running
-            if (!isGameRunning) {
-                continue;
-            }
+            continue;
+          
             
             if (!character.isOpponent) {
                 // Player UI

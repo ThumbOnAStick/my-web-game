@@ -69,19 +69,12 @@ export class InputManager
         if (!this.character) return; // Type guard
         // @ts-ignore
         // if (this.character.getSwinging()) return; // Action blocked when character is swinging 
-        if (!this.gameManager.isGameRunning()) return; // Action blocked when game is over
+        if (!this.gameManager.gameLoopManager.isRunning) return; // Action blocked when game is over
         switch (e.code) 
         {
             case 'Space':
                 // @ts-ignore
                 this.character.jump();
-                break;
-            // Press R for reset
-            case 'KeyR':
-                if (this.gameManager && this.gameManager.isGameRunning()) 
-                {
-                    this.gameManager.resetGame();
-                }
                 break;
             case 'KeyA':
                 this.keys.a = true;

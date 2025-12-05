@@ -1,7 +1,7 @@
+// oxlint-disable no-unused-vars
 import { Resources } from "../jscomponents/resources.js";
 
-export class GameObject 
-{
+export class GameObject {
     /**
      * 
      * @param {Number} x 
@@ -10,8 +10,7 @@ export class GameObject
      * @param {Number} height 
      * @param {GameObject} source 
      */
-    constructor(x, y, width = 0, height = 0, source = null)
-    {
+    constructor(x, y, width = 0, height = 0, source = null) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -24,9 +23,9 @@ export class GameObject
 
     /**
      * @param {HTMLCanvasElement} canvas
+     * @param {Number} deltaTime
      */
-    update(canvas) 
-    {
+    update(canvas, deltaTime) {
         // Base implementation - can be overridden by subclasses
     }
 
@@ -35,19 +34,16 @@ export class GameObject
      * @param {Resources} resources
      * @param {boolean} [showDebug=false]
      */
-    draw(ctx, resources = null ,showDebug = false) 
-    {
+    draw(ctx, resources = null, showDebug = false) {
         // Base implementation - can be overridden by subclasses
-        if (showDebug) 
-        {
+        if (showDebug) {
             ctx.strokeStyle = 'blue';
             ctx.strokeRect(this.x, this.y, this.width, this.height);
         }
     }
 
     /** @returns {{x: number, y: number}} */
-    getPosition()
-    {
+    getPosition() {
         return { x: this.x, y: this.y };
     }
 

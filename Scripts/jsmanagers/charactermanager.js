@@ -97,10 +97,11 @@ export class CharacterManager {
 
     /**
      * Update all characters
+     * @param {number} deltaTime 
      */
-    updateCharacters() {
+    update(deltaTime) {
         for (const character of this.characters) {
-            character.update(this.canvas);
+            character.update(this.canvas, deltaTime);
         }
     }
 

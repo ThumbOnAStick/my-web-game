@@ -8,8 +8,7 @@ import * as CombatHandler from '../jsutils/combathandler.js';
 import { GameObject } from '../jsgameobjects/gameobject.js';
 
 export class ObstacleManager {
-    constructor() 
-    {
+    constructor() {
         /**@type {Obstacle[]} */
         this.obstacles = [];
         this.spawnTimer = 0;
@@ -28,74 +27,65 @@ export class ObstacleManager {
      * @param {*} id 
      * @param {GameObject} source 
      */
-    spawnObstacle(x, y, width, height, duration = 0, destroyedOnTouch = false, id = null, source = null, damage = 0) 
-    {
+    spawnObstacle(x, y, width, height, duration = 0, destroyedOnTouch = false, id = null, source = null, damage = 0) {
         let realId = id;
-        if(source!=null)
-        {
-            realId = source.id; 
+        if (source != null) {
+            realId = source.id;
         }
         this.obstacles.push(new Obstacle(x, y, width, height, Date.now(), destroyedOnTouch, 0, duration, realId, source, damage));
     }
-
-    update() 
-    {
+    
+    /**
+     * @param {Character[]} characters
+     */
+    update(characters) {
         // Spawn obstacles at intervals (only if game is not over)
         const currentTime = Date.now();
 
         // Update all obstacles
-        for (let i = this.obstacles.length - 1; i >= 0; i--) 
-        {
+        for (let i = this.obstacles.length - 1; i >= 0; i--) {
             // Destroy expired obstacle            
-            if (this.obstacles[i].shouldDestroy(currentTime)) 
-            {
+            if (this.obstacles[i].shouldDestroy(currentTime)) {
                 this.obstacles.splice(i, 1);
             }
         }
-        return 0; // No score increment
+
+        // Handle Collisions
+        this.handleCharacterCollisions(characters)
     }
 
     /**
-     * @param {*} characters
-     * @returns {boolean} 
+     * @param {Character[]} characters
      */
-    handleCharacterCollisions(characters) 
-    {
-        for (let i = characters.length - 1; i >= 0; i--) 
-        {
-            if(this.handleCharacterCollision(characters[i]))
-            {
+    handleCharacterCollisions(characters) {
+        for (let i = characters.length - 1; i >= 0; i--) {
+            if (this.handleCharacterCollision(characters[i])) {
                 return true;
             }
 
         }
         return false;
-     }
+    }
 
     /** 
      * @param {Character} character  
      * @returns {boolean}
     */
-    handleCharacterCollision(character) 
-    {
-        for (let i = this.obstacles.length - 1; i >= 0; i--) 
-        {
+    handleCharacterCollision(character) {
+        for (let i = this.obstacles.length - 1; i >= 0; i--) {
             const obstacle = this.obstacles[i];
-            if (obstacle.collideWithCharacter(character.selfCoordinate(), character.id)) 
-            {
+            if (obstacle.collideWithCharacter(character.selfCoordinate(), character.id)) {
                 CombatHandler.handleCharacterDamageResult(character, obstacle);
-                if(obstacle.destroyedOnTouch)
-                {
+                if (obstacle.destroyedOnTouch) {
                     this.obstacles.splice(i, 1);
                 }
-                return true;   
+                return true;
             }
         }
         return false;
     }
 
-    draw(ctx, showDebug = false) 
-    {
+    draw(ctx, showDebug = false) {
         for (const obstacle of this.obstacles) {
             obstacle.draw(ctx, null, showDebug);
         }
@@ -110,4 +100,3 @@ export class ObstacleManager {
     }
 }
 
- 

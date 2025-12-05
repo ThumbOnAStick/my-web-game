@@ -32,9 +32,6 @@ export class GameInitializer {
             // Update character manager with resources
             this.gameManager.characterManager.resources = this.gameManager.resources;
 
-            // Initialize VFX manager after resources are loaded
-            this.gameManager.initializeVFXManager();
-
             // Create and load characters
             await this.gameManager.characterManager.loadCharacters();
             await this.gameManager.characterManager.loadAnimations();

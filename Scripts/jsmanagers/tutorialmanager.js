@@ -65,6 +65,7 @@ export class TutorialManager extends Controller {
     }
 
     start() {
+        console.log("Try to start tutorial");
         this.turnOn();
         this.currentTutorialIndex = 0;
         this.setupCurrentTutorial();

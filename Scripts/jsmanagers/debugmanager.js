@@ -36,7 +36,7 @@ export class DebugManager {
 
         if (this.loseGameButton) {
             this.loseGameButton.addEventListener("click", () => {
-                if (this.gameManager.isGameRunning()) {
+                if (this.gameManager.gameLoopManager.isRunning) {
                     const labelPC = this.gameManager.getTranslation("PC");
                     this.gameManager.gameState.endGame(labelPC);
                 }

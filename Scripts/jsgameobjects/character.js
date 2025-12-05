@@ -182,8 +182,9 @@ export class Character extends GameObject {
 
   /**
    * @param {HTMLCanvasElement} canvas
+   * @param {Number} deltaTime  
    */
-  update(canvas) {
+  update(canvas, deltaTime) {
     // update idle states
     this.updateIdleAnimation();
 
@@ -191,7 +192,7 @@ export class Character extends GameObject {
     this.animationController.update();
 
     // Update rigidbody
-    this.rigidbody.update(canvas, this);
+    this.rigidbody.update(canvas, this, deltaTime);
 
     // Update shrink controller
     // if (this.shrinkController.stage == ShrinkStage.RUNNING)
