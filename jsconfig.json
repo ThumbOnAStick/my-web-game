@@ -5,6 +5,8 @@
     "moduleResolution": "node",
     "allowJs": true,
     "checkJs": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "noEmit": true,
     "forceConsistentCasingInFileNames": true
   },

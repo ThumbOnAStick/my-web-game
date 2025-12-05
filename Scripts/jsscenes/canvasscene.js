@@ -1,3 +1,4 @@
+import { UIElement } from '../jsuielements-ctx/uielement.js';
 import { IScene } from './scene.js';
 
 /**
@@ -5,42 +6,59 @@ import { IScene } from './scene.js';
  * Extends IScene to provide canvas-specific functionality.
  */
 export class CanvasScene extends IScene {
-    constructor() {
+    /**@param {CanvasRenderingContext2D} ctx - The rendering context. */
+    constructor(ctx) {
         super();
-        if (this.constructor === CanvasScene) {
-            throw new Error("CanvasScene is an abstract class and cannot be instantiated directly.");
-        }
+        this.ctx = ctx;
+        /**@type {UIElement[]} */
+        this.canvasUIElements = [];
     }
 
     /**
      * Render the scene using the Canvas 2D context.
-     * @param {CanvasRenderingContext2D} ctx - The rendering context.
      */
-    render(ctx) {
+    render() {
+        super.render();
+        console.log("Try to draw");
         // Runtime check to ensure we are using the correct renderer
-        if (!(ctx instanceof CanvasRenderingContext2D)) {
+        if (!(this.ctx instanceof CanvasRenderingContext2D)) {
             console.warn("CanvasScene: Renderer is not a CanvasRenderingContext2D. Skipping render.");
             return;
         }
 
-        this.draw(ctx);
+        this.draw();
     }
 
     /**
-     * Specific drawing logic for the scene.
-     * @param {CanvasRenderingContext2D} ctx 
+     * 
+     * @param {Number} deltaTime 
      */
-    draw(ctx) {
-        throw new Error("Method 'draw(ctx)' must be implemented.");
+    update(deltaTime){
+        super.update(deltaTime)
+        for (let index = 0; index < this.canvasUIElements.length; index++) {
+            const element = this.canvasUIElements[index];
+            element.update();
+         }
     }
 
     /**
-     * Helper to clear the canvas.
-     * @param {CanvasRenderingContext2D} ctx 
+     * Draw UI elements.
      */
-    clear(ctx) {
-        const width = ctx.canvas.width;
-        const height = ctx.canvas.height;
-        ctx.clearRect(0, 0, width, height);
+    draw() {
+         for (let index = 0; index < this.canvasUIElements.length; index++) {
+            const element = this.canvasUIElements[index];
+            element.draw(this.ctx);
+         }
     }
+
+
+    /**
+     * 
+     * @param {UIElement} uiElement 
+     */
+    registerUIElement(uiElement){
+        this.canvasUIElements.push(uiElement);
+    }
+
+
 }

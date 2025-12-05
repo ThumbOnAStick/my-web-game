@@ -27,7 +27,7 @@
     "Scripts/jsai",
     "Scripts/jscomponents",
     "Scripts/jsutils",
-    "Scripts/jsgameobjects",
+    "Scripts/jsgameobjects"
   ],
   "keywords": [
     "game",

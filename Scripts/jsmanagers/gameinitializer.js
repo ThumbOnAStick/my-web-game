@@ -3,6 +3,9 @@
 import * as Eventhandler from '../jsutils/eventhandlers.js';
 import { AIController } from '../jsai/aicontroller.js';
 import { GameManager } from './gamemanager.js';
+import { setupTutorials } from '../jsutils/tutorialhelper.js';
+import { setupUIUtil } from '../jsutils/uiutil.js';
+import { InputManager } from './inputmanager.js';
 
 export class GameInitializer {
     /**
@@ -59,9 +62,18 @@ export class GameInitializer {
                 this.gameManager.uiManager,
                 this.gameManager.gameState
             );
-
+            // Initialize charactermanger
+            this.gameManager.characterManager.initialize(this.gameManager.resources);
+            // Set up tutorials
+            setupTutorials(this.gameManager.tutorialManager);
+            // Set up UIUtil
+            setupUIUtil(this.gameManager.inputManager, this.gameManager.resourceManager);
+            // Set up root scene
+            this.gameManager.rootScene.init();
+            // Finalize
             this.isInitialized = true;
             console.log('Game initialized successfully');
+
 
         } catch (error) {
             console.error('Failed to initialize game:', error);

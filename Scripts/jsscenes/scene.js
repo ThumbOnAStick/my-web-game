@@ -10,6 +10,31 @@ export class IScene {
         if (this.constructor === IScene) {
             throw new Error("IScene is an abstract class (interface) and cannot be instantiated directly.");
         }
+        /** @type {IScene[]} */
+        this.subScenes = [];
+    }
+
+    /**
+     * Add a subscene to this scene.
+     * @param {IScene} scene - The scene to add.
+     */
+    addSubScene(scene) {
+        if (scene instanceof IScene) {
+            this.subScenes.push(scene);
+        } else {
+            console.warn("Attempted to add invalid scene as subscene.");
+        }
+    }
+
+    /**
+     * Remove a subscene from this scene.
+     * @param {IScene} scene - The scene to remove.
+     */
+    removeSubScene(scene) {
+        const index = this.subScenes.indexOf(scene);
+        if (index > -1) {
+            this.subScenes.splice(index, 1);
+        }
     }
 
     /**
@@ -18,7 +43,8 @@ export class IScene {
      * @param {Object} [params] - Optional initialization parameters specific to the scene.
      */
     init(params) {
-        // Optional implementation
+        this.subScenes.forEach(scene => scene.init(params));
+
     }
 
     /**
@@ -27,7 +53,8 @@ export class IScene {
      * @returns {Promise<void>} A promise that resolves when loading is complete.
      */
     async load() {
-        throw new Error("Method 'load()' must be implemented.");
+        const loadPromises = this.subScenes.map(scene => scene.load());
+        await Promise.all(loadPromises);
     }
 
     /**
@@ -35,7 +62,7 @@ export class IScene {
      * Use this to release memory, stop sounds, or remove event listeners.
      */
     unload() {
-        throw new Error("Method 'unload()' must be implemented.");
+        this.subScenes.forEach(scene => scene.unload());
     }
 
     /**
@@ -43,7 +70,7 @@ export class IScene {
      * @param {number} deltaTime - Time elapsed since the last frame (in seconds).
      */
     update(deltaTime) {
-        throw new Error("Method 'update(deltaTime)' must be implemented.");
+        this.subScenes.forEach(scene => scene.update(deltaTime));
     }
 
     /**
@@ -52,7 +79,7 @@ export class IScene {
      * @param {Object} renderer - The rendering provider (e.g., CanvasRenderingContext2D, WebGLRenderer, etc.).
      */
     render(renderer) {
-        throw new Error("Method 'render(renderer)' must be implemented.");
+        this.subScenes.forEach(scene => scene.render(renderer));
     }
 
     /**
@@ -60,7 +87,7 @@ export class IScene {
      * @param {Object} inputState - The current state of inputs (keyboard, mouse, gamepad).
      */
     handleInput(inputState) {
-        // Optional implementation
+        this.subScenes.forEach(scene => scene.handleInput(inputState));
     }
 
     /**
@@ -69,20 +96,20 @@ export class IScene {
      * @param {number} height - New height of the view.
      */
     onResize(width, height) {
-        // Optional implementation
+        this.subScenes.forEach(scene => scene.onResize(width, height));
     }
 
     /**
      * Called when the scene is paused (e.g., menu opened, tab hidden).
      */
     pause() {
-        // Optional implementation
+        this.subScenes.forEach(scene => scene.pause());
     }
 
     /**
      * Called when the scene is resumed.
      */
     resume() {
-        // Optional implementation
+        this.subScenes.forEach(scene => scene.resume());
     }
 }

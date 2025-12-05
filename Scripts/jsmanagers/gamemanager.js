@@ -1,3 +1,4 @@
+// oxlint-disable no-unused-vars
 // GameManager.js
 // Main game manager that coordinates all systems
 import * as Eventhandler from "../jsutils/eventhandlers.js";
@@ -8,7 +9,7 @@ import { Character } from "../jsgameobjects/character.js";
 import { Resources } from "../jscomponents/resources.js";
 import { InputManager } from "./inputmanager.js";
 import { ResourceManager } from "./resourcemanager.js";
-import { UIManager } from "./uimanager.js";
+import { GlobalUIManager } from "./globaluimanager.js";
 import { AIController } from "../jsai/aicontroller.js";
 import { TickManager } from "./tickmanager.js";
 import { VFXManager } from "./vfxmanager.js";
@@ -20,6 +21,8 @@ import { GameInitializer } from "./gameinitializer.js";
 import { TutorialManager } from "./tutorialmanager.js";
 import { setupTutorials } from "../jsutils/tutorialhelper.js";
 import { DebugManager } from "./debugmanager.js";
+import { CanvasScene } from "../jsscenes/canvasscene.js";
+import { MenuScene } from "../jsscenes/menuscene.js";
 
 export class GameManager {
   /**
@@ -41,28 +44,34 @@ export class GameManager {
     // Initialize game state
     this.gameState = new GameState();
 
-    // Initialize core managers
+    // Initialize  managers
     this.inputManager = new InputManager(canvas);
     this.obstacleManager = new ObstacleManager();
     this.resourceManager = new ResourceManager();
     this.audioManager = new AudioManager(this.resourceManager);
-    this.uiManager = new UIManager(ctx, canvas, this.inputManager, this.resourceManager);
+    this.uiManager = new GlobalUIManager(ctx, canvas, this.inputManager, this.resourceManager);
     this.tickManager = new TickManager(Date.now());
-
-    // Initialize new specialized managers
     this.gameLoopManager = new GameLoopManager();
     this.characterManager = new CharacterManager(canvas, null); // Will be set after resources load
     this.renderManager = new RenderManager(ctx, canvas, this.uiManager, null); // VFX manager set later
     this.gameInitializer = new GameInitializer(this);
     this.tutorialManager = new TutorialManager(this.gameState, this.resourceManager);
+    this.debugManager = new DebugManager(this);
 
     // Set up manager references
     this.inputManager.setGameManager(this);
 
-    this.debugManager = new DebugManager(this);
+    // Set up root scene
+    this.rootScene = new CanvasScene(ctx);
+    this.rootScene.addSubScene(new MenuScene(ctx));
 
     // Set up game loop callback
-    this.gameLoopManager.setUpdateCallback((deltaTime) => this.update(deltaTime));
+    this.gameLoopManager.setUpdateCallback(
+      /**
+       * @param {number} deltaTime - Time elapsed since last frame in milliseconds
+       */
+      (deltaTime) => this.update(deltaTime)
+    );
   }
 
   /**
@@ -76,8 +85,7 @@ export class GameManager {
   async initialize() {
     await this.gameInitializer.initialize();
     // Update character manager with loaded resources
-    this.characterManager.resources = this.resources;
-    setupTutorials(this.tutorialManager);
+ 
   }
 
   start() {
@@ -98,6 +106,8 @@ export class GameManager {
    */
   update(deltaTime) {
     this.uiManager.update();
+
+    this.rootScene.update(deltaTime);
 
     // Update event manager for delayed events
     gameEventManager.update();
@@ -141,71 +151,17 @@ export class GameManager {
         labelPC
       );
     }
+    // Render everything
+    this.render();
+  }
+
+  render() {
 
     // Clear screen before drawing
     this.renderManager.clearScreen();
 
-    // Draw everything
-    this.draw();
-  }
-
-  draw() {
-    // Menu drawing
-    if (
-      this.renderManager.drawMenu(
-        this.gameState,
-        this.isInMenu(),
-        this.inputManager,
-        this.resourceManager
-      )
-    ) {
-      this.gameState.startGame();
-      if (this.aiController) {
-        this.aiController.setDifficulty(this.gameState.difficulty);
-      }
-      if (this.gameState.difficulty === 0) {
-        this.tutorialManager.start();
-      }
-    }
-
-    // Gameover drawing
-    const gameOverAction = this.renderManager.drawGameOver(
-      this.isGameOver(),
-      this.gameState.winner,
-      this.inputManager,
-      this.resourceManager,
-      this.gameState
-    );
-
-    if (gameOverAction === 'restart') {
-      this.resetGame();
-    } else if (gameOverAction === 'next') {
-      this.gameState.difficulty = 1;
-      this.resetGame();
-    }
-
-    // Go to menu button
-    if (
-      this.renderManager.drawGotoMenuButton(
-        this.isGameOver(),
-        this.inputManager,
-        this,
-        this.resourceManager
-      )
-    ) {
-      this.gotoMenu();
-    }
-
-    // Exit button drawing
-    if (
-      this.renderManager.drawExitButton(
-        this.isGameRunning(),
-        this.inputManager,
-        this.resourceManager
-      )
-    ) {
-      this.gotoMenu();
-    }
+    // Scene drawing
+    this.rootScene.render();
 
     // Character drawing
     this.renderManager.drawCharacters(

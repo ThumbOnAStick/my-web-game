@@ -1,3 +1,5 @@
+// oxlint-disable no-unused-vars
+// oxlint-disable no-unused-expressions
 import { ResourceManager } from "../jsmanagers/resourcemanager.js";
 import { InputManager } from "../jsmanagers/inputmanager.js";
 import { COLORS } from "../jsutils/colors.js";

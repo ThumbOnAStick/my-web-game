@@ -5,7 +5,7 @@ import { ObstacleManager } from "../jsmanagers/obstaclemanager.js";
 import { VFXManager } from "../jsmanagers/vfxmanager.js";
 import * as CombatHandler from '../jsutils/combathandler.js';
 import { GameState } from "../jscomponents/gamestate.js";
-import { UIManager } from "../jsmanagers/uimanager.js";
+import { GlobalUIManager } from "../jsmanagers/globaluimanager.js";
 import { changeSubtitle, changeSubtitleEvent, initialize_ui } from "./evenhandlerui.js";
 
 export const characterSwingEvent = 'character_swing';
@@ -247,7 +247,7 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager, g
  * @param {VFXManager} vfxManager 
  * @param {AudioManager} audioManager
  * @param {GameState} gameState
- * @param {UIManager} uiManager
+ * @param {GlobalUIManager} uiManager
  */
 export function initialize(obstacleManager, vfxManager, audioManager, uiManager, gameState) 
 {

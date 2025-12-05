@@ -1,3 +1,4 @@
+// oxlint-disable no-unused-vars
 // RenderManager.js
 // Manages all drawing and rendering operations
 import { Character } from '../jsgameobjects/character.js';
@@ -5,13 +6,13 @@ import { GameManager } from './gamemanager.js';
 import { GameState } from '../jscomponents/gamestate.js';
 import { InputManager } from './inputmanager.js';
 import { ResourceManager } from './resourcemanager.js';
-import { UIManager } from './uimanager.js';
+import { GlobalUIManager } from './globaluimanager.js';
 
 export class RenderManager {
     constructor(ctx, canvas, uiManager, vfxManager) {
         this.ctx = ctx;
         this.canvas = canvas;
-        /**@type {UIManager} */
+        /**@type {GlobalUIManager} */
         this.uiManager = uiManager;
         this.vfxManager = vfxManager;
     }

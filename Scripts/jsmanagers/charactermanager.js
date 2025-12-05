@@ -1,6 +1,8 @@
 // CharacterManager.js
 // Manages character creation, loading, and updates
+import { Resources } from '../jscomponents/resources.js';
 import { Character } from '../jsgameobjects/character.js';
+import { initialize } from '../jsutils/eventhandlers.js';
 
 export class CharacterManager {
     constructor(canvas, resources) {
@@ -10,6 +12,15 @@ export class CharacterManager {
         this.characters = [];
         this.globalDrawSize = 1;
     }
+
+    /**
+     * 
+     * @param {Resources} resources 
+     */
+    initialize(resources){
+        this.resources = resources
+    }
+
 
     /**
      * Load and create all characters

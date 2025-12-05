@@ -1,3 +1,4 @@
+// oxlint-disable no-unused-vars
 // InputManager.js
 // Handles all input and controls for the game
 

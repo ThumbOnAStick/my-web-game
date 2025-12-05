@@ -1,8 +1,8 @@
-import { UIManager } from "../jsmanagers/uimanager.js";
+import { GlobalUIManager } from "../jsmanagers/globaluimanager.js";
 export const changeSubtitleEvent = "change_subtitle";
 
 /**
- * @type {UIManager}
+ * @type {GlobalUIManager}
  */
 export let uiManager = null;
 
@@ -17,7 +17,7 @@ export function changeSubtitle(data) {
 
 
 /**
- * @param {UIManager} uiManager_p
+ * @param {GlobalUIManager} uiManager_p
  */
 export function initialize_ui(uiManager_p){
     uiManager = uiManager_p;
