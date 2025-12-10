@@ -1,4 +1,4 @@
-import { Character } from "../jsgameobjects/character.js";
+import { Character } from "../../jsgameobjects/character.js";
 
 const COMBOS = {
     LIGHT_ATTACK: new Uint8Array([0]),

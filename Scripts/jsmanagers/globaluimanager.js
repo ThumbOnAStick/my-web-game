@@ -5,13 +5,13 @@ import { GameState } from "../jscomponents/gamestate.js";
 import { Character } from "../jsgameobjects/character.js";
 import { gameEventManager } from "./eventmanager.js";
 import { InputManager } from "./inputmanager.js";
-import { COLORS, getHealthColor } from "../jsutils/colors.js";
+import { COLORS, getHealthColor } from "../jsutils/ui/uicolors.js";
 import { ResourceManager } from "./resourcemanager.js";
 import { GameManager } from "./gamemanager.js";
-import { ButtonText } from "../jsuielements-ctx/button.js";
-import { Indicator } from "../jsuielements-ctx/indicator.js";
-import { SnappedSlider } from "../jsuielements-ctx/snappedslider.js";
-import { GlobalFonts } from "../jsutils/globalfont.js";
+import { ButtonText } from "../jsuielements/ctx/button.js";
+import { Indicator } from "../jsuielements/ctx/indicator.js";
+import { SnappedSlider } from "../jsuielements/ctx/snappedslider.js";
+import { GlobalFonts } from "../jsutils/ui/uiglobalfont.js";
 
 export class GlobalUIManager {
   /**
@@ -26,17 +26,17 @@ export class GlobalUIManager {
     this.ctx = ctx;
     this.canvas = canvas;
     this.resourceManager = resourceManager;
-    this.snappedSlider = new SnappedSlider(
-      ["Level0", "Level1", "Level2"],
-      resourceManager,
-      ctx,
-      inputmanager,
-      canvas.width / 2,
-      canvas.height / 2 + 100,
-      300,
-      10,
-      () => this.changeSubtitleViaSlider()
-    );
+    // this.snappedSlider = new SnappedSlider(
+    //   ["Level0", "Level1", "Level2"],
+    //   resourceManager,
+    //   ctx,
+    //   inputmanager,
+    //   canvas.width / 2,
+    //   canvas.height / 2 + 100,
+    //   300,
+    //   10,
+    //   () => this.changeSubtitleViaSlider()
+    // );
     /** @type {Map<Character, Indicator>} */
     this.indicators = new Map();
     this.subtitle = /**@type {HTMLInputElement} */ (
@@ -120,7 +120,7 @@ export class GlobalUIManager {
   }
   
   changeSubtitleViaSlider(){
-    this.changeSubtitle(this.snappedSlider.getDescriptionKey())
+    // this.changeSubtitle(this.snappedSlider.getDescriptionKey())
   }
 
   /**
@@ -144,11 +144,11 @@ export class GlobalUIManager {
 
     // Get or create indicator for this character
     if (!this.indicators.has(character)) {
-      this.indicators.set(character, new Indicator(character));
+      // this.indicators.set(character, new Indicator(character));
     }
 
     const indicator = this.indicators.get(character);
-    indicator.draw(this.ctx);
+    indicator.draw();
   }
 
   /**
@@ -289,9 +289,9 @@ export class GlobalUIManager {
    * @param {GameState} gameState 
    */
   drawSnappedSlider(gameState) {
-    this.snappedSlider.draw();
+    // this.snappedSlider.draw();
     // Update gamestate 
-    gameState.difficulty = this.snappedSlider.currentIndex;
+    // gameState.difficulty = this.snappedSlider.currentIndex;
   }
 
   /**

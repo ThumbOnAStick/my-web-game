@@ -1,6 +1,6 @@
-import { AIMetaData } from "../jsai/aimetadata.js";
-import { DecisionNode, DecisionNodeChance } from "../jsai/decisionnode.js";
-import { TerminalNode } from "../jsai/terminalnode.js";
+import { AIMetaData } from "../../jsai/aimetadata.js";
+import { DecisionNode, DecisionNodeChance } from "../../jsai/decisionnode.js";
+import { TerminalNode } from "../../jsai/terminalnode.js";
 
 //#region Callbacks
 

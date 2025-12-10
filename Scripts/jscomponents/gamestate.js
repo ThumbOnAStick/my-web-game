@@ -1,5 +1,5 @@
 import { gameEventManager } from "../jsmanagers/eventmanager.js";
-import * as EventHandlers from '../jsutils/eventhandlers.js'
+import * as EventHandlers from '../jsutils/events/eventhandlers.js'
 
 
 export class GameState {

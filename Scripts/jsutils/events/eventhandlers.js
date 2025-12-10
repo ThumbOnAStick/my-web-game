@@ -1,14 +1,14 @@
-import { Character } from "../jsgameobjects/character.js";
-import { AudioManager } from "../jsmanagers/audiomanager.js";
-import { gameEventManager } from "../jsmanagers/eventmanager.js";
-import { ObstacleManager } from "../jsmanagers/obstaclemanager.js";
-import { VFXManager } from "../jsmanagers/vfxmanager.js";
-import * as CombatHandler from '../jsutils/combathandler.js';
-import { GameState } from "../jscomponents/gamestate.js";
-import { GlobalUIManager } from "../jsmanagers/globaluimanager.js";
-import { changeSubtitle, changeSubtitleEvent, initialize_ui, startGame, startGameEvent } from "./evenhandlerui.js";
-import { IScene } from "../jsscenes/scene.js";
-import { GameManager } from "../jsmanagers/gamemanager.js";
+import { Character } from "../../jsgameobjects/character.js";
+import { AudioManager } from "../../jsmanagers/audiomanager.js";
+import { gameEventManager } from "../../jsmanagers/eventmanager.js";
+import { ObstacleManager } from "../../jsmanagers/obstaclemanager.js";
+import { VFXManager } from "../../jsmanagers/vfxmanager.js";
+import * as CombatHandler from '../combat/combathandler.js';
+import { GameState } from "../../jscomponents/gamestate.js";
+import { GlobalUIManager } from "../../jsmanagers/globaluimanager.js";
+import { changeDifficulty, changeDifficultyEvent, changeSubtitle, changeSubtitleEvent, initialize_ui, startGame, startGameEvent } from "../ui/uieventhandler.js";
+import { IScene } from "../../jsscenes/scene.js";
+import { GameManager } from "../../jsmanagers/gamemanager.js";
 
 export const characterSwingEvent = 'character_swing';
 export const characterLightSwingEvent = 'character_light_swing';
@@ -254,7 +254,7 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager, g
  */
 export function initialize(obstacleManager, vfxManager, audioManager, uiManager, gameState, rootScene) 
 {
-    initialize_ui(uiManager, rootScene);
+    initialize_ui(uiManager, rootScene, gameState);
 
     const handlers = createEventHandlers(obstacleManager, vfxManager, audioManager, gameState);
     gameEventManager.on(characterSwingEvent, handlers.handleHeavySwingEvent);
@@ -277,7 +277,7 @@ export function initialize(obstacleManager, vfxManager, audioManager, uiManager,
     /** UI */
     gameEventManager.on(changeSubtitleEvent, changeSubtitle);
     gameEventManager.on(startGameEvent, startGame);
-
+    gameEventManager.on(changeDifficultyEvent, changeDifficulty);
 
 
 }

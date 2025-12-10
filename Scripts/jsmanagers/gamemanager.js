@@ -1,7 +1,7 @@
 // oxlint-disable no-unused-vars
 // GameManager.js
 // Main game manager that coordinates all systems
-import * as Eventhandler from "../jsutils/eventhandlers.js";
+import * as Eventhandler from "../jsutils/events/eventhandlers.js";
 import { ObstacleManager } from "./obstaclemanager.js";
 import { GameState } from "../jscomponents/gamestate.js";
 import { gameEventManager } from "./eventmanager.js";
@@ -19,12 +19,12 @@ import { CharacterManager } from "./charactermanager.js";
 import { RenderManager } from "./rendermanager.js";
 import { GameInitializer } from "./gameinitializer.js";
 import { TutorialManager } from "./tutorialmanager.js";
-import { setupTutorials } from "../jsutils/tutorialhelper.js";
-import { DebugManager } from "./debugmanager.js";
+import { setupTutorials } from "../jsutils/tutorial/tutorialhelper.js";
+import { debugManager } from "./debugmanager.js";
 import { CanvasScene } from "../jsscenes/canvasscene.js";
 import { MenuScene } from "../jsscenes/menuscene.js";
-import { SCENENAMES } from "../jsutils/scenenames.js";
-import { buildDefaultRootScene } from "../jsutils/scenehelper.js";
+import { SCENENAMES } from "../jsutils/scene/scenenames.js";
+import { buildDefaultRootScene } from "../jsutils/scene/scenehelper.js";
 
 export class GameManager {
   /**
@@ -58,7 +58,8 @@ export class GameManager {
     this.renderManager = new RenderManager(ctx, canvas, this.uiManager, null); // VFX manager set later
     this.gameInitializer = new GameInitializer(this);
     this.tutorialManager = new TutorialManager(this.gameState, this.resourceManager);
-    this.debugManager = new DebugManager(this);
+    this.debugManager = debugManager;
+    this.debugManager.initialize(this);
     this.vfxManager = new VFXManager(this.resourceManager);
     this.renderManager.vfxManager = this.vfxManager;
     // Set up manager references

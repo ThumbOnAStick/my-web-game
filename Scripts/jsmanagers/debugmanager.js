@@ -1,10 +1,36 @@
-export class DebugManager {
+export const DebugLevel = {
+    Log: "log",
+    Warning: "warning",
+    Error: "error"
+}
+
+const DebugColors = {
+    [DebugLevel.Log]: "white",
+    [DebugLevel.Warning]: "yellow",
+    [DebugLevel.Error]: "red"
+}
+
+export class DebugMessage{
     /**
-     * @param {import("./gamemanager.js").GameManager} gameManager 
+     * @param {String} _debugLevel 
+     * @param {String} _message
      */
-    constructor(gameManager) {
-        this.gameManager = gameManager;
-        
+    constructor(_debugLevel, _message){
+        this.debugLevel = _debugLevel;
+        this.message = _message;
+        this.creationTime = new Date().toTimeString().split(' ')[0];
+    }
+
+    
+}
+
+
+export class DebugManager {
+    constructor() {
+        /** @type {import("./gamemanager.js").GameManager} */
+        this.gameManager = null;
+
+
         /**@type {HTMLInputElement} */
         this.debugCheckbox = /** @type {HTMLInputElement} */ (
             document.getElementById("debugCheckbox")
@@ -16,6 +42,23 @@ export class DebugManager {
             document.getElementById("loseGameButton")
         );
 
+        this.console = /** @type {HTMLInputElement} */ (
+            document.getElementById("console")
+        );
+
+
+        /// Log console
+        this.maxDisplayMessage = 3;
+        /**@type {DebugMessage[]} */
+        this.messages = [];
+        
+    }
+
+    /**
+     * @param {import("./gamemanager.js").GameManager} gameManager 
+     */
+    initialize(gameManager) {
+        this.gameManager = gameManager;
         this.setupControls();
     }
 
@@ -47,4 +90,38 @@ export class DebugManager {
     isDebugMode() {
         return this.debugCheckbox ? this.debugCheckbox.checked : false;
     }
+
+    /**
+     * 
+     * @param {String} message
+     * @param {String} level 
+     */
+    popMessage(message, level){
+        this.messages.push(new DebugMessage(level, message));
+        this.updateConsole();
+    }
+
+    updateConsole() {
+        if (!this.console) return;
+        
+        // Clear current content
+        this.console.innerHTML = "";
+        
+        // Keep only the last maxDisplayMessage messages
+        if (this.messages.length > this.maxDisplayMessage) {
+            this.messages = this.messages.slice(this.messages.length - this.maxDisplayMessage);
+        }
+
+        // Render messages
+        this.messages.forEach(msg => {
+            const div = document.createElement("div");
+            div.textContent = msg.message + msg.creationTime;
+            div.style.color = DebugColors[msg.debugLevel] || "black";
+            this.console.appendChild(div);
+        });
+    }
+
+    
 }
+
+export const debugManager = new DebugManager();

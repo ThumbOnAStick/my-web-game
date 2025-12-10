@@ -3,7 +3,8 @@
 
 import { Character } from "../character.js";
 import { gameEventManager } from "../../jsmanagers/eventmanager.js";
-import * as EventHandler from "../../jsutils/eventhandlers.js";
+import * as EventHandler from "../../jsutils/events/eventhandlers.js";
+import { JUMP_FORCE } from "../../jsutils/combat/forces.js";
 
 export const CharacterMovementMixin = {
   /**
@@ -13,7 +14,7 @@ export const CharacterMovementMixin = {
     if (this.grounded) {
       this.grounded = false;
       console.log("try to jump");
-      this.rigidbody.applyForce(12, 0, -1);
+      this.rigidbody.applyForce(JUMP_FORCE, 0, -1);
       gameEventManager.emit(EventHandler.characterJumpEvent, { character: this });
     }
   },

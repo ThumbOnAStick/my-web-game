@@ -1,7 +1,7 @@
 // CharacterCombatMixin.js
 // Contains all combat-related methods for Character
 import { gameEventManager } from "../../jsmanagers/eventmanager.js";
-import * as EventHandler from "../../jsutils/eventhandlers.js";
+import * as EventHandler from "../../jsutils/events/eventhandlers.js";
 import { SwingType } from "../../jscomponents/charactercombatstate.js";
 
 

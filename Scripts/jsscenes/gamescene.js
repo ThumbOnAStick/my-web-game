@@ -1,4 +1,5 @@
 // oxlint-disable no-unused-vars
+import { AIController } from "../jsai/aicontroller.js";
 import { GameState } from "../jscomponents/gamestate.js";
 import { CharacterManager } from "../jsmanagers/charactermanager.js";
 import { GameLoopManager } from "../jsmanagers/gameloopmanager.js";
@@ -19,10 +20,20 @@ export class GameScene extends CanvasScene {
      * @param {ObstacleManager} obStacleManager
      * @param {CharacterManager} characterManager
      * @param {VFXManager} vfxManager
+     * @param {AIController} aiController
      * @param {GameLoopManager} gameLoopManager
      * @param {GameState} gameState The gamescene handles gamestate runtime.
      */
-    constructor(ctx, characterManager, inputManager, tickManager, tutorialManager, obStacleManager, gameState, vfxManager, gameLoopManager) {
+    constructor(ctx, 
+        characterManager, 
+        inputManager, 
+        tickManager, 
+        tutorialManager, 
+        obStacleManager, 
+        gameState, 
+        vfxManager, 
+        gameLoopManager,
+        aiController) {
         super(ctx)
         this.inputManager = inputManager;
         this.tickManager = tickManager;
@@ -32,6 +43,7 @@ export class GameScene extends CanvasScene {
         this.tutorialManager = tutorialManager;
         this.vfxManager = vfxManager;
         this.gameLoopManager = gameLoopManager;
+        this.aiController = aiController;
     }
 
     /**
@@ -73,6 +85,7 @@ export class GameScene extends CanvasScene {
         if(this.gameState.difficulty < 1){
             this.tutorialManager.start();
         }
+        
     }
 
     

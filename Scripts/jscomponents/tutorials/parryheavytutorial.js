@@ -1,6 +1,6 @@
 import { Tutorial } from "../tutorial.js";
 import { gameEventManager } from "../../jsmanagers/eventmanager.js";
-import * as EventHandler from "../../jsutils/eventhandlers.js";
+import * as EventHandler from "../../jsutils/events/eventhandlers.js";
 import { SwingType } from "../../jscomponents/charactercombatstate.js";
 
 export class ParryHeavyTutorial extends Tutorial {

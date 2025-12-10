@@ -1,3 +1,4 @@
+import { DebugLevel, debugManager, DebugManager } from "../../jsmanagers/debugmanager.js";
 import * as Nodes from "../library/ainodes.js";
 
 export function buildNoviceAITree() {

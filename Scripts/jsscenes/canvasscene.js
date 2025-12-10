@@ -1,5 +1,5 @@
 // oxlint-disable no-unused-vars
-import { UIElementCanvas } from '../jsuielements-ctx/uielement.js';
+import { UIElementCanvas } from '../jsuielements/ctx/uielement.js';
 import { IScene } from './scene.js';
 
 /**

@@ -1,6 +1,6 @@
 import { Bone } from "./bone.js";
 import { SpritePart } from "./spritepart.js";
-import { GlobalFonts } from "../jsutils/globalfont.js";
+import { GlobalFonts } from "../jsutils/ui/uiglobalfont.js";
 
  
 // Manages the hierarchy of bones and parts

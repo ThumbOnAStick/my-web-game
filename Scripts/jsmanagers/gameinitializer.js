@@ -1,11 +1,12 @@
 // GameInitializer.js
 // Handles game initialization and resource loading
-import * as Eventhandler from '../jsutils/eventhandlers.js';
+import * as Eventhandler from '../jsutils/events/eventhandlers.js';
 import { AIController } from '../jsai/aicontroller.js';
 import { GameManager } from './gamemanager.js';
-import { setupTutorials } from '../jsutils/tutorialhelper.js';
-import { setupUIUtil } from '../jsutils/uiutil.js';
+import { setupTutorials } from '../jsutils/tutorial/tutorialhelper.js';
+import { setupUIUtil } from '../jsutils/ui/uiutil.js';
 import { InputManager } from './inputmanager.js';
+import { DebugLevel, debugManager } from './debugmanager.js';
 
 export class GameInitializer {
     /**

@@ -2,7 +2,7 @@
 // Manages character creation, loading, and updates
 import { Resources } from '../jscomponents/resources.js';
 import { Character } from '../jsgameobjects/character.js';
-import { initialize } from '../jsutils/eventhandlers.js';
+import { initialize } from '../jsutils/events/eventhandlers.js';
 
 export class CharacterManager {
     constructor(canvas, resources) {

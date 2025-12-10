@@ -1,10 +1,11 @@
 import { Character } from '../jsgameobjects/character.js';
 import { GameObject } from '../jsgameobjects/gameobject.js';
 import { AIMetaData } from './aimetadata.js';
-import * as DecisionTreeHelperTutor from '../jsutils/decisiontreehelpertutor.js'
+import * as DecisionTreeHelperTutor from '../jsutils/ai/decisiontreehelpertutor.js'
 import { buildNoviceAITree } from './trees/novicetree.js';
 import { buildVeteranAITree } from './trees/veterantree.js';
 import { DecisionNode } from './decisionnode.js';
+import { DebugLevel, debugManager } from '../jsmanagers/debugmanager.js';
  
 const aiControllerPeriodicUpdateInterval = 16 * 2; // Update action tree once every 32 ticks (2s)
 
@@ -43,6 +44,7 @@ export class AIController
         } else if (difficulty === 2) {
             this.rootNode = buildVeteranAITree();
         } else {
+            debugManager.popMessage("Try to build Novice tree", DebugLevel.Log);
             this.rootNode = buildNoviceAITree();
         }
     }
@@ -123,6 +125,7 @@ export class AIController
             
             // Update decision tree
             this.rootNode.evaluate(this.metaData);
+            
         }
     }
 }

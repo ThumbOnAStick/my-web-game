@@ -1,4 +1,4 @@
-import { ShrinkController } from "../jscomponents/shrinkcontroller.js";
+import { ShrinkController } from "../../jscomponents/shrinkcontroller.js";
 
 /**
  * Build a shrink controller that oscillates between min and max

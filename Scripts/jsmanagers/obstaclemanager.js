@@ -4,7 +4,7 @@
 import { Character } from '../jsgameobjects/character.js';
 import { gameEventManager } from './eventmanager.js';
 import { Obstacle } from '../jsgameobjects/obstacle.js';
-import * as CombatHandler from '../jsutils/combathandler.js';
+import * as CombatHandler from '../jsutils/combat/combathandler.js';
 import { GameObject } from '../jsgameobjects/gameobject.js';
 
 export class ObstacleManager {

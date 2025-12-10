@@ -1,5 +1,5 @@
 import { Character } from "../jsgameobjects/character.js";
-import * as ComboHandler from '../jsutils/combohandler.js';
+import * as ComboHandler from '../jsutils/combat/combohandler.js';
 
 /**
  * Helps InputManager to analyze combos

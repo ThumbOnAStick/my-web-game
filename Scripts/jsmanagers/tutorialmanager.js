@@ -1,8 +1,8 @@
 import { Controller } from "../jscomponents/controller.js";
 import { Tutorial } from "../jscomponents/tutorial.js";
 import { gameEventManager } from "./eventmanager.js";
-import { changeSubtitleEvent } from "../jsutils/evenhandlerui.js";
-import * as DecisionTreeHelperTutor from '../jsutils/decisiontreehelpertutor.js';
+import { changeSubtitleEvent } from "../jsutils/ui/uieventhandler.js";
+import * as DecisionTreeHelperTutor from '../jsutils/ai/decisiontreehelpertutor.js';
 
 export class TutorialManager extends Controller {
     /**

@@ -1,15 +1,13 @@
-import { CharacterCombatState } from "../jscomponents/charactercombatstate.js";
-import { Character } from "../jsgameobjects/character.js";
-import { GameObject } from "../jsgameobjects/gameobject.js";
-import { gameEventManager } from "../jsmanagers/eventmanager.js";
-import { ObstacleManager } from "../jsmanagers/obstaclemanager.js";
-import * as EventHandlers from './eventhandlers.js'
+import { CharacterCombatState } from "../../jscomponents/charactercombatstate.js";
+import { Character } from "../../jsgameobjects/character.js";
+import { GameObject } from "../../jsgameobjects/gameobject.js";
+import { gameEventManager } from "../../jsmanagers/eventmanager.js";
+import { ObstacleManager } from "../../jsmanagers/obstaclemanager.js";
+import * as EventHandlers from '../events/eventhandlers.js'
+import { DODGE_FORCE, PARRY_FALLBACK_FORCE, SWING_MOVE_FORWARD_FORCE } from "./forces.js";
 
 
 const characterDodgeAlpha = 0.5;
-// @ts-ignore
-const characterDodgeForce = 30;
-const characterParryFallback = 15;
 const characterParryFreezeFrame = 10;
 
 
@@ -46,7 +44,7 @@ function characterDodge(character, obstacle = null)
             character.loseScore(obstacle.damage);
             // @ts-ignore
             character.adjustHitFacing(obstacle);
-            // character.rigidbody.applyForceTo(characterDodgeForce, character, obstacle, true, false, true);
+            // character.rigidbody.applyForceTo(DODGE_FORCE, character, obstacle, true, false, true);
         }
         character.rig.setAlpha(characterDodgeAlpha);
         gameEventManager.emit(EventHandlers.resetCharacterDodgingEvent, character, 1);
@@ -82,7 +80,7 @@ function characterParry(defender, offender = null, offenderSource = null) {
     let scoreGain = 5;
     if (offender)
     {
-        defender.rigidbody.applyForceTo(characterParryFallback, offender, defender, true, false, true);
+        defender.rigidbody.applyForceTo(PARRY_FALLBACK_FORCE, offender, defender, true, false, true);
         if(offender.source && offender.source instanceof Character)
         {
             breakFromSwing(offender.source, 1.2);
@@ -161,6 +159,6 @@ export function swingAndMoveForward(character, obstacleManager) {
                 character.getSwingDamage()
             );
         // Push character forward
-        character.rigidbody.applyForce(15, character.facing);
+        character.rigidbody.applyForce(SWING_MOVE_FORWARD_FORCE, character.facing);
     }
 }

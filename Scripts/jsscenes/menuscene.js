@@ -1,7 +1,7 @@
 import { gameEventManager } from "../jsmanagers/eventmanager.js";
-import { startGameEvent } from "../jsutils/evenhandlerui.js";
-import { UISize } from "../jsutils/uisize.js";
-import { createTextButtonCentered } from "../jsutils/uiutil.js";
+import { changeDifficultyEvent, startGameEvent } from "../jsutils/ui/uieventhandler.js";
+import { UISize } from "../jsutils/ui/uisize.js";
+import { createTextButtonCentered, createSliderCentered } from "../jsutils/ui/uiutil.js";
 import { CanvasScene } from "./canvasscene.js";
 
 export class MenuScene extends CanvasScene {
@@ -23,9 +23,21 @@ export class MenuScene extends CanvasScene {
             centerY,
             UISize.ButtonCommon,
             "Start",
-            this.callStartGameEvent
+            this.ctx,
+            this.callStartGameEvent,
         )); 
         
+        // Difficulty Slider
+        const difficultySlider = createSliderCentered(
+            centerX,
+            centerY,
+            UISize.Slider,
+            /** @type {string[]} */ (["Level0", "Level1", "Level2"]),
+            this.ctx,
+            /** @param {number} index */
+            (index) => { gameEventManager.emit(changeDifficultyEvent, index); }
+        );
+        this.canvasUIElements.push(difficultySlider);
     }
 
     callStartGameEvent(){

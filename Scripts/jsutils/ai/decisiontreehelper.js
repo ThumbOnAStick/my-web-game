@@ -1,7 +1,8 @@
-import { AIMetaData } from "../jsai/aimetadata.js";
-import { DecisionNode, DecisionNodeChance } from "../jsai/decisionnode.js";
-import { TerminalNode } from "../jsai/terminalnode.js";
-import { SwingType } from "../jscomponents/charactercombatstate.js";
+import { AIMetaData } from "../../jsai/aimetadata.js";
+import { DecisionNode, DecisionNodeChance } from "../../jsai/decisionnode.js";
+import { TerminalNode } from "../../jsai/terminalnode.js";
+import { SwingType } from "../../jscomponents/charactercombatstate.js";
+import { DebugLevel, debugManager } from "../../jsmanagers/debugmanager.js";
 
 //#region Calbacks
 /**
@@ -28,6 +29,7 @@ function lightDistanceCheck(data)
  */
 function dangerCheck(data)
 {
+    debugManager.popMessage("Try to enter root think node", DebugLevel.Log);
     return data.opponentCharacter.combatState.isCharging && !data.selfCharacter.combatState.isCharging;
 }
 /**
@@ -296,25 +298,7 @@ export function parryLightAttackNode()
     console.log("Try to parry")
     return new TerminalNode(swing);
 }
-/**
- * This function builds a default decision tree for opponent AI
- * @returns {DecisionNode}
- */
-export function buildDefaultAITree()
-{
-    try
-    {
-        /**@type {DecisionNodeChance} */
-        let root =  dangerCheckNode();
-        root.appendDNode(dangerCheckNode2()) // d1
-        root.appendDNode(distanceCheckNode1()); // d2
-        return root;
-    }
-    catch(exception)
-    {
-        console.error(`Failed to generate default decision tree: ${exception}`);
-    }
-}
+
 
 /**
  * This function builds a veteran decision tree for opponent AI

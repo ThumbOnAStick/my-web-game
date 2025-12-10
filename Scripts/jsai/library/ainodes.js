@@ -2,6 +2,7 @@ import { AIMetaData } from "../aimetadata.js";
 import { DecisionNode, DecisionNodeChance } from "../decisionnode.js";
 import { TerminalNode } from "../terminalnode.js";
 import { SwingType } from "../../jscomponents/charactercombatstate.js";
+import { DebugLevel, debugManager } from "../../jsmanagers/debugmanager.js";
 
 //#region Callbacks
 export function heavyDistanceCheck(data) {
@@ -13,6 +14,7 @@ export function lightDistanceCheck(data) {
 }
 
 export function dangerCheck(data) {
+    debugManager.popMessage("Try to enter root think node", DebugLevel.Log);
     return data.opponentCharacter.combatState.isCharging && !data.selfCharacter.combatState.isCharging;
 }
 
