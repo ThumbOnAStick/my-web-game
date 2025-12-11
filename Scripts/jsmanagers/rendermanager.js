@@ -2,7 +2,6 @@
 // RenderManager.js
 // Manages all drawing and rendering operations
 import { Character } from '../jsgameobjects/character.js';
-import { GameManager } from './gamemanager.js';
 import { GameState } from '../jscomponents/gamestate.js';
 import { InputManager } from './inputmanager.js';
 import { ResourceManager } from './resourcemanager.js';
@@ -29,12 +28,11 @@ export class RenderManager {
      * @param {Character[]} characters - Array of characters to draw
      * @param {*} resources - Game resources for drawing
      * @param {boolean} debugMode - Whether debug mode is enabled
-     * @param {*} gameState - Current game state
-     * @param {*} inputManager - Input manager reference
-     * @param {*} gameManager - Game manager reference for translations
+     * @param {GameState} gameState - Current game state
+     * @param {InputManager} inputManager - Input manager reference
      * @param {ResourceManager} resourceManager - Resource manager for translations
      */
-    drawCharacters(characters, resources, debugMode, gameState, inputManager, gameManager, resourceManager) {
+    drawCharacters(characters, resources, debugMode, gameState, inputManager, resourceManager) {
         const scorebarHeight = 60;
         const playerLabel = resourceManager.getTranslation('Player');
         const pcLabel = resourceManager.getTranslation('PC');
@@ -119,18 +117,18 @@ export class RenderManager {
     }
 
     /**
-     * 
-     * @param {*} isGameOver 
-     * @param {*} inputManager 
-     * @param {GameManager} gameManager 
-     * @param {*} resourceManager 
-     * @returns 
+     * Draw the "go to menu" button during game over
+     * @param {boolean} isGameOver - Whether game is over
+     * @param {InputManager} inputManager - Input manager reference
+     * @param {number} difficulty - Current difficulty level
+     * @param {ResourceManager} resourceManager - Resource manager for translations
+     * @returns {boolean} - Whether button was clicked
      */
-    drawGotoMenuButton(isGameOver, inputManager, gameManager, resourceManager) {
-        if(!isGameOver || gameManager.gameState.difficulty < 1){
+    drawGotoMenuButton(isGameOver, inputManager, difficulty, resourceManager) {
+        if (!isGameOver || difficulty < 1) {
             return false;
         }
-        return this.uiManager.drawGotoMenuButton(inputManager, resourceManager.getTranslation('ToMenu'),)
+        return this.uiManager.drawGotoMenuButton(inputManager, resourceManager.getTranslation('ToMenu'));
     }
 
     /**

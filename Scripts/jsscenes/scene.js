@@ -1,9 +1,18 @@
 /**
+ * @fileoverview Base scene interface - renderer agnostic
+ * 
+ * This class provides the foundation for scene management and can be extended
+ * for any rendering backend (Canvas 2D, WebGL, Three.js, etc.)
+ * 
+ * @module jsscenes/scene
+ */
+
+/**
  * @interface
  * Base class representing a game scene.
  * This class should be extended by specific scene implementations.
  * It is designed to be renderer-agnostic, allowing it to work with any rendering framework
- * (e.g., Canvas 2D, WebGL, DOM-based, etc.) by accepting a generic renderer in the render method.
+ * (e.g., Canvas 2D, WebGL, Three.js, DOM-based, etc.) by accepting a generic renderer.
  */
 export class IScene {
     constructor() {
@@ -14,7 +23,43 @@ export class IScene {
         this.subScenes = new Map();
         /** @type {boolean} */
         this.enabled = true;
+        /** @type {boolean} - Whether the scene has been initialized */
+        this._initialized = false;
+        /** @type {boolean} - Whether the scene resources are loaded */
+        this._loaded = false;
     }
+
+    // ============================================
+    // PROPERTIES
+    // ============================================
+
+    /**
+     * Whether the scene is enabled and should update/render
+     * @returns {boolean}
+     */
+    get isEnabled() {
+        return this.enabled;
+    }
+
+    /**
+     * Whether the scene has been initialized
+     * @returns {boolean}
+     */
+    get isInitialized() {
+        return this._initialized;
+    }
+
+    /**
+     * Whether the scene resources are loaded
+     * @returns {boolean}
+     */
+    get isLoaded() {
+        return this._loaded;
+    }
+
+    // ============================================
+    // SUB-SCENE MANAGEMENT
+    // ============================================
 
     /**
      * Add a subscene to this scene.
@@ -39,6 +84,10 @@ export class IScene {
      * @param {string} name - Identifier for the subscene to remove.
      */
     removeSubScene(name) {
+        const scene = this.subScenes.get(name);
+        if (scene) {
+            scene.onDestroy();
+        }
         this.subScenes.delete(name);
     }
 
@@ -51,6 +100,10 @@ export class IScene {
         return this.subScenes.get(name);
     }
 
+    // ============================================
+    // LIFECYCLE METHODS
+    // ============================================
+
     /**
      * Initialize the scene with specific parameters.
      * Called when the scene is created or switched to.
@@ -58,7 +111,7 @@ export class IScene {
      */
     init(params) {
         this.subScenes.forEach(scene => scene.init(params));
-
+        this._initialized = true;
     }
 
     /**
@@ -70,6 +123,7 @@ export class IScene {
         const loadPromises = [];
         this.subScenes.forEach(scene => loadPromises.push(scene.load()));
         await Promise.all(loadPromises);
+        this._loaded = true;
     }
 
     /**
@@ -78,11 +132,28 @@ export class IScene {
      */
     unload() {
         this.subScenes.forEach(scene => scene.unload());
+        this._loaded = false;
     }
 
     /**
+     * Called when scene is about to be destroyed permanently.
+     * Override for final cleanup (remove event listeners, dispose GPU resources, etc.)
+     */
+    onDestroy() {
+        this.subScenes.forEach(scene => scene.onDestroy());
+        this.subScenes.clear();
+        this._initialized = false;
+        this._loaded = false;
+    }
+
+    // ============================================
+    // UPDATE & RENDER (Core Game Loop)
+    // ============================================
+
+    /**
      * Update the scene logic.
-     * @param {number} deltaTime - Time elapsed since the last frame (in seconds).
+     * Called every frame before render.
+     * @param {number} deltaTime - Time elapsed since the last frame (in seconds or ms depending on your loop).
      */
     update(deltaTime) {
         this.subScenes.forEach(scene => {
@@ -93,9 +164,13 @@ export class IScene {
     }
 
     /**
-     * Render the scene using the provided renderer.
-     * The scene implementation should know how to use the specific renderer provided.
-     * @param {Object} renderer - The rendering provider (e.g., CanvasRenderingContext2D, WebGLRenderer, etc.).
+     * Render the scene.
+     * This is renderer-agnostic - subclasses should override and use their specific renderer.
+     * 
+     * For 2D Canvas: override in CanvasScene
+     * For WebGL/Three.js: override in WebGLScene
+     * 
+     * @param {any} [renderer] - Optional renderer context (for flexibility)
      */
     render(renderer) {
         this.subScenes.forEach(scene => {
@@ -106,12 +181,49 @@ export class IScene {
     }
 
     /**
+     * Late update - called after all regular updates.
+     * Useful for camera follow, physics resolution, etc.
+     * @param {number} deltaTime
+     */
+    lateUpdate(deltaTime) {
+        this.subScenes.forEach(scene => {
+            if (scene.enabled) {
+                scene.lateUpdate(deltaTime);
+            }
+        });
+    }
+
+    /**
+     * Fixed update - called at fixed intervals for physics.
+     * @param {number} fixedDeltaTime - Fixed timestep
+     */
+    fixedUpdate(fixedDeltaTime) {
+        this.subScenes.forEach(scene => {
+            if (scene.enabled) {
+                scene.fixedUpdate(fixedDeltaTime);
+            }
+        });
+    }
+
+    // ============================================
+    // INPUT HANDLING
+    // ============================================
+
+    /**
      * Handle input events.
      * @param {Object} inputState - The current state of inputs (keyboard, mouse, gamepad).
      */
     handleInput(inputState) {
-        this.subScenes.forEach(scene => scene.handleInput(inputState));
+        this.subScenes.forEach(scene => {
+            if (scene.enabled) {
+                scene.handleInput(inputState);
+            }
+        });
     }
+
+    // ============================================
+    // RESIZE HANDLING
+    // ============================================
 
     /**
      * Handle window or container resize events.
@@ -121,6 +233,72 @@ export class IScene {
     onResize(width, height) {
         this.subScenes.forEach(scene => scene.onResize(width, height));
     }
+
+    // ============================================
+    // ENABLE/DISABLE MANAGEMENT
+    // ============================================
+
+    /**
+     * Enable this scene
+     */
+    enable() {
+        if (!this.enabled) {
+            this.enabled = true;
+            this.onEnabled();
+        }
+    }
+
+    /**
+     * Disable this scene
+     */
+    disable() {
+        if (this.enabled) {
+            this.enabled = false;
+            this.onDisabled();
+        }
+    }
+
+    /**
+     * Disable a subscene by key
+     * @param {String} sceneKey 
+     */
+    disableSubScene(sceneKey) {
+        const subScene = this.subScenes.get(sceneKey);
+        if (subScene != null) {
+            subScene.disable();
+        }
+    }
+
+    /**
+     * Enable a subscene by key
+     * @param {String} sceneKey 
+     */
+    enableSubScene(sceneKey) {
+        const subScene = this.subScenes.get(sceneKey);
+        if (subScene != null) {
+            subScene.enable();
+        }
+    }
+
+    /**
+     * Called when scene becomes active.
+     * Override in subclasses for scene-specific activation logic.
+     */
+    onEnabled() {
+        // Override in subclass
+    }
+
+    /**
+     * Called when scene becomes inactive.
+     * Override in subclasses for scene-specific deactivation logic.
+     */
+    onDisabled() {
+        // Override in subclass
+    }
+
+    // ============================================
+    // PAUSE/RESUME (optional)
+    // ============================================
 
     /**
      * Called when the scene is paused (e.g., menu opened, tab hidden).
@@ -135,38 +313,4 @@ export class IScene {
     resume() {
         this.subScenes.forEach(scene => scene.resume());
     }
-
-    /**
-     * 
-     * @param {String} sceneKey 
-     */
-    disableSubScene(sceneKey){
-        const subScene = this.subScenes.get(sceneKey);
-        if(subScene != null){
-            subScene.enabled = false;
-            subScene.onDisabled()
-        }
-    }
-
-    /**
-     * 
-     * @param {String} sceneKey 
-     */
-    enableSubScene(sceneKey){
-        const subScene = this.subScenes.get(sceneKey);
-        if(subScene != null){
-            subScene.enabled = true;
-            subScene.onEnabled()
-        }
-    }
-
-    onEnabled(){
-
-    }
-
-    onDisabled(){
-
-    }
-
-
 }

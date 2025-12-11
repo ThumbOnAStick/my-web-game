@@ -148,47 +148,33 @@ export class GameManager {
   }
 
   /**
-   * 
+   * Main update loop - delegates to scenes and shared systems
    * @param {Number} deltaTime 
    */
   update(deltaTime) {
-    // Update UI Manager.
+    // Update UI Manager (global UI elements)
     this.uiManager.update();
-
-    // Update all scenes.
-    this.rootScene.update(deltaTime);
 
     // Update event manager for delayed events
     gameEventManager.update();
 
-    // Update all characters (every frame)
-    this.characterManager.update(deltaTime);
+    // Update scene (scene handles its own entity updates)
+    this.rootScene.update(deltaTime);
 
     // Render everything
     this.render();
   }
 
+  /**
+   * Main render loop - clears screen and delegates to scene
+   * Scene is responsible for rendering its own entities
+   */
   render() {
-
     // Clear screen before drawing
     this.renderManager.clearScreen();
 
-    // Scene drawing
+    // Scene handles all rendering (UI, entities, VFX)
     this.rootScene.render();
-
-    // Character drawing
-    this.renderManager.drawCharacters(
-      this.characterManager.getCharacters(),
-      this.resources,
-      this.debugManager.isDebugMode(),
-      this.gameState,
-      this.inputManager,
-      this,
-      this.resourceManager
-    );
-
-    // VFX drawing
-    this.renderManager.drawVFX();
   }
 
   gotoMenu() {
