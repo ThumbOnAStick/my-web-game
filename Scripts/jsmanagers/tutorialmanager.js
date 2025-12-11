@@ -8,8 +8,9 @@ export class TutorialManager extends Controller {
     /**
      * @param {import("../jscomponents/gamestate.js").GameState} gameState 
      * @param {import("./resourcemanager.js").ResourceManager} resourceManager
+     * @param {import("./eventmanager.js").EventManager} [eventManager] - Optional event manager (defaults to singleton)
      */
-    constructor(gameState, resourceManager) {
+    constructor(gameState, resourceManager, eventManager = null) {
         super();
         this.gameState = gameState;
         this.resourceManager = resourceManager;
@@ -17,6 +18,16 @@ export class TutorialManager extends Controller {
         this.tutorials = [];
         this.currentTutorialIndex = 0;
         this.aiController = null;
+        /** @type {import("./eventmanager.js").EventManager} */
+        this._eventManager = eventManager || gameEventManager;
+    }
+
+    /**
+     * Get the event manager
+     * @returns {import("./eventmanager.js").EventManager}
+     */
+    get eventManager() {
+        return this._eventManager;
     }
 
     setAIController(aiController) {
@@ -27,6 +38,8 @@ export class TutorialManager extends Controller {
      * @param {Tutorial} tutorial 
      */
     append(tutorial) {
+        // Inject the same event manager into the tutorial
+        tutorial.setEventManager(this._eventManager);
         this.tutorials.push(tutorial);
     }
 
@@ -38,7 +51,7 @@ export class TutorialManager extends Controller {
             console.log(`Starting tutorial: ${currentTutorial.constructor.name}`);
             
             if (currentTutorial.subtitle) {
-                gameEventManager.emit(changeSubtitleEvent, currentTutorial.subtitle);
+                this.eventManager.emit(changeSubtitleEvent, currentTutorial.subtitle);
             }
 
             if (this.aiController) {
@@ -52,7 +65,7 @@ export class TutorialManager extends Controller {
             }
         } else {
             console.log("All tutorials completed!");
-            gameEventManager.emit(changeSubtitleEvent, "");
+            this.eventManager.emit(changeSubtitleEvent, "");
             const playerLabel = "Player";
             this.gameState.endGame(playerLabel);
         }

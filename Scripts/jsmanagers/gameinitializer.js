@@ -47,18 +47,17 @@ export class GameInitializer {
             );
             this.gameManager.aiController.setDifficulty(this.gameManager.gameState.difficulty);
             this.gameManager.tutorialManager.setAIController(this.gameManager.aiController);
+            
+            // Register AI controller with service container
+            this.gameManager.registerAIController(this.gameManager.aiController);
 
             // Setup tick manager for AI updates
             this.gameManager.tickManager.append((currentTick) => this.aiControllerUpdate(currentTick));
             // Initialize UIManager
             this.gameManager.uiManager.initialize();
-            // Initialize event manager
+            // Initialize event manager with service container
             Eventhandler.initialize(
-                this.gameManager.obstacleManager, 
-                this.gameManager.vfxManager, 
-                this.gameManager.audioManager,
-                this.gameManager.uiManager,
-                this.gameManager.gameState,
+                this.gameManager.services,
                 this.gameManager.rootScene
             );
             // Initialize charactermanger

@@ -44,7 +44,6 @@ export class AIController
         } else if (difficulty === 2) {
             this.rootNode = buildVeteranAITree();
         } else {
-            debugManager.popMessage("Try to build Novice tree", DebugLevel.Log);
             this.rootNode = buildNoviceAITree();
         }
     }

@@ -96,7 +96,7 @@ export class DebugManager {
      * @param {String} message
      * @param {String} level 
      */
-    popMessage(message, level){
+    popMessage(message, level = DebugLevel.Log){
         this.messages.push(new DebugMessage(level, message));
         this.updateConsole();
     }
@@ -115,7 +115,7 @@ export class DebugManager {
         // Render messages
         this.messages.forEach(msg => {
             const div = document.createElement("div");
-            div.textContent = msg.message + msg.creationTime;
+            div.textContent = msg.message + "(" + msg.creationTime + ")";
             div.style.color = DebugColors[msg.debugLevel] || "black";
             this.console.appendChild(div);
         });

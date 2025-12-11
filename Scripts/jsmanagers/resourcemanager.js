@@ -5,8 +5,9 @@ import { Resources } from '../jscomponents/resources.js';
 import { GameManager } from './gamemanager.js';
 
 export class ResourceManager {
-    constructor() 
-    {
+    #selectedLanguage;
+
+    constructor() {
         this.resources = new Resources();
         this.resourcesLoaded = false;
         this.spriteNames = ['head', 'body', 'weapon', 'flash'];
@@ -15,11 +16,10 @@ export class ResourceManager {
         this.audioPaths = ['./Assets/blocked.wav', './Assets/dodge.wav', './Assets/clapping.wav'];
         this.languageCodes = ['English', 'ChineseSimplified']
         this.languagePaths = ['./Assets/Languages/English.xml', './Assets/Languages/ChineseSimplified.xml']
-        this.selectedLanguage = 'English';
+        this.#selectedLanguage = 'English';
     }
 
-    async trytoLoadAllResources() 
-    {
+    async trytoLoadAllResources() {
         return new Promise((resolve, reject) => {
             let imagesReady = false;
             let soundsReady = false;
@@ -62,24 +62,22 @@ export class ResourceManager {
         return this.resourcesLoaded;
     }
 
-    getImage(name) 
-    {
+    getImage(name) {
         return this.resources.getImage(name);
     }
 
-    setSelectedLanguage(code){
-        this.selectedLanguage = code;
+    setSelectedLanguage(code) {
+        this.#selectedLanguage = code;
     }
 
-    
+
 
     /**
      * 
      * @param {String} name 
      * @returns {HTMLAudioElement}
      */
-    getSound(name)
-    {
+    getSound(name) {
         return this.resources.getSound(name);
     }
 
@@ -88,11 +86,18 @@ export class ResourceManager {
      * @param {String} elementName 
      * @returns {String}
      */
-    getTranslation(elementName)
-    {
+    getTranslation(elementName) {
         if (!elementName) return "";
         if (!this.resourcesLoaded) return null;
-        return this.resources.getLanguageText(this.selectedLanguage, elementName)
+        return this.resources.getLanguageText(this.#selectedLanguage, elementName)
+    }
+
+    /**
+     * Called by globaluimanager
+     * @param {String} languageCode 
+     */
+    selectTranslation(languageCode) {
+        this.#selectedLanguage = languageCode;
     }
 
     /**
@@ -113,7 +118,7 @@ export class ResourceManager {
     getFormattedTranslation(elementName, args) {
         let text = this.getTranslation(elementName);
         if (!text) return "";
-        
+
         if (args && args.length > 0) {
             args.forEach((arg, index) => {
                 text = text.replace(`{${index}}`, arg);

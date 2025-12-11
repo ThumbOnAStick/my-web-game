@@ -135,4 +135,22 @@ export class EventManager
 
 }
 
+/**
+ * Default event manager instance.
+ * 
+ * NOTE: For better testability and reusability, prefer injecting the event manager
+ * via the service container (ServiceKeys.EVENTS) rather than importing this singleton.
+ * This singleton is maintained for backward compatibility.
+ * 
+ * @type {EventManager}
+ */
 export const gameEventManager = new EventManager();
+
+/**
+ * Set up a different event manager instance (useful for testing)
+ * @param {EventManager} manager - The event manager to use
+ * @deprecated Use ServiceContainer instead
+ */
+export function setEventManager(manager) {
+    Object.assign(gameEventManager, manager);
+}

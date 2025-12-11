@@ -1,18 +1,45 @@
 // oxlint-disable no-unused-vars
+import { gameEventManager } from '../jsmanagers/eventmanager.js';
 import { UIElementCanvas } from '../jsuielements/ctx/uielement.js';
+import { translationChanged } from '../jsutils/ui/uieventhandler.js';
 import { IScene } from './scene.js';
+import { ServiceContainer, ServiceKeys } from '../jscore/servicecontainer.js';
 
 /**
  * Base class for scenes that render to a HTML5 Canvas.
  * Extends IScene to provide canvas-specific functionality.
  */
 export class CanvasScene extends IScene {
-    /**@param {CanvasRenderingContext2D} ctx - The rendering context. */
-    constructor(ctx) {
+    /**
+     * @param {CanvasRenderingContext2D} ctx - The rendering context.
+     * @param {ServiceContainer} [services] - Optional service container for dependency injection
+     */
+    constructor(ctx, services = null) {
         super();
         this.ctx = ctx;
+        /** @type {ServiceContainer|null} */
+        this._services = services;
         /**@type {UIElementCanvas[]} */
         this.canvasUIElements = [];
+    }
+
+    /**
+     * Get the event manager (from services if available, otherwise singleton)
+     * @returns {import('../jsmanagers/eventmanager.js').EventManager}
+     */
+    get eventManager() {
+        if (this._services?.has(ServiceKeys.EVENTS)) {
+            return this._services.get(ServiceKeys.EVENTS);
+        }
+        return gameEventManager;
+    }
+
+    init() {
+        super.init();
+        this.eventManager.on(translationChanged, this.onTranslationChanged);
+        this.canvasUIElements.forEach(element => {
+            element.init();
+        });
     }
 
     /**
@@ -35,30 +62,26 @@ export class CanvasScene extends IScene {
      */
     update(deltaTime) {
         super.update(deltaTime)
-        for (let index = 0; index < this.canvasUIElements.length; index++) {
-            const element = this.canvasUIElements[index];
+        this.canvasUIElements.forEach(element => {
             element.update();
-        }
+        });
     }
 
     /**
      * Draw UI elements.
      */
     draw() {
-        for (let index = 0; index < this.canvasUIElements.length; index++) {
-            const element = this.canvasUIElements[index];
-            element.draw(this.ctx);
-        }
+        this.canvasUIElements.forEach(element => {
+            element.draw();
+        });
     }
 
     unload() {
         super.unload();
-        for (let index = 0; index < this.canvasUIElements.length; index++) {
-            const element = this.canvasUIElements[index];
+        this.canvasUIElements.forEach(element => {
             element.dispose();
-        }
+        });
     }
-
 
     /**
      * 
@@ -68,5 +91,13 @@ export class CanvasScene extends IScene {
         this.canvasUIElements.push(uiElement);
     }
 
+    /**
+     * Changes all translations of UI elements, called when the resource manager changes translations
+     */
+    onTranslationChanged() {
+        this.canvasUIElements.forEach(element => {
+            element.changeTranslations();
+        });
+    }
 
 }

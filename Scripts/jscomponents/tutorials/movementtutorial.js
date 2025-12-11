@@ -1,5 +1,4 @@
 import { Tutorial } from "../tutorial.js";
-import { gameEventManager } from "../../jsmanagers/eventmanager.js";
 import * as EventHandler from "../../jsutils/events/eventhandlers.js";
 
 export class MovementTutorial extends Tutorial {
@@ -10,7 +9,7 @@ export class MovementTutorial extends Tutorial {
     }
 
     bindEvents() {
-        gameEventManager.on(EventHandler.characterMoveEvent, this.handleMove);
+        this.eventManager.on(EventHandler.characterMoveEvent, this.handleMove);
     }
 
     handleMove(data) {

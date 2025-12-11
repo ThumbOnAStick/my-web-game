@@ -2,6 +2,7 @@
 // Button.js
 // Handles button rendering and interaction
 
+import { debugManager } from "../../jsmanagers/debugmanager.js";
 import { InputManager } from "../../jsmanagers/inputmanager.js";
 import { COLORS } from "../../jsutils/ui/uicolors.js";
 import { GlobalFonts } from "../../jsutils/ui/uiglobalfont.js";
@@ -21,12 +22,30 @@ export class ButtonText extends UIElementCanvas {
     this.isHovered = false;
     this.onClick = onClick;
     this.translationKey = translationKey;
+    this.label = "";
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     window.addEventListener("mousemove", this.handleMouseMove);
     window.addEventListener("mousedown", this.handleMouseDown);
   }
 
+  /**
+   * @returns {String}
+   */
+  getTranslation(){
+    return this.config.resourceManager.getTranslation(this.translationKey);
+  }
+
+  changeTranslations(){
+    super.changeTranslations();
+    this.label = this.getTranslation();
+  }
+
+  init(){
+    super.init();
+    debugManager.popMessage("Button init");
+    this.label = this.getTranslation();
+  }
 
   draw() {
     this.ctx.save();
@@ -39,7 +58,7 @@ export class ButtonText extends UIElementCanvas {
     this.ctx.font = GlobalFonts.small;
     this.ctx.fillStyle = this.isHovered ? COLORS.secondary : COLORS.primary;
     this.ctx.textAlign = "center";
-    this.ctx.fillText(this.getText(), this.config.x + this.config.width / 2, this.config.y + this.config.height / 2, this.config.width);
+    this.ctx.fillText(this.label, this.config.x + this.config.width / 2, this.config.y + this.config.height / 2, this.config.width);
     this.ctx.restore();
   }
 
@@ -60,11 +79,6 @@ export class ButtonText extends UIElementCanvas {
     super.dispose();
     window.removeEventListener("mousemove", this.handleMouseMove);
     window.removeEventListener("mousedown", this.handleMouseDown);
-  }
-
- 
-  getText(){
-    return this.config.resourceManager.getTranslation(this.translationKey)
   }
 
   /**

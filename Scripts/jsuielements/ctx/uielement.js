@@ -53,6 +53,10 @@ export class UIElementCanvas {
         this.ctx = ctx;
     }
 
+    init(){
+        // Called by scene.init()
+    }
+
        draw() {
         // To be implemented by subclasses
     }
@@ -64,4 +68,9 @@ export class UIElementCanvas {
     dispose(){
         // Remove all listeners. Must be called when scene clears!
     }
+
+    changeTranslations(){
+        // Change translations of labels, called by scene.
+    }
+
 }

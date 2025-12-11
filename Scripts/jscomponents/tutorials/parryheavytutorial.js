@@ -1,5 +1,4 @@
 import { Tutorial } from "../tutorial.js";
-import { gameEventManager } from "../../jsmanagers/eventmanager.js";
 import * as EventHandler from "../../jsutils/events/eventhandlers.js";
 import { SwingType } from "../../jscomponents/charactercombatstate.js";
 
@@ -11,7 +10,7 @@ export class ParryHeavyTutorial extends Tutorial {
     }
 
     bindEvents() {
-        gameEventManager.on(EventHandler.spawnParryFlashEvent, this.handleParry);
+        this.eventManager.on(EventHandler.spawnParryFlashEvent, this.handleParry);
     }
 
     handleParry(data) {

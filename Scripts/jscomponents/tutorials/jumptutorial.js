@@ -1,5 +1,4 @@
 import { Tutorial } from "../tutorial.js";
-import { gameEventManager } from "../../jsmanagers/eventmanager.js";
 import * as EventHandler from "../../jsutils/events/eventhandlers.js";
 
 export class JumpTutorial extends Tutorial {
@@ -10,7 +9,7 @@ export class JumpTutorial extends Tutorial {
     }
 
     bindEvents() {
-        gameEventManager.on(EventHandler.characterJumpEvent, this.handleJump);
+        this.eventManager.on(EventHandler.characterJumpEvent, this.handleJump);
     }
 
     handleJump(data) {

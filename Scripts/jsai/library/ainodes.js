@@ -14,7 +14,6 @@ export function lightDistanceCheck(data) {
 }
 
 export function dangerCheck(data) {
-    debugManager.popMessage("Try to enter root think node", DebugLevel.Log);
     return data.opponentCharacter.combatState.isCharging && !data.selfCharacter.combatState.isCharging;
 }
 

@@ -25,6 +25,7 @@ import { CanvasScene } from "../jsscenes/canvasscene.js";
 import { MenuScene } from "../jsscenes/menuscene.js";
 import { SCENENAMES } from "../jsutils/scene/scenenames.js";
 import { buildDefaultRootScene } from "../jsutils/scene/scenehelper.js";
+import { ServiceContainer, ServiceKeys } from "../jscore/servicecontainer.js";
 
 export class GameManager {
   /**
@@ -57,13 +58,18 @@ export class GameManager {
     this.characterManager = new CharacterManager(canvas, null); // Will be set after resources load
     this.renderManager = new RenderManager(ctx, canvas, this.uiManager, null); // VFX manager set later
     this.gameInitializer = new GameInitializer(this);
-    this.tutorialManager = new TutorialManager(this.gameState, this.resourceManager);
+    // Pass event manager for dependency injection
+    this.tutorialManager = new TutorialManager(this.gameState, this.resourceManager, gameEventManager);
     this.debugManager = debugManager;
     this.debugManager.initialize(this);
     this.vfxManager = new VFXManager(this.resourceManager);
     this.renderManager.vfxManager = this.vfxManager;
+    
     // Set up manager references
     this.inputManager.setGameManager(this);
+
+    // Build service container for dependency injection
+    this.services = this._buildServiceContainer();
 
     // Set up root scene
     this.rootScene = buildDefaultRootScene(this);
@@ -75,6 +81,52 @@ export class GameManager {
        */
       (deltaTime) => this.update(deltaTime)
     );
+  }
+
+  /**
+   * Build and populate the service container with all game services
+   * @returns {ServiceContainer}
+   * @private
+   */
+  _buildServiceContainer() {
+    const services = new ServiceContainer();
+    
+    // Core systems
+    services.register(ServiceKeys.INPUT, this.inputManager);
+    services.register(ServiceKeys.TIME, this.tickManager);
+    services.register(ServiceKeys.EVENTS, gameEventManager);
+    services.register(ServiceKeys.GAME_LOOP, this.gameLoopManager);
+    services.register(ServiceKeys.GAME_STATE, this.gameState);
+    
+    // Entity management
+    services.register(ServiceKeys.ENTITIES, this.characterManager);
+    services.register(ServiceKeys.COLLISION, this.obstacleManager);
+    
+    // Resources & rendering
+    services.register(ServiceKeys.RESOURCES, this.resourceManager);
+    services.register(ServiceKeys.AUDIO, this.audioManager);
+    services.register(ServiceKeys.VFX, this.vfxManager);
+    services.register(ServiceKeys.RENDER, this.renderManager);
+    
+    // AI & gameplay
+    services.register(ServiceKeys.SEQUENCE, this.tutorialManager);
+    
+    // Debug
+    services.register(ServiceKeys.DEBUG, this.debugManager);
+    
+    // AI is registered later after initialization
+    // services.register(ServiceKeys.AI, this.aiController);
+    
+    return services;
+  }
+
+  /**
+   * Register the AI controller after it's created during initialization
+   * @param {AIController} aiController
+   */
+  registerAIController(aiController) {
+    this.aiController = aiController;
+    this.services.register(ServiceKeys.AI, aiController);
   }
 
   async initialize() {

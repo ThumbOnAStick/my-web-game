@@ -1,5 +1,4 @@
 import { Tutorial } from "../tutorial.js";
-import { gameEventManager } from "../../jsmanagers/eventmanager.js";
 import * as EventHandler from "../../jsutils/events/eventhandlers.js";
 
 export class ComboTutorial extends Tutorial {
@@ -10,8 +9,8 @@ export class ComboTutorial extends Tutorial {
     }
 
     bindEvents() {
-        gameEventManager.on(EventHandler.characterSpinSwingEvent, this.handleCombo);
-        gameEventManager.on(EventHandler.characterThrustSwingEvent, this.handleCombo);
+        this.eventManager.on(EventHandler.characterSpinSwingEvent, this.handleCombo);
+        this.eventManager.on(EventHandler.characterThrustSwingEvent, this.handleCombo);
     }
 
     handleCombo(data) {

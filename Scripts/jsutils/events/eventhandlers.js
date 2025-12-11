@@ -1,14 +1,7 @@
-import { Character } from "../../jsgameobjects/character.js";
-import { AudioManager } from "../../jsmanagers/audiomanager.js";
 import { gameEventManager } from "../../jsmanagers/eventmanager.js";
-import { ObstacleManager } from "../../jsmanagers/obstaclemanager.js";
-import { VFXManager } from "../../jsmanagers/vfxmanager.js";
 import * as CombatHandler from '../combat/combathandler.js';
-import { GameState } from "../../jscomponents/gamestate.js";
-import { GlobalUIManager } from "../../jsmanagers/globaluimanager.js";
 import { changeDifficulty, changeDifficultyEvent, changeSubtitle, changeSubtitleEvent, initialize_ui, startGame, startGameEvent } from "../ui/uieventhandler.js";
-import { IScene } from "../../jsscenes/scene.js";
-import { GameManager } from "../../jsmanagers/gamemanager.js";
+import { ServiceKeys } from "../../jscore/servicecontainer.js";
 
 export const characterSwingEvent = 'character_swing';
 export const characterLightSwingEvent = 'character_light_swing';
@@ -242,19 +235,22 @@ export function createEventHandlers(obstacleManager, vfxManager, audiomanager, g
 
 }
 
-// Initialize event listeners with obstacleManager
+// Initialize event listeners with service container
 /**
- * 
- * @param {ObstacleManager} obstacleManager 
- * @param {VFXManager} vfxManager 
- * @param {AudioManager} audioManager
- * @param {GameState} gameState
- * @param {GlobalUIManager} uiManager
- * @param {IScene} rootScene
+ * Initialize event handlers with service container (preferred)
+ * @param {import('../../jscore/servicecontainer.js').ServiceContainer} services - Service container with all required services
+ * @param {import('../../jsscenes/scene.js').IScene} rootScene - Root scene for UI event handling
  */
-export function initialize(obstacleManager, vfxManager, audioManager, uiManager, gameState, rootScene) 
+export function initialize(services, rootScene) 
 {
-    initialize_ui(uiManager, rootScene, gameState);
+    // Get services from container
+    const obstacleManager = services.get(ServiceKeys.COLLISION);
+    const vfxManager = services.get(ServiceKeys.VFX);
+    const audioManager = services.get(ServiceKeys.AUDIO);
+    const gameState = services.get(ServiceKeys.GAME_STATE);
+    
+    // Initialize UI event handler with service container
+    initialize_ui(services, rootScene);
 
     const handlers = createEventHandlers(obstacleManager, vfxManager, audioManager, gameState);
     gameEventManager.on(characterSwingEvent, handlers.handleHeavySwingEvent);

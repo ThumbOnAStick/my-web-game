@@ -58,9 +58,10 @@ export class GlobalUIManager {
 
   update() {
       if (this.languageSelector && this.resourceManager) {
-          this.resourceManager.selectedLanguage = this.languageSelector.value;
+          this.resourceManager.selectTranslation(this.languageSelector.value);
       }
   }
+
 
   /**
    *
