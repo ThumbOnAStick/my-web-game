@@ -219,9 +219,8 @@ export class GameScene extends CanvasScene {
     async load() {
         await super.load();
         
-        // Scene-specific resource loading
-        // For example: level data, scene-specific audio, textures
-        // This is where you'd load resources that are unique to gameplay
+        // Load gameplay bundle from manifest
+        await this.resourceManager.loadBundle('gameplay');
         
         console.log("GameScene resources loaded");
     }

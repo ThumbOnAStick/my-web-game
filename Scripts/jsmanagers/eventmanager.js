@@ -23,6 +23,14 @@ export class EventManager
         this.listeners.get(eventName).push(callback);
     }
 
+    /**
+     * 
+     * @param {String} eventName 
+     */
+    off(eventName){
+        this.listeners.delete(eventName);
+    }
+
     // Emit events to all listeners (with optional delay)
     emit(eventName, data, delay = 0) {
         if (delay > 0) {

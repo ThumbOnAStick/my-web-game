@@ -2,7 +2,6 @@
 // Manages character creation, loading, and updates
 import { Resources } from '../jscomponents/resources.js';
 import { Character } from '../jsgameobjects/character.js';
-import { initialize } from '../jsutils/events/eventhandlers.js';
 
 export class CharacterManager {
     constructor(canvas, resources) {
@@ -11,14 +10,23 @@ export class CharacterManager {
         /**@type {Character[]} */
         this.characters = [];
         this.globalDrawSize = 1;
+        /** @type {Object<string, string>|null} - Animation paths from manifest */
+        this.animationPaths = null;
     }
 
     /**
-     * 
      * @param {Resources} resources 
      */
     initialize(resources){
-        this.resources = resources
+        this.resources = resources;
+    }
+
+    /**
+     * Set animation paths from ResourceManager
+     * @param {Object<string, string>} paths - Map of animation key to full path
+     */
+    setAnimationPaths(paths) {
+        this.animationPaths = paths;
     }
 
 
@@ -58,25 +66,39 @@ export class CharacterManager {
 
     /**
      * Load animations for all characters
+     * Uses paths from manifest via setAnimationPaths()
      */
     async loadAnimations() {
+        if (!this.animationPaths) {
+            console.warn('Animation paths not set. Call setAnimationPaths() first.');
+            // Fallback to legacy paths
+            this.animationPaths = {
+                idle: './Assets/Animations/character_idle_animation.csv',
+                swing: './Assets/Animations/character_swing_animation.csv',
+                lightswing: './Assets/Animations/character_lightswing_animation.csv',
+                spinswing: './Assets/Animations/character_spinswing_animation.csv',
+                thrust: './Assets/Animations/character_thrust_animation.csv',
+                dodge: './Assets/Animations/character_dodge_animation.csv',
+                stagger: './Assets/Animations/character_stagger_animation.csv'
+            };
+        }
+
         try {
-            // Load animations for all characters
             for (const character of this.characters) {
                 // @ts-ignore
-                await character.loadAnimation('idle', './Assets/character_idle_animation.csv');
+                await character.loadAnimation('idle', this.animationPaths.idle);
                 // @ts-ignore
-                await character.loadAnimation('swing', './Assets/character_swing_animation.csv');
+                await character.loadAnimation('swing', this.animationPaths.swing);
                 // @ts-ignore
-                await character.loadAnimation('lightswing', './Assets/character_lightswing_animation.csv');
+                await character.loadAnimation('lightswing', this.animationPaths.lightswing);
                 // @ts-ignore
-                await character.loadAnimation('spinswing', './Assets/character_spinswing_animation.csv');
+                await character.loadAnimation('spinswing', this.animationPaths.spinswing);
                 // @ts-ignore
-                await character.loadAnimation('thrustswing', './Assets/character_thrust_animation.csv');
+                await character.loadAnimation('thrustswing', this.animationPaths.thrust);
                 // @ts-ignore
-                await character.loadAnimation('dodge', './Assets/character_dodge_animation.csv');
+                await character.loadAnimation('dodge', this.animationPaths.dodge);
                 // @ts-ignore
-                await character.loadAnimation('stagger', './Assets/character_stagger_animation.csv');
+                await character.loadAnimation('stagger', this.animationPaths.stagger);
             }
             console.log('Animations loaded successfully');
         } catch (error) {

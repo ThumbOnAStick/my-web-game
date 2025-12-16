@@ -2,7 +2,7 @@
 import { InputManager } from "../../jsmanagers/inputmanager.js";
 import { ResourceManager } from "../../jsmanagers/resourcemanager.js";
 
-export class UIElementConfigurations{
+export class UIElementConfigurations {
     /**
      * @param {InputManager} inputManager
      * @param {ResourceManager} resourceManager
@@ -11,7 +11,7 @@ export class UIElementConfigurations{
      * @param {Number} width
      * @param {Number} height
      */
-    constructor(x = 0, y = 0, width = 0, height = 0, inputManager, resourceManager){
+    constructor(x = 0, y = 0, width = 0, height = 0, inputManager, resourceManager) {
         this.x = x;
         this.y = y;
         this.width = width;
@@ -23,7 +23,7 @@ export class UIElementConfigurations{
     /**
      * @returns {boolean}
      */
-    isMouseWithin(){
+    isMouseWithin() {
         return this.inputManager.isMouseWithin(this.x,
             this.y,
             this.width,
@@ -53,23 +53,24 @@ export class UIElementCanvas {
         this.ctx = ctx;
     }
 
-    init(){
+    init() {
         // Called by scene.init()
+        this.onTranslationsChanged();
     }
 
-       draw() {
+    draw() {
         // To be implemented by subclasses
     }
 
-    update(){
+    update() {
         // To be implemented by subclasses
     }
 
-    dispose(){
+    dispose() {
         // Remove all listeners. Must be called when scene clears!
     }
 
-    changeTranslations(){
+    onTranslationsChanged() {
         // Change translations of labels, called by scene.
     }
 

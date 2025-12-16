@@ -66,6 +66,9 @@ export class ServiceContainer {
         
         /** @type {Map<string, function(): any>} */
         this._factories = new Map();
+        
+        /** @type {ServiceContainer|null} */
+        this._parent = null;
     }
 
     /**

@@ -19,10 +19,10 @@ export class ButtonText extends UIElementCanvas {
    */
   constructor(translationKey, onClick, config, ctx) {
     super(config, ctx);
-    this.isHovered = false;
-    this.onClick = onClick;
-    this.translationKey = translationKey;
-    this.label = "";
+    this._isHovered = false;
+    this._onClick = onClick;
+    this._translationKey = translationKey;
+    this._label = "";
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     window.addEventListener("mousemove", this.handleMouseMove);
@@ -33,45 +33,46 @@ export class ButtonText extends UIElementCanvas {
    * @returns {String}
    */
   getTranslation(){
-    return this.config.resourceManager.getTranslation(this.translationKey);
+    return this.config.resourceManager.getTranslation(this._translationKey);
   }
 
-  changeTranslations(){
-    super.changeTranslations();
-    this.label = this.getTranslation();
+  onTranslationsChanged(){
+    super.onTranslationsChanged();
+    this._label = this.getTranslation();
+    debugManager.popMessage(`Try to change translations, new language: 
+      ${this.config.resourceManager.getCurrentLanguage()}`);
   }
 
   init(){
     super.init();
-    debugManager.popMessage("Button init");
-    this.label = this.getTranslation();
+    this._label = this.getTranslation();
   }
 
   draw() {
     this.ctx.save();
     // Draw frame
-    this.ctx.strokeStyle = this.isHovered ? COLORS.secondary : COLORS.primary;
+    this.ctx.strokeStyle = this._isHovered ? COLORS.secondary : COLORS.primary;
     this.ctx.lineWidth = 2;
     this.ctx.strokeRect(this.config.x, this.config.y, this.config.width, this.config.height);
 
     // Draw text
     this.ctx.font = GlobalFonts.small;
-    this.ctx.fillStyle = this.isHovered ? COLORS.secondary : COLORS.primary;
+    this.ctx.fillStyle = this._isHovered ? COLORS.secondary : COLORS.primary;
     this.ctx.textAlign = "center";
-    this.ctx.fillText(this.label, this.config.x + this.config.width / 2, this.config.y + this.config.height / 2, this.config.width);
+    this.ctx.fillText(this._label, this.config.x + this.config.width / 2, this.config.y + this.config.height / 2, this.config.width);
     this.ctx.restore();
   }
 
   handleMouseMove() {
     if (typeof this.config.isMouseWithin !== "function") return;
     const hovered = this.config.isMouseWithin();
-    if (hovered === this.isHovered) return;
-    this.isHovered = hovered;
+    if (hovered === this._isHovered) return;
+    this._isHovered = hovered;
   }
 
   handleMouseDown(){
     if(this.config.isMouseWithin()){
-      this.onClick();
+      this._onClick();
     }
   }
 
@@ -86,6 +87,6 @@ export class ButtonText extends UIElementCanvas {
    * @param {string} translationKey - New text
    */
   setTranslationKey(translationKey) {
-    this.translationKey = translationKey;
+    this._translationKey = translationKey;
   }
 }

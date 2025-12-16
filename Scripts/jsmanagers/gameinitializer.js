@@ -26,12 +26,17 @@ export class GameInitializer {
             // Show loading screen
             this.gameManager.renderManager.drawLoadingScreen();
 
-            // Load all resources
+            // Load all resources (manifest-based)
             await this.gameManager.resourceManager.trytoLoadAllResources();
             this.gameManager.resources = this.gameManager.resourceManager.getResources();
 
             // Update character manager with resources
             this.gameManager.characterManager.resources = this.gameManager.resources;
+            
+            // Pass animation paths from manifest to character manager
+            this.gameManager.characterManager.setAnimationPaths(
+                this.gameManager.resourceManager.getAnimationPaths()
+            );
 
             // Create and load characters
             await this.gameManager.characterManager.loadCharacters();

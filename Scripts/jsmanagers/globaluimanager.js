@@ -3,7 +3,7 @@
 
 import { GameState } from "../jscomponents/gamestate.js";
 import { Character } from "../jsgameobjects/character.js";
-import { gameEventManager } from "./eventmanager.js";
+import { EventManager, gameEventManager } from "./eventmanager.js";
 import { InputManager } from "./inputmanager.js";
 import { COLORS, getHealthColor } from "../jsutils/ui/uicolors.js";
 import { ResourceManager } from "./resourcemanager.js";
@@ -12,6 +12,7 @@ import { ButtonText } from "../jsuielements/ctx/button.js";
 import { Indicator } from "../jsuielements/ctx/indicator.js";
 import { SnappedSlider } from "../jsuielements/ctx/snappedslider.js";
 import { GlobalFonts } from "../jsutils/ui/uiglobalfont.js";
+import { translationChanged } from "../jsutils/ui/uieventhandler.js";
 
 export class GlobalUIManager {
   /**
@@ -46,20 +47,24 @@ export class GlobalUIManager {
       document.getElementById("languageSelector")
     );
 
+    this.languageSelector.addEventListener('change', function () {
+      resourceManager.selectTranslation(this.value)
+      gameEventManager.emit(translationChanged);
+    });
+
+
     // Set default language based on system language
     if (this.languageSelector && navigator.language && navigator.language.startsWith('zh')) {
-        this.languageSelector.value = 'ChineseSimplified';
+      this.languageSelector.value = 'ChineseSimplified';
     }
   }
 
   initialize() {
-      this.changeSubtitleViaSlider();
+    this.changeSubtitleViaSlider();
   }
 
   update() {
-      if (this.languageSelector && this.resourceManager) {
-          this.resourceManager.selectTranslation(this.languageSelector.value);
-      }
+
   }
 
 
@@ -119,8 +124,8 @@ export class GlobalUIManager {
     this.ctx.fillText(sign + String(scoreChanges), drawLocX, drawLocY);
     this.ctx.restore();
   }
-  
-  changeSubtitleViaSlider(){
+
+  changeSubtitleViaSlider() {
     // this.changeSubtitle(this.snappedSlider.getDescriptionKey())
   }
 
@@ -128,11 +133,11 @@ export class GlobalUIManager {
    * 
    * @param {String|Object} keyOrData 
    */
-  changeSubtitle(keyOrData){
+  changeSubtitle(keyOrData) {
     if (typeof keyOrData === 'string') {
-        this.subtitle.textContent = this.resourceManager.getTranslation(keyOrData);
+      this.subtitle.textContent = this.resourceManager.getTranslation(keyOrData);
     } else if (keyOrData && keyOrData.key) {
-        this.subtitle.textContent = this.resourceManager.getFormattedTranslation(keyOrData.key, keyOrData.args);
+      this.subtitle.textContent = this.resourceManager.getFormattedTranslation(keyOrData.key, keyOrData.args);
     }
   }
 
@@ -243,10 +248,10 @@ export class GlobalUIManager {
     this.drawGameoverSign(gameoverLabel);
     this.drawGameResult(winnerLabel, winsLabel);
     const restartClicked = this.drawRestartButton(inputManager, restartButtonLabel);
-    
+
     let nextLevelClicked = false;
     if (showNextLevelButton) {
-        nextLevelClicked = this.drawNextLevelButton(inputManager, nextLevelLabel);
+      nextLevelClicked = this.drawNextLevelButton(inputManager, nextLevelLabel);
     }
 
     if (restartClicked) return 'restart';

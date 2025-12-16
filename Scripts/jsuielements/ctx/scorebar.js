@@ -5,6 +5,7 @@ import { GlobalFonts } from "../../jsutils/ui/uiglobalfont.js";
 import { gameEventManager } from "../../jsmanagers/eventmanager.js";
 import { Character } from "../../jsgameobjects/character.js";
 import { DebugLevel, debugManager } from "../../jsmanagers/debugmanager.js";
+import { SnappedSlider } from "./snappedslider.js";
 
 export class ScoreBar extends UIElementCanvas{
     /**
@@ -33,8 +34,8 @@ export class ScoreBar extends UIElementCanvas{
         this.character = character;
     }
 
-    changeTranslations(){
-        super.changeTranslations();
+    onTranslationsChanged(){
+        super.onTranslationsChanged();
         this.label = this.config.resourceManager.getTranslation(this.labelKey);
     }
 

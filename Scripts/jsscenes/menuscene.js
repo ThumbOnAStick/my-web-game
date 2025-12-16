@@ -4,6 +4,7 @@ import { UISize } from "../jsutils/ui/uisize.js";
 import { createTextButtonCentered, createSliderCentered } from "../jsutils/ui/uiutil.js";
 import { CanvasScene } from "./canvasscene.js";
 import { ServiceKeys } from "../jscore/servicecontainer.js";
+import { debugManager } from "../jsmanagers/debugmanager.js";
 
 /**
  * Menu scene - handles main menu UI and navigation
@@ -31,7 +32,15 @@ export class MenuScene extends CanvasScene {
      * @returns {import("../jsmanagers/eventmanager.js").EventManager}
      */
     get eventManager() {
-        return this.services?.get(ServiceKeys.EventManager) ?? gameEventManager;
+        return this.services?.get(ServiceKeys.EVENTS) ?? gameEventManager;
+    }
+
+    /**
+     * Get resource manager from services
+     * @returns {import("../jsmanagers/resourcemanager.js").ResourceManager|null}
+     */
+    get resourceManager() {
+        return this.services?.get(ServiceKeys.RESOURCES) ?? null;
     }
 
     // =========================================================================
@@ -39,8 +48,8 @@ export class MenuScene extends CanvasScene {
     // =========================================================================
 
     init(){
-        super.init();
         this.createMenuUI();
+        super.init();
     }
 
     /**
@@ -161,8 +170,10 @@ export class MenuScene extends CanvasScene {
     async load() {
         await super.load();
         
-        // Menu-specific resource loading
-        // For example: menu music, background images, title graphics
+        // Load menu bundle from manifest (if available)
+        if (this.resourceManager) {
+            await this.resourceManager.loadBundle('menu');
+        }
         
         console.log("MenuScene resources loaded");
     }

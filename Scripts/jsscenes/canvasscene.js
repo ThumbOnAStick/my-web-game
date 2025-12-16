@@ -13,6 +13,7 @@ import { UIElementCanvas } from '../jsuielements/ctx/uielement.js';
 import { translationChanged } from '../jsutils/ui/uieventhandler.js';
 import { IScene } from './scene.js';
 import { ServiceContainer, ServiceKeys } from '../jscore/servicecontainer.js';
+import { debugManager } from '../jsmanagers/debugmanager.js';
 
 /**
  * Base class for scenes that render to HTML5 Canvas 2D.
@@ -96,7 +97,7 @@ export class CanvasScene extends IScene {
         
         // Unsubscribe from events
         if (this._boundOnTranslationChanged) {
-            this.eventManager.off?.(translationChanged, this._boundOnTranslationChanged);
+            this.eventManager.off?.(translationChanged);
         }
         
         // Dispose UI elements
@@ -158,9 +159,7 @@ export class CanvasScene extends IScene {
      */
     drawUI() {
         for (const element of this.uiElements) {
-            if (element.isVisible !== false) {
-                element.draw?.();
-            }
+            element.draw?.();
         }
     }
 
@@ -234,7 +233,7 @@ export class CanvasScene extends IScene {
      */
     onTranslationChanged() {
         for (const element of this.uiElements) {
-            element.changeTranslations?.();
+            element.onTranslationsChanged?.();
         }
     }
 }

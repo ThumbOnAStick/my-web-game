@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "basePath": "./Assets",
+  
+  "sprites": {
+    "head": "Sprites/Characters/Head.png",
+    "body": "Sprites/Characters/Body.png",
+    "flash": "Sprites/Characters/Flash.png",
+    "weapon": "Sprites/Weapons/Sword.png"
+  },
+  
+  "audio": {
+    "sfx": {
+      "parry": "Audio/SFX/blocked.wav",
+      "dodge": "Audio/SFX/dodge.wav"
+    },
+    "music": {
+      "clapping": "Audio/Music/clapping.wav"
+    }
+  },
+  
+  "animations": {
+    "idle": "Animations/character_idle_animation.csv",
+    "dodge": "Animations/character_dodge_animation.csv",
+    "swing": "Animations/character_swing_animation.csv",
+    "lightswing": "Animations/character_lightswing_animation.csv",
+    "spinswing": "Animations/character_spinswing_animation.csv",
+    "thrust": "Animations/character_thrust_animation.csv",
+    "stagger": "Animations/character_stagger_animation.csv"
+  },
+  
+  "languages": {
+    "English": "Languages/English.xml",
+    "ChineseSimplified": "Languages/ChineseSimplified.xml"
+  },
+  
+  "bundles": {
+    "core": {
+      "description": "Essential resources loaded at startup",
+      "sprites": ["head", "body", "flash", "weapon"],
+      "audio": ["parry", "dodge"],
+      "languages": ["English", "ChineseSimplified"]
+    },
+    "gameplay": {
+      "description": "Resources needed during gameplay",
+      "animations": ["idle", "dodge", "swing", "lightswing", "spinswing", "thrust", "stagger"],
+      "audio": ["clapping"]
+    },
+    "menu": {
+      "description": "Menu-specific resources",
+      "sprites": [],
+      "audio": []
+    }
+  }
+}
