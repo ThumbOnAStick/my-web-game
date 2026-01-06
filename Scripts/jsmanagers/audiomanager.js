@@ -19,11 +19,8 @@ export class AudioManager {
                 const sound = this.resourceManager.getSound(clipName);
                 if (sound) {
                     sound.play();
-                } else {
-                    debugManager.popMessage(`Sound not found: ${clipName}`, DebugLevel.Warning);
                 }
             } catch (e) {
-                debugManager.popMessage(e, DebugLevel.Error);
             }
     }
 

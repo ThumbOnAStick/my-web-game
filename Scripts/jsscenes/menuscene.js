@@ -96,6 +96,7 @@ export class MenuScene extends CanvasScene {
             (index) => this.onDifficultyChanged(index)
         );
         this.uiElements.push(difficultySlider);
+        this.enableAllUIElements();
     }
 
     // =========================================================================

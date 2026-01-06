@@ -2,7 +2,7 @@
 // Button.js
 // Handles button rendering and interaction
 
-import { debugManager } from "../../jsmanagers/debugmanager.js";
+import { DebugLevel, debugManager } from "../../jsmanagers/debugmanager.js";
 import { InputManager } from "../../jsmanagers/inputmanager.js";
 import { COLORS } from "../../jsutils/ui/uicolors.js";
 import { GlobalFonts } from "../../jsutils/ui/uiglobalfont.js";
@@ -39,8 +39,6 @@ export class ButtonText extends UIElementCanvas {
   onTranslationsChanged(){
     super.onTranslationsChanged();
     this._label = this.getTranslation();
-    debugManager.popMessage(`Try to change translations, new language: 
-      ${this.config.resourceManager.getCurrentLanguage()}`);
   }
 
   init(){
@@ -49,6 +47,7 @@ export class ButtonText extends UIElementCanvas {
   }
 
   draw() {
+    super.draw();
     this.ctx.save();
     // Draw frame
     this.ctx.strokeStyle = this._isHovered ? COLORS.secondary : COLORS.primary;
@@ -61,9 +60,12 @@ export class ButtonText extends UIElementCanvas {
     this.ctx.textAlign = "center";
     this.ctx.fillText(this._label, this.config.x + this.config.width / 2, this.config.y + this.config.height / 2, this.config.width);
     this.ctx.restore();
+
+    const isLabelEmptyOrNull = this._label == "" || this._label == null;
   }
 
   handleMouseMove() {
+    if(!this.isEnabled) return;
     if (typeof this.config.isMouseWithin !== "function") return;
     const hovered = this.config.isMouseWithin();
     if (hovered === this._isHovered) return;
@@ -71,6 +73,7 @@ export class ButtonText extends UIElementCanvas {
   }
 
   handleMouseDown(){
+    if(!this.isEnabled) return;
     if(this.config.isMouseWithin()){
       this._onClick();
     }

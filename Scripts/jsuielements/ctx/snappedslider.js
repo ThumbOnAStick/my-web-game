@@ -82,7 +82,6 @@ export class SnappedSlider extends UIElementCanvas {
   tryToExpandInterationArea() {
     if (this.config.isMouseWithin()) {
       this.expandInteractionArea();
-      debugManager.popMessage("Try to expand interation area");
     }
   }
 
@@ -121,6 +120,7 @@ export class SnappedSlider extends UIElementCanvas {
 
 
   updateHandle() {
+    if(!this.isEnabled) return;
     if (!this.checkDragging()) {
       this.mouseX = -1
       return;

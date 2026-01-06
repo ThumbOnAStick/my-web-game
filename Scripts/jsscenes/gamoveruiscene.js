@@ -24,8 +24,8 @@ export class GameOverScene extends CanvasScene {
         return this.services?.get(ServiceKeys.EVENTS) ?? gameEventManager;
     }
 
-    init() {
-        super.init();
+    initializeUIElements() {
+        super.initializeUIElements();
         const centerX = this.ctx.canvas.width / 2;
         const centerY = this.ctx.canvas.height / 2;
 
@@ -34,20 +34,14 @@ export class GameOverScene extends CanvasScene {
             centerX,
             centerY,
             UISize.ButtonCommon,
-            "Start",
+            "Restart",
             () => this.onRestartButtonPressed(),
         ));
 
-        debugManager.popMessage("Try to init game over scene");
+        this.enableAllUIElements();
     }
 
     onRestartButtonPressed(){
         this.eventManager.emit(restartGameEvent)
     }
-
-    // TODO: Implement game over scene
-    update(deltaTime) {
-        super.update(deltaTime);
-    }
-
 }

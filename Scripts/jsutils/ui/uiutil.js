@@ -62,7 +62,6 @@ export function makeCenteredUIConfig(centerX, centerY, width, height, inputManag
 export function createTextButtonCentered(centerX, centerY, uiSize, translationKey, onClick) {
     if (!initialized) {
         const message = "UIUtil not initialized; call initialize() first.";
-        debugManager.popMessage(message);
         throw new Error(message)
     }
     const config = makeCenteredUIConfig(centerX,

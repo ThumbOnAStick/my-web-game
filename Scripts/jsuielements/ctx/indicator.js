@@ -121,7 +121,6 @@ export class Indicator extends UIElementCanvas {
    */
   draw() {
     if (!this.#character){
-      debugManager.popMessage("Indicator.draw: Character is null!", DebugLevel.Error);
       return;
     } 
 

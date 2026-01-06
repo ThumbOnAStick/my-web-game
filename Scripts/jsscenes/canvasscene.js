@@ -13,7 +13,8 @@ import { UIElementCanvas } from '../jsuielements/ctx/uielement.js';
 import { translationChanged } from '../jsutils/ui/uieventhandler.js';
 import { IScene } from './scene.js';
 import { ServiceContainer, ServiceKeys } from '../jscore/servicecontainer.js';
-import { debugManager } from '../jsmanagers/debugmanager.js';
+import { DebugLevel, debugManager } from '../jsmanagers/debugmanager.js';
+import { ButtonText } from '../jsuielements/ctx/button.js';
 
 /**
  * Base class for scenes that render to HTML5 Canvas 2D.
@@ -75,7 +76,13 @@ export class CanvasScene extends IScene {
 
 
     initializeUIElements(){
+        
+    }
 
+    enableAllUIElements(){
+        this.uiElements.forEach(element => {
+            element.enable();
+        });
     }
 
     /**
@@ -241,6 +248,20 @@ export class CanvasScene extends IScene {
     onTranslationChanged() {
         for (const element of this.uiElements) {
             element.onTranslationsChanged?.();
+        }
+    }
+
+    enable(){
+        super.enable();
+          for (const element of this.uiElements) {
+            element.enable?.();
+        }
+    }
+
+    disable(){
+        super.disable();
+        for (const element of this.uiElements) {
+            element.disable?.();
         }
     }
 }

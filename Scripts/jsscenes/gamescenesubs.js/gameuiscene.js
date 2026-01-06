@@ -47,7 +47,6 @@ export class GameUIScene extends CanvasScene {
             this.uiElements.push(this.#playerIndicator);
             this.uiElements.push(this.#opponentIndicator);
         } catch (e) {
-            debugManager.popMessage(`Game UI Scene Initialization Error: ${e}`, DebugLevel.Error);
         }
 
     }

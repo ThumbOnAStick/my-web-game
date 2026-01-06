@@ -36,9 +36,11 @@ import {
     startGame,
     startGameEvent,
     changeDifficulty,
-    changeDifficultyEvent
+    changeDifficultyEvent,
+    restartGameEvent,
+    restartGame
 } from "../ui/uieventhandler.js";
-import { gameOverEvent, onGameOver } from "../scene/sceneeventhandler.js";
+import { gameOverEvent, onGameOver, initSceneEvents } from "../scene/sceneeventhandler.js";
 
 // Re-export event constants for external use
 export {
@@ -73,9 +75,12 @@ export function initialize(services, rootScene) {
     const vfxManager = services.get(ServiceKeys.VFX);
     const audioManager = services.get(ServiceKeys.AUDIO);
     const gameState = services.get(ServiceKeys.GAME_STATE);
-    
+    const aiController = services.get(ServiceKeys.AI);
+
     // Initialize UI event handler with service container
     initialize_ui(services, rootScene);
+    
+    initSceneEvents(rootScene, aiController);
 
     // Create combat handlers
     const combatHandlers = createCombatEventHandlers(obstacleManager, vfxManager, audioManager, gameState);
@@ -102,6 +107,7 @@ export function initialize(services, rootScene) {
     gameEventManager.on(changeSubtitleEvent, changeSubtitle);
     gameEventManager.on(startGameEvent, startGame);
     gameEventManager.on(changeDifficultyEvent, changeDifficulty);
+    gameEventManager.on(restartGameEvent, restartGame);
 
     // Resiger game over event
     gameEventManager.on(gameOverEvent, onGameOver)

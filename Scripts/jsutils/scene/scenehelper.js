@@ -21,7 +21,7 @@ export function buildDefaultRootScene(gameManager) {
     addMenu(rootScene, ctx);
     addGame(rootScene, gameManager.services, ctx);
     addGameOverScene(rootScene, gameManager.services, ctx);
-    initSceneEvents(rootScene);
+    // initSceneEvents is now called in EventHandlers.initialize
     return rootScene;
 }
 
@@ -31,7 +31,8 @@ export function buildDefaultRootScene(gameManager) {
  * @param {CanvasRenderingContext2D} ctx 
  */
 export function addMenu(rootScene, ctx) {
-    rootScene.addSubScene(SCENENAMES.menu, new MenuScene(ctx));
+    var menusub = new MenuScene(ctx);
+    rootScene.addSubScene(SCENENAMES.menu, menusub);
 }
 
 /**
@@ -62,7 +63,6 @@ export function addGameOverScene(rootScene, services, ctx){
  * @param {IScene} rootScene 
  */
 export function enterGameOverScene(rootScene){
-    debugManager.popMessage("Try to end game")
     rootScene.enableSubScene(SCENENAMES.gameOver);
 }
 

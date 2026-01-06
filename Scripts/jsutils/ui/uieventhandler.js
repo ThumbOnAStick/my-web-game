@@ -5,8 +5,11 @@
  * This module uses a service container for dependency injection,
  * making it more testable and reusable.
  */
+import { AIController } from "../../jsai/aicontroller.js";
+import { GameState } from "../../jscomponents/gamestate.js";
 import { ServiceContainer, ServiceKeys } from "../../jscore/servicecontainer.js";
-import { debugManager } from "../../jsmanagers/debugmanager.js";
+import { CharacterManager } from "../../jsmanagers/charactermanager.js";
+import { DebugLevel, debugManager } from "../../jsmanagers/debugmanager.js";
 import { TickManager } from "../../jsmanagers/tickmanager.js";
 import { IScene } from "../../jsscenes/scene.js";
 import { SCENENAMES } from "../scene/scenenames.js";
@@ -59,9 +62,8 @@ export function startGame(){
     if (rootScene) {
         rootScene.removeSubScene(SCENENAMES.menu);
         rootScene.enableSubScene(SCENENAMES.game); 
-        const tickManager = getTickManager(services);
+        const tickManager = getTickManager();
         if(tickManager == null){
-            debugManager.popMessage("Tick manager not found!");
             return;
         }
         tickManager.unpause();
@@ -70,15 +72,44 @@ export function startGame(){
 }
 
 /**
- * @param {ServiceContainer} services 
  * @returns {TickManager}
  */
-function getTickManager(services){
+function getTickManager(){
     return services.get(ServiceKeys.TIME);
 }
 
+
+/**
+ * 
+ * @returns {CharacterManager}
+ */
+function getCharacterManager(){
+    return services.get(ServiceKeys.ENTITIES)
+}
+
+/**
+ * 
+ * @returns {AIController}
+ */
+function getAIController(){
+    return services.get(ServiceKeys.AI);
+}
+
+
 export function restartGame(){
-     
+    rootScene.disableSubScene(SCENENAMES.gameOver);
+    var characterManager = getCharacterManager();
+    if(characterManager == null){
+        debugManager.popMessage("No character manager found", DebugLevel.Error);     
+        return;
+    }
+    characterManager.resetCharacters();
+    var aicontroller = getAIController();
+    if(aicontroller == null){
+        debugManager.popMessage("No AI controller found", DebugLevel.Error);     
+        return;
+    }
+    aicontroller.turnOn();
 }
  
 

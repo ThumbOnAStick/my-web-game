@@ -38,7 +38,6 @@ export class ScoreBar extends UIElementCanvas{
     draw() {
         super.draw();
         if (!this.character){
-            debugManager.popMessage("Character does not exist for score bar!", DebugLevel.Error);
             return;  
         } 
         const x = this.config.x;

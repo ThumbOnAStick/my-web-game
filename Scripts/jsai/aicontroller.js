@@ -6,10 +6,12 @@ import { buildNoviceAITree } from './trees/novicetree.js';
 import { buildVeteranAITree } from './trees/veterantree.js';
 import { DecisionNode } from './decisionnode.js';
 import { DebugLevel, debugManager } from '../jsmanagers/debugmanager.js';
+import { Controller } from '../jscomponents/controller.js';
+import { ControllerStatus } from '../jscomponents/controllerstatus.js';
  
 const aiControllerPeriodicUpdateInterval = 16 * 2; // Update action tree once every 32 ticks (2s)
 
-export class AIController
+export class AIController extends Controller
 {
     /**
      * @param {Character} aiCharacter - The AI-controlled character
@@ -18,6 +20,7 @@ export class AIController
      */
     constructor(aiCharacter, playerCharacter, movementSpeed = 10, attackRange = 200) 
     {
+        super()
         this.aiCharacter = aiCharacter;
         this.playerCharacter = playerCharacter;
         this.movementSpeed = movementSpeed;
@@ -97,6 +100,10 @@ export class AIController
      */
     update(ticks) 
     {
+        if(this.status != ControllerStatus.RUNNING){
+            return;
+        }
+
         // Execute immediate movement (reflexes/continuous actions)
         this.evaluateMovement();
 

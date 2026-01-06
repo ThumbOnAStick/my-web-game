@@ -40,7 +40,6 @@ export class GameScene extends CanvasScene {
         try {
             this.addSubScene(SCENENAMES.gameUI, new GameUIScene(ctx, services));
         } catch (error) {
-            this.debugManager.popMessage(error, DebugLevel.Error)
         }
     }
 
@@ -220,8 +219,6 @@ export class GameScene extends CanvasScene {
         const ai = this.aiController;
         if (ai) {
             ai.setDifficulty(this.gameState.difficulty);
-        } else {
-            debugManager.popMessage("AI service not registered.", DebugLevel.Warning);
         }
     }
 

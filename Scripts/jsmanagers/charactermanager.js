@@ -2,6 +2,7 @@
 // Manages character creation, loading, and updates
 import { Resources } from '../jscomponents/resources.js';
 import { Character } from '../jsgameobjects/character.js';
+import { debugManager } from './debugmanager.js';
 
 export class CharacterManager {
     constructor(canvas, resources) {
@@ -158,7 +159,7 @@ export class CharacterManager {
             character.playIdleAnimation();
         }
 
-        console.log('Characters reset');
+        debugManager.popMessage("All characters have been reset.")
     }
 
     /**

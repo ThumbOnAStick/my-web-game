@@ -1,8 +1,10 @@
 // oxlint-disable no-unused-vars
+import { DebugLevel, debugManager } from "../../jsmanagers/debugmanager.js";
 import { InputManager } from "../../jsmanagers/inputmanager.js";
 import { ResourceManager } from "../../jsmanagers/resourcemanager.js";
 
 export class UIElementConfigurations {
+
     /**
      * @param {InputManager} inputManager
      * @param {ResourceManager} resourceManager
@@ -33,6 +35,11 @@ export class UIElementConfigurations {
 }
 
 export class UIElementCanvas {
+    /**@type {boolean}*/#initialzed;
+    
+    /**Updated when an ui scene is enabled/disabled 
+     * @type {boolean}*/#enabled;
+    
     /**
      * @param {CanvasRenderingContext2D} ctx
      * @param {UIElementConfigurations} config 
@@ -55,11 +62,39 @@ export class UIElementCanvas {
 
     init() {
         // Called by scene.init()
+        this.setInitialzed();
         this.onTranslationsChanged();
+    }
+
+    /**
+     * 
+     * @returns {boolean}
+     */
+    notInitialzed(){
+        return this.#initialzed == false;
+    }
+
+    setInitialzed(){
+        this.#initialzed = true;
+    }
+
+    enable(){
+        this.#enabled = true;
+    }
+
+    disable(){
+        this.#enabled = false;
+    }
+
+    get isEnabled(){
+        return this.#enabled;
     }
 
     draw() {
         // To be implemented by subclasses
+        if(this.notInitialzed()){
+            debugManager.popMessage("UI element not initialized!!!")
+        }
     }
 
     update() {
