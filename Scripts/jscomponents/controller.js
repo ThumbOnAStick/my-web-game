@@ -5,7 +5,7 @@ export class Controller {
         this.status = ControllerStatus.OFF;
     }
     
-   turnOn() {
+    turnOn() {
         this.status = ControllerStatus.RUNNING;
     }
 

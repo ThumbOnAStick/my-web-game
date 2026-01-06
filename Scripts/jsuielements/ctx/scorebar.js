@@ -7,6 +7,8 @@ import { Character } from "../../jsgameobjects/character.js";
 import { DebugLevel, debugManager } from "../../jsmanagers/debugmanager.js";
 import { SnappedSlider } from "./snappedslider.js";
 
+const LABELkEY = "Score";
+
 export class ScoreBar extends UIElementCanvas{
     /**
      * 
@@ -15,28 +17,22 @@ export class ScoreBar extends UIElementCanvas{
      */
     constructor(config, ctx){
         super(config, ctx)
-        this.labelKey = "";
         this.label = "";
         this.character = null;
-        this.score = 0;
     }
 
     /**
      * Must be called in game scene.
-     * @param {number} initialScore
      * @param {Character} character
-     * @param {string} labelKey
      */
-    setupHealthBar(initialScore, character, labelKey){
+    setupScoreBar(character){
         // Register health bar event
-        this.score = initialScore;
-        this.labelKey = labelKey;
         this.character = character;
     }
 
     onTranslationsChanged(){
         super.onTranslationsChanged();
-        this.label = this.config.resourceManager.getTranslation(this.labelKey);
+        this.label = this.config.resourceManager.getTranslation(LABELkEY);
     }
 
     draw() {
@@ -52,7 +48,7 @@ export class ScoreBar extends UIElementCanvas{
         const margin = 2;
 
         // Use provided score or fall back to character's score
-        const currentScore = this.score !== null ? this.score : this.character.currentScore;
+        const currentScore = this.character.currentScore;
         const maxScore = this.character.maxScore || 100; // Default max score
         const scorePercentage = currentScore / maxScore;
 
@@ -69,7 +65,7 @@ export class ScoreBar extends UIElementCanvas{
         // Health text
         this.ctx.font = GlobalFonts.normal;
         this.ctx.fillStyle = COLORS.primary;
-        this.ctx.fillText(`${this.label}: ${currentScore}/${maxScore}`, x, y - 5);
+        this.ctx.fillText(`${this.label}: ${currentScore}/${maxScore}`, x, y + this.config.height * 2);
     }
 
 

@@ -56,8 +56,6 @@ export class GameInitializer {
             // Register AI controller with service container
             this.gameManager.registerAIController(this.gameManager.aiController);
 
-            // Setup tick manager for AI updates
-            this.gameManager.tickManager.append((currentTick) => this.aiControllerUpdate(currentTick));
             // Initialize UIManager
             this.gameManager.uiManager.initialize();
             // Initialize event manager with service container
@@ -69,8 +67,8 @@ export class GameInitializer {
             this.gameManager.characterManager.initialize(this.gameManager.resources);
             // Set up tutorials
             setupTutorials(this.gameManager.tutorialManager);
-            // Set up UIUtil
-            setupUIUtil(this.gameManager.inputManager, this.gameManager.resourceManager);
+            // Set up UIUtil 
+            setupUIUtil(this.gameManager.inputManager, this.gameManager.resourceManager, this.gameManager.ctx);
             // Set up root scene
             this.gameManager.rootScene.init();
             // Finalize
@@ -83,15 +81,6 @@ export class GameInitializer {
         }
     }
 
-    /**
-     * AI controller update callback
-     * @param {number} currentTick - Current game tick
-     */
-    aiControllerUpdate(currentTick) {
-        if (this.gameManager.aiController) {
-            this.gameManager.aiController.update(currentTick);
-        }
-    }
 
     /**
      * Check if the game is initialized

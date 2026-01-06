@@ -35,5 +35,7 @@ export class UISize {
 
 UISize.ButtonCommon = new UISize(200, 75);
 UISize.Slider = new UISize(300, 10);
+UISize.ScoreBar = new UISize(350, 20)
+UISize.Indicator = new UISize(350, 20)
 
 Object.freeze(UISize);

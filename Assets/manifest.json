@@ -13,11 +13,9 @@
   "audio": {
     "sfx": {
       "parry": "Audio/SFX/blocked.wav",
-      "dodge": "Audio/SFX/dodge.wav"
-    },
-    "music": {
-      "clapping": "Audio/Music/clapping.wav"
-    }
+      "dodge": "Audio/SFX/dodge.wav",
+      "clapping": "Audio/SFX/clapping.wav"
+    } 
   },
   
   "animations": {
@@ -39,13 +37,12 @@
     "core": {
       "description": "Essential resources loaded at startup",
       "sprites": ["head", "body", "flash", "weapon"],
-      "audio": ["parry", "dodge"],
+      "audio": ["parry", "dodge", "clapping"],
       "languages": ["English", "ChineseSimplified"]
     },
     "gameplay": {
       "description": "Resources needed during gameplay",
-      "animations": ["idle", "dodge", "swing", "lightswing", "spinswing", "thrust", "stagger"],
-      "audio": ["clapping"]
+      "animations": ["idle", "dodge", "swing", "lightswing", "spinswing", "thrust", "stagger"]
     },
     "menu": {
       "description": "Menu-specific resources",

@@ -117,7 +117,7 @@ export class GlobalUIManager {
     let drawLocX = scoreChanger.isOpponent ? this.canvas.width - 250 : 250;
     let sign = scoreChanges > 0 ? "+" : "";
     this.ctx.save();
-    const drawLocY = 60;
+    const drawLocY = 100;
     this.ctx.textAlign = "center";
     this.ctx.font = GlobalFonts.normal;
     this.ctx.fillStyle = scoreChanges > 0 ? COLORS.success : COLORS.danger;

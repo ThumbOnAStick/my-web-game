@@ -3,11 +3,15 @@
 // Handles all input and controls for the game
 
 import { ComboReader } from "../jscomponents/comboreader.js";
+import { Controller } from "../jscomponents/controller.js";
+import { ControllerStatus } from "../jscomponents/controllerstatus.js";
 import { Character } from "../jsgameobjects/character.js";
+import { gameOverEvent } from "../jsutils/scene/sceneeventhandler.js";
+import { gameEventManager } from "./eventmanager.js";
 import { GameManager } from "./gamemanager.js";
 
 
-export class InputManager 
+export class InputManager extends Controller
 {
     /**
      * 
@@ -15,6 +19,7 @@ export class InputManager
      */
     constructor(canvas) 
     {
+        super();
         this.keys = {
             a: false,
             d: false
@@ -33,6 +38,12 @@ export class InputManager
         this.comboReader = new ComboReader();
         this.canvas.setAttribute("tabindex", "0");
         this.setupEventListeners();
+    }
+
+    setupListenToGameOverEvent(){
+        gameEventManager.on(gameOverEvent, () => {
+            this.turnOff();
+        });
     }
 
     setCharacter(character) {
@@ -56,10 +67,14 @@ export class InputManager
         window.addEventListener('mousedown', (e) => this.handleMouseDown(e));
         window.addEventListener('mouseup', (e) => this.handleMouseUp(e));
         window.addEventListener('mousemove', (e) => this.handleMouseMovement(e));
+
+        // Setup my custom event listeners
+        this.setupListenToGameOverEvent();
     }
 
     update()
     {
+        if(this.status == ControllerStatus.OFF) return;
         this.comboReader.update(this.character);
         this.handleMovement();
     }

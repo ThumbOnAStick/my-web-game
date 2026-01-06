@@ -4,7 +4,6 @@ import { UISize } from "../jsutils/ui/uisize.js";
 import { createTextButtonCentered, createSliderCentered } from "../jsutils/ui/uiutil.js";
 import { CanvasScene } from "./canvasscene.js";
 import { ServiceKeys } from "../jscore/servicecontainer.js";
-import { debugManager } from "../jsmanagers/debugmanager.js";
 
 /**
  * Menu scene - handles main menu UI and navigation
@@ -47,11 +46,6 @@ export class MenuScene extends CanvasScene {
     // LIFECYCLE
     // =========================================================================
 
-    init(){
-        this.createMenuUI();
-        super.init();
-    }
-
     /**
      * Called when scene becomes active
      * @override
@@ -77,17 +71,17 @@ export class MenuScene extends CanvasScene {
     /**
      * Creates all menu UI elements
      */
-    createMenuUI() {
+    initializeUIElements() {
+        super.initializeUIElements();
         const centerX = this.ctx.canvas.width / 2;
         const centerY = this.ctx.canvas.height / 2;
         
         // Start Button        
-        this.canvasUIElements.push(createTextButtonCentered(
+        this.uiElements.push(createTextButtonCentered(
             centerX,
             centerY,
             UISize.ButtonCommon,
             "Start",
-            this.ctx,
             () => this.onStartGame(),
         )); 
         
@@ -101,7 +95,7 @@ export class MenuScene extends CanvasScene {
             /** @param {number} index */
             (index) => this.onDifficultyChanged(index)
         );
-        this.canvasUIElements.push(difficultySlider);
+        this.uiElements.push(difficultySlider);
     }
 
     // =========================================================================

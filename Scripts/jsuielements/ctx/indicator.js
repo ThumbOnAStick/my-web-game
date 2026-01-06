@@ -6,19 +6,30 @@ import { Character } from "../../jsgameobjects/character.js";
 import { COLORS } from "../../jsutils/ui/uicolors.js";
 import { SwingType } from "../../jscomponents/charactercombatstate.js";
 import { UIElementCanvas, UIElementConfigurations } from "./uielement.js";
+import { DebugLevel, debugManager } from "../../jsmanagers/debugmanager.js";
+
 
 export class Indicator extends UIElementCanvas {
+  /**@type  {Character} */
+  #character;
+
   /**
    * @param {UIElementConfigurations} config 
-   * @param {Character} character - The character this indicator points to
    * @param {number} offsetY - Distance above character
    * @param {CanvasRenderingContext2D} ctx
    */
-  constructor(config, character, ctx, offsetY = 50) {
+  constructor(config, ctx, offsetY = 50) {
     super(config, ctx);
-    this.character = character;
     this.triangleSize = config.height;
     this.offsetY = offsetY;
+  }
+
+  /**
+   * 
+   * @param {Character} character 
+   */
+  setupIndicator(character) {
+    this.#character = character;
   }
 
   /**
@@ -96,8 +107,8 @@ export class Indicator extends UIElementCanvas {
      */
   evaluateIcon(ctx, color, centerX, topY) {
     // Draw swing type icon
-    if(this.character.combatState.isCharging || this.character.combatState.swinging){
-        this.evaluateSwingIcon(this.character.combatState.swingType, ctx, color, centerX, topY);
+    if(this.#character.combatState.isCharging || this.#character.combatState.swinging){
+        this.evaluateSwingIcon(this.#character.combatState.swingType, ctx, color, centerX, topY);
         return;
     }   
 
@@ -109,16 +120,19 @@ export class Indicator extends UIElementCanvas {
    * Draw the indicator above the character
    */
   draw() {
-    if (!this.character) return;
+    if (!this.#character){
+      debugManager.popMessage("Indicator.draw: Character is null!", DebugLevel.Error);
+      return;
+    } 
 
     let color = COLORS.player;
-    if (this.character.isOpponent) {
+    if (this.#character.isOpponent) {
       color = COLORS.opponent;
     }
 
     // Position above character center
-    const centerX = this.character.x;
-    const topY = this.character.y - this.character.height / 2 - this.offsetY;
+    const centerX = this.#character.x;
+    const topY = this.#character.y - this.#character.height / 2 - this.offsetY;
 
     // Evaluate and draw appropriate icon
     this.evaluateIcon(this.ctx, color, centerX, topY);
@@ -134,6 +148,6 @@ export class Indicator extends UIElementCanvas {
    * @param {Character} character - The new character
    */
   setCharacter(character) {
-    this.character = character;
+    this.#character = character;
   }
 }

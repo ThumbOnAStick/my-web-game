@@ -6,15 +6,18 @@
  * making it more testable and reusable.
  */
 import { ServiceContainer, ServiceKeys } from "../../jscore/servicecontainer.js";
+import { debugManager } from "../../jsmanagers/debugmanager.js";
+import { TickManager } from "../../jsmanagers/tickmanager.js";
 import { IScene } from "../../jsscenes/scene.js";
 import { SCENENAMES } from "../scene/scenenames.js";
 
 // Event name constants
 export const changeSubtitleEvent = "change_subtitle";
 export const startGameEvent = "start_game";
-export const gameOverEvent = "game_over";
+export const restartGameEvent = "restart_game";
 export const changeDifficultyEvent = "change_difficulty";
 export const translationChanged = "translation_changed";
+export const endGame = "end_game";
 
 /**
  * @type {ServiceContainer|null}
@@ -56,13 +59,28 @@ export function startGame(){
     if (rootScene) {
         rootScene.removeSubScene(SCENENAMES.menu);
         rootScene.enableSubScene(SCENENAMES.game); 
-        console.log("Enable Game Scene");
+        const tickManager = getTickManager(services);
+        if(tickManager == null){
+            debugManager.popMessage("Tick manager not found!");
+            return;
+        }
+        tickManager.unpause();
+         
     }
 }
 
-export function gameOver(data){
-    // Game over handling
+/**
+ * @param {ServiceContainer} services 
+ * @returns {TickManager}
+ */
+function getTickManager(services){
+    return services.get(ServiceKeys.TIME);
 }
+
+export function restartGame(){
+     
+}
+ 
 
 export function changeDifficulty(data){
     const gameState = getGameState();

@@ -1,0 +1,1 @@
+export const TICKAICONTROLLER = "tick_ai_controller";

@@ -1,5 +1,6 @@
 import { gameEventManager } from "../jsmanagers/eventmanager.js";
 import * as EventHandlers from '../jsutils/events/eventhandlers.js'
+import { gameOverEvent } from "../jsutils/scene/sceneeventhandler.js";
 
 
 export class GameState {
@@ -58,7 +59,9 @@ export class GameState {
   endGame(winner) {
     this.winner = winner;
     console.log(`Game Over! Winner: ${winner}`);
-    gameEventManager.emit(EventHandlers.playNamedClipEvent, "clapping", 0.5);
+    this.isGameOver = true; 
+    gameEventManager.emit(EventHandlers.playNamedClipEvent, "clapping", 0.2);
+    gameEventManager.emit(gameOverEvent);
   }
 
   reset() {

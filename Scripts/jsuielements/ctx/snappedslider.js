@@ -137,7 +137,7 @@ export class SnappedSlider extends UIElementCanvas {
 
       // Draw handle
       if (this.#currentIndex == index) {
-        const handleX = this.mouseX > -1 ? this.mouseX : translationKeyX;
+        const handleX = translationKeyX;
         defaultColor = COLORS.secondary;
         this.ctx.fillStyle = defaultColor;
         this.ctx.fillRect(handleX, this.config.y, this.config.height, this.config.height * 2);

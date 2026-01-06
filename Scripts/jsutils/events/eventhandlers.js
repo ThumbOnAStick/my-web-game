@@ -1,248 +1,73 @@
+/**
+ * Event registration module.
+ * This file is responsible for registering all event handlers to gameEventManager.
+ * Handler implementations are in separate modules (combateventhandler.js, uieventhandler.js).
+ */
 import { gameEventManager } from "../../jsmanagers/eventmanager.js";
-import * as CombatHandler from '../combat/combathandler.js';
-import { changeDifficulty, changeDifficultyEvent, changeSubtitle, changeSubtitleEvent, initialize_ui, startGame, startGameEvent } from "../ui/uieventhandler.js";
 import { ServiceKeys } from "../../jscore/servicecontainer.js";
 
-export const characterSwingEvent = 'character_swing';
-export const characterLightSwingEvent = 'character_light_swing';
-export const characterSpinSwingEvent = 'spin_swing';
-export const characterThrustSwingEvent = 'thrust_swing';
-export const characterSwitchSwingTypeEvent = 'switch_swingtype';
-export const characterMoveEvent = 'character_move';
-export const characterJumpEvent = 'character_jump';
-export const characterDodgeEvent = 'character_dodge';
-export const postCharacterSwingEvent = 'create_obstacle';
-export const settleCharacterSwingEvent = 'settle_swing';
-export const resetCharacterDodgingEvent = 'reset_transparency';
-export const resetCharacterParriedEvent = 'reset_Parried';
-export const setScoreChangesEvent = 'set_score';
-export const clearScoreChangesEvent = 'reset_score';
-export const spawnParryFlashEvent = 'create_flash';
-export const playNamedClipEvent = 'play_sound_clip';
-export const handleCharacterShrinkEvent = 'character_shrink';
+// Import combat event handlers and constants
+import {
+    createCombatEventHandlers,
+    characterSwingEvent,
+    characterLightSwingEvent,
+    characterSpinSwingEvent,
+    characterThrustSwingEvent,
+    characterSwitchSwingTypeEvent,
+    characterMoveEvent,
+    characterJumpEvent,
+    characterDodgeEvent,
+    postCharacterSwingEvent,
+    settleCharacterSwingEvent,
+    resetCharacterDodgingEvent,
+    resetCharacterParriedEvent,
+    setScoreChangesEvent,
+    clearScoreChangesEvent,
+    spawnParryFlashEvent,
+    playNamedClipEvent,
+    handleCharacterShrinkEvent
+} from "../combat/combateventhandler.js";
 
+// Import UI event handlers and constants
+import {
+    initialize_ui,
+    changeSubtitle,
+    changeSubtitleEvent,
+    startGame,
+    startGameEvent,
+    changeDifficulty,
+    changeDifficultyEvent
+} from "../ui/uieventhandler.js";
+import { gameOverEvent, onGameOver } from "../scene/sceneeventhandler.js";
 
-
-// Create event handlers that capture obstacleManager
-/**
- * @param {ObstacleManager} obstacleManager
- * @param {VFXManager} vfxManager
- * @param {AudioManager} audiomanager
- * @param {GameState} gameState
- */
-export function createEventHandlers(obstacleManager, vfxManager, audiomanager, gameState) 
-{
-    
-    function handleHeavySwingEvent(data) 
-    {
-        /**@type {Character} */
-        const character = data.character;
-        // @ts-ignore
-        character.setSwinging(true);
-        // @ts-ignore
-        character.setIsCharging(true);
-        gameEventManager.emit(postCharacterSwingEvent, character, 1); // Calculate damage
-        gameEventManager.emit(settleCharacterSwingEvent, character, 2); // Reset character
-    }
-
-    function handleLightSwingEvent(data) 
-    {
-        /**@type {Character} */
-        const character = data.character;
-        // @ts-ignore
-        character.setSwinging(true);
-        // @ts-ignore
-        character.setIsCharging(true);
-        gameEventManager.emit(postCharacterSwingEvent, character, 0.7);  
-        gameEventManager.emit(settleCharacterSwingEvent, character, 1.5);
-    }
-
-    function handleSpinSwingEvent(data) {
-      /**@type {Character} */
-      const character = data.character;
-      // @ts-ignore
-      character.setSwinging(true);
-      // @ts-ignore
-      character.setIsCharging(true);
-      // @ts-ignore
-      character.turnOnSmear(); // Start smearing
-      gameEventManager.emit(characterSwitchSwingTypeEvent, character, 1);
-      gameEventManager.emit(postCharacterSwingEvent, character, 1.3);
-      gameEventManager.emit(settleCharacterSwingEvent, character, 2);
-    }
-
-    function handleThrustSwingEvent(data) {
-      /**@type {Character} */
-      const character = data.character;
-      // @ts-ignore
-      character.setSwinging(true);
-      // @ts-ignore
-      character.setIsCharging(true);
-      // @ts-ignore
-      character.turnOnSmear(); // Start smearing
-      gameEventManager.emit(characterSwitchSwingTypeEvent, character, 1);
-      gameEventManager.emit(postCharacterSwingEvent, character, 1.3);
-      gameEventManager.emit(settleCharacterSwingEvent, character, 2);
-    }
-    function handleSwitchSwingTypeEvent(data)
-    {
-        /**@type {Character} */
-        const character = data;
-        character.combatState.switchSwingType();
-    }
-
-
-    function handlePostSwingEvent(data) 
-    {
-        /**@type {Character} */
-        const character = data;
-        if(!character)
-        {
-            return;
-        }
-        // @ts-ignore
-        character.setIsCharging(false); // Reset character charging
-        CombatHandler.swingAndMoveForward(character, obstacleManager); // Swing and move forward using rigidbody
-    
-    }
-
-    function settleCharacterSwing(data)
-    {
-        /**@type {Character} */
-        const character = data;
-        if(!character)
-        {
-            return;
-        }
-        // @ts-ignore
-        character.turnOffSmear(); // End smearing
-        // @ts-ignore
-        character.setIsCharging(false); // Reset character charging
-        // @ts-ignore
-        character.setSwinging(false); // Reset character swing
-        // @ts-ignore
-        character.setIsCombo(false); // Reset combo state
-        // @ts-ignore
-        character.playIdleAnimation(true);
-    }
-
-
-    function resetCharacterDodging(data)
-    {
-        const character = /**@type {Character} */ (data);
-        if (!character) return;
-        character.rig.setAlpha(1);
-        // @ts-ignore
-        character.setDodging(false);
-        character.shrinkController.turnOff();
-    }
-
-    function resetCharacterParried(data)
-    {
-        const character = /**@type {Character} */ (data);
-        if (!character) return;
-        character.combatState.setParried(false);
-    }
-
-    /**
-     * @param {{ value: number, character: Character }} data
-     */
-    function setScoreChanges(data)
-    {
-        const { value, character } = data;
-        gameEventManager.setScoreChanges(value, character);
-        gameEventManager.emit(clearScoreChangesEvent, data, 1);
-        
-        // Update subtitle for player score changes
-        if (!character.isOpponent && gameState.difficulty > 0) {
-            if (value > 0) {
-                gameEventManager.emit(changeSubtitleEvent, { key: 'ScoreGain', args: [value] });
-            } else if (value < 0) {
-                gameEventManager.emit(changeSubtitleEvent, { key: 'ScoreLoss', args: [-value] });
-            }
-        }
-    }
-
-    // @ts-ignore
-    function resetScorechanges(data)
-    {
-        gameEventManager.clearScoreChanges();
-    }
-
-    function spawnParryFlash(data)
-    {
-        const character = /**@type {Character} */ (data);
-        let weaponBone = character.weaponBone;
-        let weaponWorldPos = weaponBone.getWorldPosition();
-        vfxManager.make('flash', weaponBone.angle * character.facing, weaponWorldPos.x, weaponWorldPos.y, 10, 100, 1000);
-    }
-
-    function playSoundClip(data)
-    {
-        const clipName = /**@type {String} */ (data);
-        audiomanager.playOnce(clipName);
-
-    }
-
-    // @ts-ignore
-    function handleCharacterShrinkEvent(data) 
-    {
-
-    }
-
-    function handleCharacterMoveEvent(data) {
-        // Optional: Add logic if needed, or just use for tutorial listening
-    }
-
-    function handleCharacterJumpEvent(data) {
-        // Optional: Add logic if needed
-    }
-
-    function handleCharacterDodgeEvent(data) {
-        const character = /**@type {Character} */ (data.character);
-        // @ts-ignore
-        character.setDodging(true);
-        character.rig.setAlpha(0.5);
-        character.shrinkController.turnOn();
-        gameEventManager.emit(resetCharacterDodgingEvent, character, 0.5);
-    }
-
-    // @ts-ignore
-    function handlecharacterResizeEvent(data){
-        
-    }
-
-    // Return the handlers
-    return {
-        handleHeavySwingEvent,
-        handleLightSwingEvent,
-        handleSpinSwingEvent,
-        handleThrustSwingEvent,
-        handleSwitchSwingTypeEvent,
-        handlePostSwingEvent,
-        resetCharacterDodging,
-        resetCharacterParried,
-        settleCharacterSwing,
-        setScoreChanges,
-        resetScorechanges,
-        spawnParryFlash,
-        playSoundClip,
-        handleCharacterShrinkEvent,
-        handleCharacterMoveEvent,
-        handleCharacterJumpEvent,
-        handleCharacterDodgeEvent
-    };
-
-}
+// Re-export event constants for external use
+export {
+    characterSwingEvent,
+    characterLightSwingEvent,
+    characterSpinSwingEvent,
+    characterThrustSwingEvent,
+    characterSwitchSwingTypeEvent,
+    characterMoveEvent,
+    characterJumpEvent,
+    characterDodgeEvent,
+    postCharacterSwingEvent,
+    settleCharacterSwingEvent,
+    resetCharacterDodgingEvent,
+    resetCharacterParriedEvent,
+    setScoreChangesEvent,
+    clearScoreChangesEvent,
+    spawnParryFlashEvent,
+    playNamedClipEvent,
+    handleCharacterShrinkEvent
+} from "../combat/combateventhandler.js";
 
 // Initialize event listeners with service container
 /**
- * Initialize event handlers with service container (preferred)
+ * Initialize and register all event handlers with the game event manager.
  * @param {import('../../jscore/servicecontainer.js').ServiceContainer} services - Service container with all required services
  * @param {import('../../jsscenes/scene.js').IScene} rootScene - Root scene for UI event handling
  */
-export function initialize(services, rootScene) 
-{
+export function initialize(services, rootScene) {
     // Get services from container
     const obstacleManager = services.get(ServiceKeys.COLLISION);
     const vfxManager = services.get(ServiceKeys.VFX);
@@ -252,28 +77,32 @@ export function initialize(services, rootScene)
     // Initialize UI event handler with service container
     initialize_ui(services, rootScene);
 
-    const handlers = createEventHandlers(obstacleManager, vfxManager, audioManager, gameState);
-    gameEventManager.on(characterSwingEvent, handlers.handleHeavySwingEvent);
-    gameEventManager.on(characterLightSwingEvent, handlers.handleLightSwingEvent);
-    gameEventManager.on(characterSpinSwingEvent, handlers.handleSpinSwingEvent);
-    gameEventManager.on(characterThrustSwingEvent, handlers.handleThrustSwingEvent);
-    gameEventManager.on(characterSwitchSwingTypeEvent, handlers.handleSwitchSwingTypeEvent);
-    gameEventManager.on(characterMoveEvent, handlers.handleCharacterMoveEvent);
-    gameEventManager.on(characterJumpEvent, handlers.handleCharacterJumpEvent);
-    gameEventManager.on(characterDodgeEvent, handlers.handleCharacterDodgeEvent);
-    gameEventManager.on(postCharacterSwingEvent, handlers.handlePostSwingEvent);
-    gameEventManager.on(resetCharacterDodgingEvent, handlers.resetCharacterDodging);
-    gameEventManager.on(resetCharacterParriedEvent, handlers.resetCharacterParried);
-    gameEventManager.on(settleCharacterSwingEvent, handlers.settleCharacterSwing);
-    gameEventManager.on(setScoreChangesEvent, handlers.setScoreChanges);
-    gameEventManager.on(clearScoreChangesEvent, handlers.resetScorechanges);
-    gameEventManager.on(spawnParryFlashEvent, handlers.spawnParryFlash);
-    gameEventManager.on(playNamedClipEvent, handlers.playSoundClip);
+    // Create combat handlers
+    const combatHandlers = createCombatEventHandlers(obstacleManager, vfxManager, audioManager, gameState);
 
-    /** UI */
+    // Register combat events
+    gameEventManager.on(characterSwingEvent, combatHandlers.handleHeavySwingEvent);
+    gameEventManager.on(characterLightSwingEvent, combatHandlers.handleLightSwingEvent);
+    gameEventManager.on(characterSpinSwingEvent, combatHandlers.handleSpinSwingEvent);
+    gameEventManager.on(characterThrustSwingEvent, combatHandlers.handleThrustSwingEvent);
+    gameEventManager.on(characterSwitchSwingTypeEvent, combatHandlers.handleSwitchSwingTypeEvent);
+    gameEventManager.on(characterMoveEvent, combatHandlers.handleCharacterMoveEvent);
+    gameEventManager.on(characterJumpEvent, combatHandlers.handleCharacterJumpEvent);
+    gameEventManager.on(characterDodgeEvent, combatHandlers.handleCharacterDodgeEvent);
+    gameEventManager.on(postCharacterSwingEvent, combatHandlers.handlePostSwingEvent);
+    gameEventManager.on(resetCharacterDodgingEvent, combatHandlers.resetCharacterDodging);
+    gameEventManager.on(resetCharacterParriedEvent, combatHandlers.resetCharacterParried);
+    gameEventManager.on(settleCharacterSwingEvent, combatHandlers.settleCharacterSwing);
+    gameEventManager.on(setScoreChangesEvent, combatHandlers.setScoreChanges);
+    gameEventManager.on(clearScoreChangesEvent, combatHandlers.resetScoreChanges);
+    gameEventManager.on(spawnParryFlashEvent, combatHandlers.spawnParryFlash);
+    gameEventManager.on(playNamedClipEvent, combatHandlers.playSoundClip);
+
+    // Register UI events
     gameEventManager.on(changeSubtitleEvent, changeSubtitle);
     gameEventManager.on(startGameEvent, startGame);
     gameEventManager.on(changeDifficultyEvent, changeDifficulty);
 
-
+    // Resiger game over event
+    gameEventManager.on(gameOverEvent, onGameOver)
 }

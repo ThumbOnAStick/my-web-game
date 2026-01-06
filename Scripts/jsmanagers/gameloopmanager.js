@@ -18,12 +18,10 @@ export class GameLoopManager {
         this.updateCallback = callback;
     }
 
-    /**
-     * Start the game loop
-     */
+
     start() {
         if (this.isRunning) {
-            console.warn('Game loop is already running');
+            console.warn('Trying to start game loop but it is already running');
             return;
         }
         

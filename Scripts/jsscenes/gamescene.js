@@ -14,6 +14,9 @@
 import { DebugLevel, debugManager } from "../jsmanagers/debugmanager.js";
 import { ServiceContainer, ServiceKeys } from "../jscore/servicecontainer.js";
 import { CanvasScene } from "./canvasscene.js";
+import { GameUIScene } from "./gamescenesubs.js/gameuiscene.js";
+import { SCENENAMES } from "../jsutils/scene/scenenames.js";
+import { TICKAICONTROLLER } from "../jsutils/misc/tickmethodsnames.js";
 
 const labelPlayer = "Player";
 const labelPC = "PC";
@@ -33,6 +36,11 @@ export class GameScene extends CanvasScene {
         
         if (!(services instanceof ServiceContainer)) {
             throw new Error('GameScene requires a ServiceContainer instance');
+        }
+        try {
+            this.addSubScene(SCENENAMES.gameUI, new GameUIScene(ctx, services));
+        } catch (error) {
+            this.debugManager.popMessage(error, DebugLevel.Error)
         }
     }
 
@@ -104,15 +112,32 @@ export class GameScene extends CanvasScene {
     // UPDATE METHODS
     // ============================================
 
+    updateScores(){
+        // Score tracking
+        this.gameState.updatePlayerScore(
+            this.characterManager.getPlayerScore(),
+            labelPlayer,
+            labelPC
+        );
+        this.gameState.updateOpponentScore(
+            this.characterManager.getOpponentScore(),
+            labelPlayer,
+            labelPC
+        );
+    }
+
     /**
      * Update all game logic
      * @param {number} deltaTime - Time since last frame
      */
     update(deltaTime) {
         if (!this.enabled) return;
-
-        // Input processing
-        this.inputManager.update();
+        if (!this.gameState.isGameOver){ // When game is not over
+            // Input processing
+            this.inputManager.update();
+            // Score update
+            this.updateScores();
+        }
 
         // Time/tick updates
         this.tickManager.update();
@@ -129,21 +154,10 @@ export class GameScene extends CanvasScene {
         // Tutorial/sequence updates
         this.tutorialManager.update();
 
-        // Score tracking
-        this.gameState.updatePlayerScore(
-            this.characterManager.getPlayerScore(),
-            labelPlayer,
-            labelPC
-        );
-        this.gameState.updateOpponentScore(
-            this.characterManager.getOpponentScore(),
-            labelPlayer,
-            labelPC
-        );
-
         // Update child scenes and UI elements
         super.update(deltaTime);
     }
+    
 
     // ============================================
     // RENDER METHODS
@@ -179,17 +193,29 @@ export class GameScene extends CanvasScene {
     // LIFECYCLE HOOKS
     // ============================================
 
-    /**
-     * Called when scene becomes active
+        /**
+     * AI controller update callback
+     * @param {number} currentTick - Current game tick
      */
-    onEnabled() {
-        console.log(`GameScene enabled. Difficulty: ${this.gameState.difficulty}`);
-        
-        // Start tutorial if on lowest difficulty
+    aiControllerUpdate(currentTick) {
+        if (this.aiController) {
+            this.aiController.update(currentTick);
+        }
+    }
+
+    setupTutorial(){
+     // Start tutorial if on lowest difficulty
         if (this.gameState.difficulty < 1) {
             this.tutorialManager.start();
         }
+    }
 
+    setupAITicks() {
+        // Setup tick manager for AI updates
+        this.tickManager.append(TICKAICONTROLLER, (currentTick) => this.aiControllerUpdate(currentTick));
+    }
+
+    setupAIController() {
         // Configure AI controller
         const ai = this.aiController;
         if (ai) {
@@ -199,12 +225,34 @@ export class GameScene extends CanvasScene {
         }
     }
 
+    setupInputManager() {
+        this.inputManager.turnOn();
+    }
+
+
+    /**
+     * Called when scene becomes active
+     */
+    onEnabled() {
+        this.setupTutorial();
+
+        this.setupAITicks();
+
+        this.setupAIController();
+
+        this.setupInputManager();
+    }
+    
+    pauseTickManager() {
+        this.tickManager.pause();   
+    }
+
     /**
      * Called when scene becomes inactive
      */
     onDisabled() {
         console.log("GameScene disabled");
-        // Could pause AI, stop sounds, etc.
+        this.pauseTickManager();
     }
 
     // ============================================

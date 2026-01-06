@@ -73,12 +73,19 @@ export class CanvasScene extends IScene {
     // LIFECYCLE METHODS
     // ============================================
 
+
+    initializeUIElements(){
+
+    }
+
     /**
      * Initialize the scene
      * @param {Object} [params]
      */
     init(params) {
         super.init(params);
+
+        this.initializeUIElements();
         
         // Subscribe to translation changes
         this.eventManager.on(translationChanged, this._boundOnTranslationChanged = this.onTranslationChanged.bind(this));

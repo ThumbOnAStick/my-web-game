@@ -1,5 +1,8 @@
+import { debugManager } from "./debugmanager.js";
+
 export class TickManager
 {
+    #paused;
     /**
      * 
      * @param {Number} lastTickTime 
@@ -9,18 +12,38 @@ export class TickManager
     {
         this.lastTickTime = lastTickTime;
         this.currentTick = 0;
-        /** @type {Function[]} */
-        this.callbacks = [];
+        /** @type {Map<String, Function>} */
+        this.callbacks = new Map();
         this.tickInterval = tickInterval;
     }
 
     /**
-     * 
+     * @param {String} key
      * @param {Function} callback 
      */
-    append(callback)
+    append(key, callback)
     {
-        this.callbacks.push(callback);
+        this.callbacks.set(key, callback);
+    }
+
+    /**
+     * 
+     * @param {String} key 
+     */
+    remove(key){
+        this.callbacks.delete(key); 
+    }
+
+    pause(){
+        this.#paused = true;
+    }
+
+    unpause(){
+        this.#paused = false;
+    }
+
+    get paused(){
+        return this.#paused;
     }
 
     update()
@@ -38,9 +61,9 @@ export class TickManager
 
     tickUpdate()
     {
-        for(let i = 0; i < this.callbacks.length; i++)
-        {
-            this.callbacks[i](this.currentTick);
-        }
+        if (this.paused) return;
+        this.callbacks.forEach(callback => {
+            callback(this.currentTick);
+        });
     }
 }

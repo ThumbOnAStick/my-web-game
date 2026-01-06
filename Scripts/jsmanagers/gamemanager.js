@@ -176,18 +176,6 @@ export class GameManager {
     // Scene handles all rendering (UI, entities, VFX)
     this.rootScene.render();
   }
-
-  gotoMenu() {
-    // Reset characters
-    this.characterManager.resetCharacters();
-
-    // Clear obstacles
-    this.obstacleManager.clearObstacles();
-
-    // Reveal UI
-    // this.gameState.gotoMenu();
-  }
-
   /**
    *
    * @param {*} element
